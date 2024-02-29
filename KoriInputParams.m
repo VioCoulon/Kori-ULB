@@ -45,7 +45,7 @@ par.maxspeed=40e3; % maximum ice speed limit (m/a)
 par.omega=2.5; % Crank-Nicolson scale factor (0=explicit; 1=implicit; >1 over-implicit)
 par.secperyear=31556926;
 % 2d variables to be saved when timeslice=1
-par.varlist={'MASK','H','B','ux','uy','flux','Tbc','SLR','Neff','Melt'};
+par.varlist={'MASK','H','B','ux','uy','fluxmx','fluxmy','Tbc','SLR','Neff','Melt','Melt_mean'};
 
 
 %-----------------------------------
@@ -103,6 +103,8 @@ par.Toi=-1.7; % Ocean temperature for initialization
 par.SeaIceThickness=0.1;
 par.ArcOcean=0; % include Ocean Arc to control Melt and calving
 par.LatentMelt=(par.rhow*par.cp0)/(par.rho*par.Latent);
+par.f_coriolis=-1.4e-4;
+par.BetaS=7.86e-4 ; 
 
 %-----------------------------------
 % PICO and plume model parameters
@@ -144,6 +146,21 @@ par.C_eps_lazero = 0.6; % Slope correction parameter
 par.alpha_coeff_lazero = 3.87e-5; % degC-1 Thermal expansion coefficient
 par.beta_coeff_lazero = 7.86e-4; % psu-1 Haline contraction coefficient
 
+%-----------------------------------
+% Calving
+%-----------------------------------
+
+par.LSFReset=30;
+
+% PD12 calving scheme (ctr.calving=3)
+par.MinCalvThick=30;
+par.MaxCalvRate=3e5;
+
+% PD15 calving scheme (ctr.calving=4)
+par.MaxCalvRate=3000;
+par.CritCrevasse=0.75;
+par.Ucrit1=1600;
+par.Ucrit2=1900;
 
 %-----------------------------------
 % Isostasy
