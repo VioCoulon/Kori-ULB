@@ -41,7 +41,7 @@ function PlotMainFigure(ctr,par,x,y,sn,S0,H,u,B,MASK,glMASK,LSF)
     if ctr.glMASKexist==1 && ctr.plotGL==1
         hold on;
         contour(x,y,MASK,1,'LineColor','k','LineWidth',0.5);
-        if ctr.calving==5
+        if ctr.calving>=1
             contour(x,y,LSF,[0 0],'LineColor','b','LineWidth',0.5);
         end
         hold off;

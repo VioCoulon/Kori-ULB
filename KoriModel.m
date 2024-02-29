@@ -145,14 +145,14 @@ end
 % Default values of control parameters (if different from zero)
 %---------------------------------------------------------------
 
-default=InitDefaultVio;
+default=InitDefault;
 
 %---------------------
 % Input parameters
 %---------------------
 
 % Initialization of undefined control parameters (default values)
-[ctr,fc]=InitCtrVio(ctr,fc,default);
+[ctr,fc]=InitCtr(ctr,fc,default);
 
 % Impossible combination of parameters
 if ctr.SSA==0 && ctr.shelf==1
@@ -192,7 +192,7 @@ slicecount=0;
     CMB,FMB,flw,p,px,py,pxy,nodeu,nodev,nodes,node,VM,Tof,Sof, ...
     TFf,Tsf,Mbf,Prf,Evpf,runofff,Melt,damage,shelftune,Melt_mean, ... 
     Bmelt_mean,Ts_mean,Mb_mean,To_mean,So_mean,TF_mean,CMB_mean,FMB_mean, ...
-    fluxmx_mean,fluxmy_mean]=InitMatricesVio(ctr,par,default,fc);
+    fluxmx_mean,fluxmy_mean]=InitMatrices(ctr,par,default,fc);
 
 %----------------------------------------------------------------------
 % Read inputdata
@@ -535,7 +535,7 @@ for cnt=cnt0:ctr.nsteps
         end
         [uxssa,uyssa,beta2,eta,dudx,dudy,dvdx,dvdy,su,ubx,uby,ux,uy, ...
             damage,NumStabVel]= ...
-            SSAvelocityVio(ctr,par,su,Hmx,Hmy,gradmx,gradmy,signx,signy, ...
+            SSAvelocity(ctr,par,su,Hmx,Hmy,gradmx,gradmy,signx,signy, ...
             uxssa,uyssa,H,HB,B,stdB,Asf,A,MASK,glMASK,HAF,HAFmx,HAFmy,cnt, ...
             nodeu,nodev,MASKmx,MASKmy,bMASK,uxsia,uysia,udx,udy,node,nodes, ...
             Mb,Melt,dtdx,dtdx2,VM,damage,shelftune);
@@ -614,8 +614,8 @@ for cnt=cnt0:ctr.nsteps
 
     if ctr.calving>=1 && ctr.shelf==1
         [he,fi]=DefineEdgeThickness(ctr,par,glMASK,H); % Pollard 2015   %VL: add par
-        [FMB,FMR]=VerticalFaceMeltVio(ctr,par,SLR,B,Melt,MASK,glMASK,he);
-        [CMB,LSF,CR]=CalvingAlgorithmsVio(ctr,par,dudx,dvdy,dudy,dvdx,glMASK,H,A, ...
+        [FMB,FMR]=VerticalFaceMelt(ctr,par,SLR,B,Melt,MASK,glMASK,he);
+        [CMB,LSF,CR]=CalvingAlgorithms(ctr,par,dudx,dvdy,dudy,dvdx,glMASK,H,A, ...
             uxssa,uyssa,arcocn,B,runoff,MASK,MASKo,Ho,bMASK,LSF,node,nodes,VM, ...
             cnt,ux,uy,Melt,he,fi,FMR);
     end
@@ -703,11 +703,11 @@ for cnt=cnt0:ctr.nsteps
 %------------------------------------------------------
     
     if islogical(ZB)==0
-        mb_basin(cnt,:,:)=BasinFluxVio(ctr,par,acc,Smelt,runoff,rain,Mb,Pr, ...
+        mb_basin(cnt,:,:)=BasinFlux(ctr,par,acc,Smelt,runoff,rain,Mb,Pr, ...
             H,Hn,Bmelt,Melt,CMB,FMB,MASK,bMASK,squeeze(mb_basin(cnt,:,:)),B,Bn,SLR,ZB);
         mbcomp(cnt,:)=sum(squeeze(mb_basin(cnt,:,:)),2);
     else
-        mbcomp(cnt,:)=MBcomponentsVio(ctr,par,acc,Smelt,runoff,rain,Mb,Pr, ...
+        mbcomp(cnt,:)=MBcomponents(ctr,par,acc,Smelt,runoff,rain,Mb,Pr, ...
             H,Hn,Bmelt,Melt,CMB,FMB,MASK,bMASK,mbcomp(cnt,:),B,Bn,SLR);
     end
     IVg(cnt)=sum(H(MASK==1))*ctr.delta^2;
@@ -776,7 +776,7 @@ for cnt=cnt0:ctr.nsteps
 %------------------------------------
 
     if ctr.runmode<2 && rem(cnt-1,plotst)==0
-        PlotMainFigureVio(ctr,par,x,y,sn,S0,H,u,B,MASK,glMASK,LSF);
+        PlotMainFigure(ctr,par,x,y,sn,S0,H,u,B,MASK,glMASK,LSF);
     end
     
 %------------------------------------
