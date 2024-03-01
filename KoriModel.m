@@ -191,7 +191,7 @@ slicecount=0;
     cfflux,dHdt,time,mbcomp,InvVol,ncor,dSLR,SLR,Wd,Wtil,Bmelt,NumStab, ...
     CMB,FMB,flw,p,px,py,pxy,nodeu,nodev,nodes,node,VM,Tof,Sof, ...
     TFf,Tsf,Mbf,Prf,Evpf,runofff,Melt,damage,shelftune,Melt_mean, ... 
-    Bmelt_mean,Ts_mean,Mb_mean,To_mean,So_mean,TF_mean,CMB_mean,FMB_mean, ...
+    Bmelt_mean,Ts_mean,Mb_mean,To_mean,So_mean,TF_mean,CR_mean,FMR_mean, ...
     fluxmx_mean,fluxmy_mean]=InitMatrices(ctr,par,default,fc);
 
 %----------------------------------------------------------------------
@@ -755,8 +755,8 @@ for cnt=cnt0:ctr.nsteps
 % Save time-dependent matrices
 %------------------------------------
     if ctr.CalculateYearlyMeans==1 && cnt==1
-        [Melt_mean,Bmelt_mean,Ts_mean,Mb_mean,To_mean,So_mean,TF_mean,CMB_mean,FMB_mean,fluxmx_mean,fluxmy_mean]=InitYearlyMeans(Melt, ...
-            Bmelt,Ts,Mb,To,So,TF,CMB,FMB,fluxmx,fluxmy,cnt,ctr,Melt_mean,Bmelt_mean,Ts_mean,Mb_mean,To_mean,So_mean,TF_mean,CMB_mean,FMB_mean,fluxmx_mean,fluxmy_mean);
+        [Melt_mean,Bmelt_mean,Ts_mean,Mb_mean,To_mean,So_mean,TF_mean,CR_mean,FMR_mean,fluxmx_mean,fluxmy_mean]=InitYearlyMeans(Melt, ...
+            Bmelt,Ts,Mb,To,So,TF,CR,FMR,fluxmx,fluxmy,cnt,ctr,Melt_mean,Bmelt_mean,Ts_mean,Mb_mean,To_mean,So_mean,TF_mean,CR_mean,FMR_mean,fluxmx_mean,fluxmy_mean);
     end
     if ctr.timeslice==1 && rem(cnt-1,plotst)==0
         slicecount=slicecount+1;
@@ -767,8 +767,8 @@ for cnt=cnt0:ctr.nsteps
         end
     end
     if ctr.CalculateYearlyMeans==1
-        [Melt_mean,Bmelt_mean,Ts_mean,Mb_mean,To_mean,So_mean,TF_mean,CMB_mean,FMB_mean,fluxmx_mean,fluxmy_mean]=YearlyMeans(Melt, ...
-            Bmelt,Ts,Mb,To,So,TF,CMB,FMB,fluxmx,fluxmy,cnt,ctr,Melt_mean,Bmelt_mean,Ts_mean,Mb_mean,To_mean,So_mean,TF_mean,CMB_mean,FMB_mean,fluxmx_mean,fluxmy_mean);
+        [Melt_mean,Bmelt_mean,Ts_mean,Mb_mean,To_mean,So_mean,TF_mean,CR_mean,FMR_mean,fluxmx_mean,fluxmy_mean]=YearlyMeans(Melt, ...
+            Bmelt,Ts,Mb,To,So,TF,CR,FMR,fluxmx,fluxmy,cnt,ctr,Melt_mean,Bmelt_mean,Ts_mean,Mb_mean,To_mean,So_mean,TF_mean,CR_mean,FMR_mean,fluxmx_mean,fluxmy_mean);
     end
     
 %------------------------------------

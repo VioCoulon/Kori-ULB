@@ -16,17 +16,18 @@ function [Melt,butfac,H]=SubShelfMelt(ctr,fc,par,Tf,To,So,TF,butfac, ...
             % Linear melt forcing
             Melt=ctr.gammaT*par.LatentMelt*Tfm*par.secperyear;
         case 2
-            % Quadratic local melt forcing with mean antarctic slope
+            % Quadratic local melt forcing - Favier et al. (2019)
             Melt=ctr.gammaT*par.LatentMelt^2*abs(Tfm).*(Tfm)*par.secperyear;
         case 21
-            % Quadratic semilocal melt forcing with mean Antarctic slope
+            % Quadratic semilocal melt forcing - Favier et al. (2019)
             mean_TF=zeros(ctr.imax,ctr.jmax);
             for i=1:numsh
                 mean_TF(ShelfN==i)=mean(Tfm(ShelfN==i));
             end
             Melt=ctr.gammaT*par.LatentMelt^2*abs(mean_TF).*(Tfm)*par.secperyear;
         case 22
-            % Quadratic semilocal melt forcing with local slope
+            % Quadratic semilocal melt forcing with local slope - Favier et
+            % al. (2019)
             sina=ComputeSinSlope(HB,uxssa,uyssa,ctr); 
             mean_TF=zeros(ctr.imax,ctr.jmax);
             for i=1:numsh
@@ -34,6 +35,10 @@ function [Melt,butfac,H]=SubShelfMelt(ctr,fc,par,Tf,To,So,TF,butfac, ...
             end
             Melt=ctr.gammaT*par.LatentMelt^2*abs(mean_TF).*(Tfm).*sina* ...
                 par.secperyear;
+        case 23 % Quadratic local melt forcing with mean antarctic slope - Burgard et al. (2022)
+            sin_theta = 2.9e-3; % mean Antarctic slope
+            gammaT_B = (par.cp0/par.Latent) * par.BetaS .* So_int * par.g/(2*abs(par.f_coriolis)) * sin_theta;
+            Melt = ctr.gammaT .* gammaT_B .* (par.rhow.*par.cp0./(par.rho.*par.Latent)) .* abs(Tfm) .* Tfm .*par.secperyear;
         case {3,4}
             % PICO/PICOP
             [Bk,Ak,Bmax]=PICOsetup(glMASK,H,ctr,par,ShelfN,numsh,shMASK);
