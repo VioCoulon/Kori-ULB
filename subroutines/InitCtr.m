@@ -57,6 +57,7 @@ function [ctr,fc]=InitCtr(ctr,fc,default)
     ctr.TinvMelt(any(ismember(fields(ctr),'TinvMelt'))==0)=default.TinvMelt;
     ctr.radnorm(any(ismember(fields(ctr),'radnorm'))==0)=default.radnorm;
     ctr.snapshot(any(ismember(fields(ctr),'snapshot'))==0)=default.snapshot;
+    ctr.snapshot_list(any(ismember(fields(ctr),'snapshot_list'))==0)=default.snapshot_list;
     ctr.BetaIter(any(ismember(fields(ctr),'BetaIter'))==0)=default.BetaIter;
     ctr.shelftune(any(ismember(fields(ctr),'shelftune'))==0)=default.shelftune;
     ctr.meltfactor(any(ismember(fields(ctr),'meltfactor'))==0)=default.meltfactor;

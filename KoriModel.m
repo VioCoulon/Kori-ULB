@@ -758,12 +758,17 @@ for cnt=cnt0:ctr.nsteps
         [Melt_mean,Bmelt_mean,Ts_mean,Mb_mean,To_mean,So_mean,TF_mean,CR_mean,FMR_mean,fluxmx_mean,fluxmy_mean]=InitYearlyMeans(Melt, ...
             Bmelt,Ts,Mb,To,So,TF,CR,FMR,fluxmx,fluxmy,cnt,ctr,Melt_mean,Bmelt_mean,Ts_mean,Mb_mean,To_mean,So_mean,TF_mean,CR_mean,FMR_mean,fluxmx_mean,fluxmy_mean);
     end
-    if ctr.timeslice==1 && rem(cnt-1,plotst)==0
-        slicecount=slicecount+1;
-        fname=strcat(outfile,'_',num2str(slicecount-1,'%03i'));
-        save(fname,par.varlist{1,1});
-        for i=2:length(par.varlist)
-            save(fname,par.varlist{1,i},'-append');
+    if ctr.timeslice==1 
+        if cnt==1 || (ctr.snapshot_list==1 && fc.snap_year(slicecount)==time(cnt)) || (ctr.snapshot_list==0 && rem(cnt-1,plotst)==0)
+            slicecount=slicecount+1;
+            fname=strcat(outfile,'_',num2str(slicecount-1,'%03i'));
+            save(fname,par.varlist{1,1});
+            for i=2:length(par.varlist)
+                save(fname,par.varlist{1,i},'-append');
+            end
+            if (cnt>1 && ctr.snapshot_list==1 && fc.snap_year(slicecount-1)==fc.snap_year(end))
+                slicecount=length(fc.snap_year);
+            end
         end
     end
     if ctr.CalculateYearlyMeans==1

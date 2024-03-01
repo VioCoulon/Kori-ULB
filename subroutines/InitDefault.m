@@ -8,6 +8,7 @@ function default=InitDefault
     default.ItSolv=1; %VL: new parameter
     default.BetaIter=5; % number of times that beta is updated within velocity nonlinear iteration
     default.snapshot=100;
+    default.snapshot_list=0;
     default.Ao=1.0e-16;
     default.m=1;
     default.kmax=11;
