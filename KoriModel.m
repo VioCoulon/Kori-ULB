@@ -162,6 +162,10 @@ end
 
 % Read model parameters
 [par]=KoriInputParams(ctr.m,ctr.basin);
+% Vio - read some params as ctr for ensemble setup
+par.MaxCalvRate=ctr.MaxCalvRate;
+par.CritCrevasse=ctr.CritCrevasse;
+par.dlim=ctr.dlim;
 
 % Central differences and direct solver for SIA model
 if ctr.SSA==0
