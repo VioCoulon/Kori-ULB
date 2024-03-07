@@ -128,15 +128,9 @@ if ctr.calving>=1 % LSF function calving. Generate a calving rate, CR
     end
 
     if ctr.calving==4 || ctr.calving==6 || ctr.LimitFront==1
-        % extrapolate calving front CR value in the open ocean
-        CR(glMASK==6)=NaN;
-        [rows, cols] = find(~isnan(CR)); % Find the indices of non-NaN elements in CR
-        values = CR(~isnan(CR)); % Find the corresponding values for non-NaN elements
-        [nanRows, nanCols] = find(isnan(CR)); % Find the indices of NaN elements in CR
-        % Interpolate the NaN elements in CR based on the non-NaN elements using 'nearest' method
-        interpValues = griddata(cols, rows, values, nanCols, nanRows, 'nearest');
-        % Replace the NaN elements in CR with the interpolated values
-        CR(isnan(CR)) = interpValues;
+        % advect calving front CR value in the open ocean
+        [CRadvec]=AdvecCR(CR,H,glMASK,MASK,ux,uy,ctr,par);
+        CR=CRadvec;
     end
 
     % Diagnostic calculation of calving rate as a surface balance term over
