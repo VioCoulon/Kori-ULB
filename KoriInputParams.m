@@ -90,7 +90,7 @@ par.Hiter=20; % max iteration number for iterative thickness solver (20)
 par.Htol=1e-6;  % tolerance for iterative thickness solver (1e-6)
 par.Z=2*(par.g*par.rho)^par.n; % SIA isothermal pre-term
 par.dlim=0.3; % Limit on local crevasses depth (% of H)
-par.damlim=0.7; % limit on total damage (% of H)
+par.damlim=0.5; % limit on total damage (% of H)
 
 %-----------------------------------
 % Ice-ocean interactions
