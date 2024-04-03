@@ -138,7 +138,7 @@ if ctr.calving>=1 % LSF function calving. Generate a calving rate, CR
     CMB=CR.*Hshelf/ctr.delta;
     CMB(glMASK~=5)=0;
 
-    if  ctr.shelf==1 && ctr.FrontalMelt==1 %Add front melt to calve rate. Just uses vertical melt in calving front cell.....may need to improve this in future
+    if  ctr.shelf==1 && ctr.FrontalMelt==1 % Add front melt to calve rate. Just uses vertical melt in calving front cell.....may need to improve this in future
         CR(glMASK==5)=CR(glMASK==5)+FMR(glMASK==5);
     end
 
@@ -150,13 +150,8 @@ if ctr.calving>=1 % LSF function calving. Generate a calving rate, CR
 
     LSF=LSFfunction(LSF,ctr,wx,wy,node,nodes,VM,MASK); %Advect calving front position
 
-    %     if ctr.CalveGround==1 %Allow calving of grounded ice
-    %         LSF(glMASK<3)=1;
-    %     end
-
-    if ctr.CalveCirc==1 %Impose maximum calving front extent from a field, ctr.CF_Boundary
-        load (ctr.CF_Boundary,'CIRC')
-        LSF(CIRC<1)=-1;
+    if ctr.LimitFront==1 % Impose maximum calving front extent from observed front position
+        LSF(MASKo==0)=-1;
     end
 
     if floor(cnt/par.LSFReset)==ceil(cnt/par.LSFReset)  % Reset LSF field for stability
