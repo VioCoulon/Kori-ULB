@@ -69,7 +69,7 @@ if ctr.calving>=1 % LSF function calving. Generate a calving rate, CR
         ratio=(d_s+d_b+d_a+d_t+d_w)./he;
         % ratio_c=0.75; % Pollard(2015)
         CR=par.MaxCalvRate*max(0,min(1,(ratio-par.CritCrevasse)./(1-par.CritCrevasse)));
-
+        CR(glMASK<3)=0; % ensure no calving in grounded ice
     end
 
     if ctr.calving==5
