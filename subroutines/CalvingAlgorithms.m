@@ -134,7 +134,7 @@ if ctr.calving>=1 % LSF function calving. Generate a calving rate, CR
     end
 
     % Diagnostic calculation of calving rate as a surface balance term over
-    % the entire grid cell
+    % the entire grid cell.
     CMB=CR.*Hshelf/ctr.delta;
     CMB(glMASK~=5)=0;
 

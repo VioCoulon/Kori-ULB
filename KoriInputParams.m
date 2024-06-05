@@ -53,7 +53,7 @@ par.varlist={'MASK','H','Hn','B','ux','uy','fluxmx_mean','fluxmy_mean','Tb','glM
 %-----------------------------------
 
 par.PoreFrac=0.96; % Fraction of water pressure to balance ice pressure (0.96)
-par.longcoupwater=5; % distance in number of ice thicknesses over which
+par.longcoupwater=5; % distance in number of ice thicknesses over which.
                  % hydraulic gradient coupling takes place
 par.dirpp_war=[9 8 7 6 5 4 3 2 1];
 par.waterviscosity=1.8e-3/par.secperyear;
@@ -82,7 +82,7 @@ par.n=3; % flow law exponent
 par.visciter=50; % Maximum number of iterations on the nonlinear part of the SSA equation (50)
 par.visctol=5e-1; % Tolerance for calculation of the nonlinear part of the SSA equation (0.5)
 par.veliter=50;  % Maximum number of iterations for the iterative SSA velocity solver (50)
-par.veltol=1e-4;  % Tolerance for the iterative SSA velocity solver (1e-4)
+par.veltol=1e-3;  % Tolerance for the iterative SSA velocity solver (1e-4)
 if basin==1
     par.veltol=par.veltol/10;
 end
@@ -219,7 +219,7 @@ par.a2=2e-16;
 % PDD model parameters
 %-----------------------------------
 
-par.PDDth=0; % PDD threshold temperature (0°C)
+par.PDDth=0; % PDD threshold temperature (0ï¿½C)
 par.Train=2;
 par.Tsnow=0;
 par.snowfac=3/par.rho; % PDD factor for snow melt
