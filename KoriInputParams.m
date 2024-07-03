@@ -45,8 +45,7 @@ par.maxspeed=40e3; % maximum ice speed limit (m/a)
 par.omega=2.5; % Crank-Nicolson scale factor (0=explicit; 1=implicit; >1 over-implicit)
 par.secperyear=31556926;
 % 2d variables to be saved when timeslice=1
-par.varlist={'MASK','H','Hn','B','ux','uy','fluxmx_mean','fluxmy_mean','Tb','glMASK','Melt_mean','FMR_mean','CR_mean','Mb_mean','Bmelt_mean','ubx','uby','beta2'};
-
+par.varlist={'MASK','H','Hn','B','ux','uy','fluxmx_mean','fluxmy_mean','Tb','glMASK','Melt_mean','FMR_mean','CR_mean','Mb_mean','Bmelt_mean','ubx','uby','beta2','Smelt_mean','runoff_mean','rain_mean','acc_mean'};
 
 %-----------------------------------
 % Subglacial characteristics
@@ -223,11 +222,11 @@ par.PDDth=0; % PDD threshold temperature (0°C)
 par.Train=2;
 par.Tsnow=0;
 par.snowfac=3/par.rho; % PDD factor for snow melt
-par.icefac=8/par.rho; % PDD factor for ice melt
-par.d_ice=5; % Maximum depth of refreezing of percolating meltwater (m)
+par.icefac=11/par.rho; % PDD factor for ice melt
+par.d_ice=7.5; % Maximum depth of refreezing of percolating meltwater (m)
 par.Tlapse=-0.008; % Lapse rate for temperature correction with height
 par.Tsigma=4; % standard deviation of mean T for PDD calculation
-par.Psigma=3.5; % standard deviation of mean T for rain factor calculation
+par.Psigma=4; % standard deviation of mean T for rain factor calculation
 par.PDDsteps=48;
 
 %-----------------------------------
