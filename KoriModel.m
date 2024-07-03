@@ -136,7 +136,8 @@ if nargin==4
     end
     if any(ismember(fields(fc),'ocn_TF_fname')) || ...
         any(ismember(fields(fc),'ocn_To_fname')) || ...
-        any(ismember(fields(fc),'ocn_So_fname'))
+        any(ismember(fields(fc),'ocn_So_fname')) || ...
+        any(ismember(fields(fc),'ocn_Melt_fname'))
         fc.forcingOCEAN=1;
     end
 end
@@ -162,6 +163,10 @@ end
 
 % Read model parameters
 [par]=KoriInputParams(ctr.m,ctr.basin);
+% Vio - read some params as ctr 
+par.MaxCalvRate=ctr.MaxCalvRate;
+par.CritCrevasse=ctr.CritCrevasse;
+par.dlim=ctr.dlim;
 
 % Central differences and direct solver for SIA model
 if ctr.SSA==0
@@ -190,9 +195,9 @@ slicecount=0;
     MASKo,Mb,Ts,As,G,u,VAF,VA0,POV,SLC,Ag,Af,Btau,IVg,IVf,glflux, ...
     cfflux,dHdt,time,mbcomp,InvVol,ncor,dSLR,SLR,Wd,Wtil,Bmelt,NumStab, ...
     CMB,FMB,flw,p,px,py,pxy,nodeu,nodev,nodes,node,VM,Tof,Sof, ...
-    TFf,Tsf,Mbf,Prf,Evpf,runofff,Melt,damage,shelftune,Melt_mean, ... 
+    TFf,Meltf,Tsf,Mbf,Prf,Evpf,runofff,Melt,damage,shelftune,Melt_mean, ... 
     Bmelt_mean,Ts_mean,Mb_mean,To_mean,So_mean,TF_mean,CR_mean,FMR_mean, ...
-    fluxmx_mean,fluxmy_mean]=InitMatrices(ctr,par,default,fc);
+    fluxmx_mean,fluxmy_mean,Smelt_mean,runoff_mean,rain_mean,acc_mean]=InitMatrices(ctr,par,default,fc);
 
 %----------------------------------------------------------------------
 % Read inputdata
@@ -584,8 +589,8 @@ for cnt=cnt0:ctr.nsteps
 
 	if ctr.glMASKexist==1 && ctr.inverse==0
 		% Update ocean forcing based on external forcing data
-		[Tof,Sof,TFf,cnt_ocn,snp_ocn]=OCEANupdate(fc,ctr,time,cnt, ...
-            So0,To0,Tof,Sof,TFf,cnt_ocn,snp_ocn);
+		[Tof,Sof,TFf,Meltf,cnt_ocn,snp_ocn]=OCEANupdate(fc,ctr,time,cnt, ...
+            So0,To0,Tof,Sof,TFf,Meltf,cnt_ocn,snp_ocn);
 
 		% Extrapolate To and Tf to the depth of interest according 
         % to the chosen melt parameterization
@@ -599,6 +604,13 @@ for cnt=cnt0:ctr.nsteps
         [Melt,fc.butfac(cnt),H]=SubShelfMelt(ctr,fc,par,Tf,To,So,TF, ...
             fc.butfac(cnt),HB,glMASK,H,B,ShelfN,numsh,shMASK,MASK,MASKlk, ...
             uxssa,uyssa,arcocn,MeltInv,cnt);
+        if islogical(Meltf)==0 % if Meltf exists -- Melt provided as forcing from ocean model
+            Meltt=Meltf;
+            Meltt(isnan(Meltt))=Melt(isnan(Meltt)); % replace non existing values in Meltf by Melt calculated by param
+            Melt=Meltt;
+            Melt(shMASK==0)=0; % Melt only for real shelves, Melt=0 for 'Lakes'
+            Melt(glMASK==6)=0;
+        end
     else
         Melt=zeros(ctr.imax,ctr.jmax);
         Melt(MASK==0)=ctr.meltfac;
@@ -755,8 +767,8 @@ for cnt=cnt0:ctr.nsteps
 % Save time-dependent matrices
 %------------------------------------
     if ctr.CalculateYearlyMeans==1 && cnt==1
-        [Melt_mean,Bmelt_mean,Ts_mean,Mb_mean,To_mean,So_mean,TF_mean,CR_mean,FMR_mean,fluxmx_mean,fluxmy_mean]=InitYearlyMeans(Melt, ...
-            Bmelt,Ts,Mb,To,So,TF,CR,FMR,fluxmx,fluxmy,cnt,ctr,Melt_mean,Bmelt_mean,Ts_mean,Mb_mean,To_mean,So_mean,TF_mean,CR_mean,FMR_mean,fluxmx_mean,fluxmy_mean);
+        [Melt_mean,Bmelt_mean,Ts_mean,Mb_mean,To_mean,So_mean,TF_mean,CR_mean,FMR_mean,fluxmx_mean,fluxmy_mean,Smelt_mean,runoff_mean,rain_mean,acc_mean]=InitYearlyMeans(Melt, ...
+            Bmelt,Ts,Mb,To,So,TF,CR,FMR,fluxmx,fluxmy,Smelt,runoff,rain,acc);
     end
     if ctr.timeslice==1 
         if cnt==1 || (ctr.snapshot_list==1 && fc.snap_year(slicecount)==time(cnt)) || (ctr.snapshot_list==0 && rem(cnt-1,plotst)==0)
@@ -770,10 +782,13 @@ for cnt=cnt0:ctr.nsteps
                 slicecount=length(fc.snap_year);
             end
         end
+    elseif (ctr.timeslice==0 && ctr.snapshot_list==1 && fc.snap_year(slicecount)==time(cnt))
+        slicecount=slicecount+1; % update slicecount even if timeslice==0
     end
     if ctr.CalculateYearlyMeans==1
-        [Melt_mean,Bmelt_mean,Ts_mean,Mb_mean,To_mean,So_mean,TF_mean,CR_mean,FMR_mean,fluxmx_mean,fluxmy_mean]=YearlyMeans(Melt, ...
-            Bmelt,Ts,Mb,To,So,TF,CR,FMR,fluxmx,fluxmy,cnt,ctr,Melt_mean,Bmelt_mean,Ts_mean,Mb_mean,To_mean,So_mean,TF_mean,CR_mean,FMR_mean,fluxmx_mean,fluxmy_mean);
+        [Melt_mean,Bmelt_mean,Ts_mean,Mb_mean,To_mean,So_mean,TF_mean,CR_mean,FMR_mean,fluxmx_mean,fluxmy_mean,Smelt_mean,runoff_mean,rain_mean,acc_mean]=YearlyMeans(Melt, ...
+            Bmelt,Ts,Mb,To,So,TF,CR,FMR,fluxmx,fluxmy,Smelt,runoff,rain,acc,cnt,ctr,Melt_mean,Bmelt_mean,Ts_mean,Mb_mean,To_mean,So_mean,TF_mean,CR_mean,FMR_mean,fluxmx_mean, ...
+            fluxmy_mean,Smelt_mean,runoff_mean,rain_mean,acc_mean);
     end
     
 %------------------------------------
@@ -791,11 +806,14 @@ for cnt=cnt0:ctr.nsteps
     cntT(cntT>=par.intT)=0;
     oldMASK=MASK;
     if ctr.runmode==1 || ctr.runmode==3 || ctr.runmode==5
-        if rem(cnt-1,plotst)==0 && cnt>1
+        if (rem(cnt-1,plotst)==0 && cnt>1 && ctr.snapshot_list==0) || (cnt>1 && slicecount>1 && ctr.snapshot_list==1 && fc.snap_year(slicecount-1)==time(cnt))
             outputname=[outfile,'_toto'];
             save(outputname);
             if ctr.runmode==5
                 MeltDown; break;
+            end
+            if ctr.coupl_interrupt==1
+                return; % interrupt script after saving toto file to wait for new forcing
             end
         end
     end

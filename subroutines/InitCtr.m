@@ -35,6 +35,7 @@ function [ctr,fc]=InitCtr(ctr,fc,default)
     ctr.CalveCirc(any(ismember(fields(ctr),'CalveCirc'))==0)=0;
     ctr.LimitFront(any(ismember(fields(ctr),'LimitFront'))==0)=0;
     ctr.FrontalMelt(any(ismember(fields(ctr),'FrontalMelt'))==0)=0;
+    ctr.coupl_interrupt(any(ismember(fields(ctr),'coupl_interrupt'))==0)=0;
     ctr.CR(any(ismember(fields(ctr),'CR'))==0)=0;
     ctr.WV(any(ismember(fields(ctr),'WV'))==0)=0;
     ctr.HydroFrac(any(ismember(fields(ctr),'HydroFrac'))==0)=0;

@@ -1,5 +1,5 @@
-function [Tof,Sof,TFf,cnt_ocn,snp_ocn]=OCEANupdate(fc,ctr,time,cnt,So0, ...
-    To0,Tof,Sof,TFf,cnt_ocn,snp_ocn)
+function [Tof,Sof,TFf,Meltf,cnt_ocn,snp_ocn]=OCEANupdate(fc,ctr,time,cnt,So0, ...
+    To0,Tof,Sof,TFf,Meltf,cnt_ocn,snp_ocn)
 
 % Kori-ULB
 % Update ocean forcing based on external forcing data
@@ -33,6 +33,13 @@ function [Tof,Sof,TFf,cnt_ocn,snp_ocn]=OCEANupdate(fc,ctr,time,cnt,So0, ...
                         Sof=So0;
                     end
                 end
+                % COUPLING WITH OCEAN MODEL
+                if any(ismember(fields(fc),'ocn_Melt_fname'))
+                    load([fc.ocn_Melt_fname,num2str(snp_ocn,'%03i')]);
+                    Meltf=double(Melt); % make sure matrix is double
+                else
+                    Meltf=false;
+                end
                 snp_ocn=snp_ocn+1;
             else % If forcing shorter than simulation time
                 if snp_ocn==fc.ocn_snapshots+1
@@ -61,6 +68,13 @@ function [Tof,Sof,TFf,cnt_ocn,snp_ocn]=OCEANupdate(fc,ctr,time,cnt,So0, ...
                         Sof=So0;
                     end
                 end
+                % COUPLING WITH OCEAN MODEL
+                if any(ismember(fields(fc),'ocn_Melt_fname'))
+                    load([fc.ocn_Melt_fname,num2str(snp_ocn,'%03i')]);
+                    Meltf=double(Melt); % make sure matrix is double
+                else
+                    Meltf=false;
+                end
                 snp_ocn=snp_ocn+1;
             end
         end
@@ -70,6 +84,7 @@ function [Tof,Sof,TFf,cnt_ocn,snp_ocn]=OCEANupdate(fc,ctr,time,cnt,So0, ...
         TFf=false;
         Tof=To0+ctr.meltfactor*fc.DeltaT(cnt); % simplified forcing otherwise
         Sof=So0;
+        Meltf=false;
     end
 
 end

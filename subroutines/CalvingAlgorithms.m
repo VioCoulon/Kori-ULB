@@ -69,7 +69,7 @@ if ctr.calving>=1 % LSF function calving. Generate a calving rate, CR
         ratio=(d_s+d_b+d_a+d_t+d_w)./he;
         % ratio_c=0.75; % Pollard(2015)
         CR=par.MaxCalvRate*max(0,min(1,(ratio-par.CritCrevasse)./(1-par.CritCrevasse)));
-
+        CR(glMASK<3)=0; % ensure no calving in grounded ice
     end
 
     if ctr.calving==5
@@ -128,15 +128,9 @@ if ctr.calving>=1 % LSF function calving. Generate a calving rate, CR
     end
 
     if ctr.calving==4 || ctr.calving==6 || ctr.LimitFront==1
-        % extrapolate calving front CR value in the open ocean
-        CR(glMASK==6)=NaN;
-        [rows, cols] = find(~isnan(CR)); % Find the indices of non-NaN elements in CR
-        values = CR(~isnan(CR)); % Find the corresponding values for non-NaN elements
-        [nanRows, nanCols] = find(isnan(CR)); % Find the indices of NaN elements in CR
-        % Interpolate the NaN elements in CR based on the non-NaN elements using 'nearest' method
-        interpValues = griddata(cols, rows, values, nanCols, nanRows, 'nearest');
-        % Replace the NaN elements in CR with the interpolated values
-        CR(isnan(CR)) = interpValues;
+        % advect calving front CR value in the open ocean
+        [CRadvec]=AdvecCR(CR,H,glMASK,MASK,ux,uy,ctr,par);
+        CR=CRadvec;
     end
 
     % Diagnostic calculation of calving rate as a surface balance term over
@@ -144,7 +138,7 @@ if ctr.calving>=1 % LSF function calving. Generate a calving rate, CR
     CMB=CR.*Hshelf/ctr.delta;
     CMB(glMASK~=5)=0;
 
-    if  ctr.shelf==1 && ctr.FrontalMelt==1 %Add front melt to calve rate. Just uses vertical melt in calving front cell.....may need to improve this in future
+    if  ctr.shelf==1 && ctr.FrontalMelt==1 % Add front melt to calve rate. Just uses vertical melt in calving front cell.....may need to improve this in future
         CR(glMASK==5)=CR(glMASK==5)+FMR(glMASK==5);
     end
 
@@ -156,13 +150,8 @@ if ctr.calving>=1 % LSF function calving. Generate a calving rate, CR
 
     LSF=LSFfunction(LSF,ctr,wx,wy,node,nodes,VM,MASK); %Advect calving front position
 
-    %     if ctr.CalveGround==1 %Allow calving of grounded ice
-    %         LSF(glMASK<3)=1;
-    %     end
-
-    if ctr.CalveCirc==1 %Impose maximum calving front extent from a field, ctr.CF_Boundary
-        load (ctr.CF_Boundary,'CIRC')
-        LSF(CIRC<1)=-1;
+    if ctr.LimitFront==1 % Impose maximum calving front extent from observed front position
+        LSF(MASKo==0)=-1;
     end
 
     if floor(cnt/par.LSFReset)==ceil(cnt/par.LSFReset)  % Reset LSF field for stability
