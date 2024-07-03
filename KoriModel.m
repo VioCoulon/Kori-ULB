@@ -192,7 +192,7 @@ slicecount=0;
     CMB,FMB,flw,p,px,py,pxy,nodeu,nodev,nodes,node,VM,Tof,Sof, ...
     TFf,Tsf,Mbf,Prf,Evpf,runofff,Melt,damage,shelftune,Melt_mean, ... 
     Bmelt_mean,Ts_mean,Mb_mean,To_mean,So_mean,TF_mean,CR_mean,FMR_mean, ...
-    fluxmx_mean,fluxmy_mean]=InitMatrices(ctr,par,default,fc);
+    fluxmx_mean,fluxmy_mean,Smelt_mean,runoff_mean,rain_mean,acc_mean]=InitMatrices(ctr,par,default,fc);
 
 %----------------------------------------------------------------------
 % Read inputdata
@@ -755,8 +755,8 @@ for cnt=cnt0:ctr.nsteps
 % Save time-dependent matrices
 %------------------------------------
     if ctr.CalculateYearlyMeans==1 && cnt==1
-        [Melt_mean,Bmelt_mean,Ts_mean,Mb_mean,To_mean,So_mean,TF_mean,CR_mean,FMR_mean,fluxmx_mean,fluxmy_mean]=InitYearlyMeans(Melt, ...
-            Bmelt,Ts,Mb,To,So,TF,CR,FMR,fluxmx,fluxmy,cnt,ctr,Melt_mean,Bmelt_mean,Ts_mean,Mb_mean,To_mean,So_mean,TF_mean,CR_mean,FMR_mean,fluxmx_mean,fluxmy_mean);
+        [Melt_mean,Bmelt_mean,Ts_mean,Mb_mean,To_mean,So_mean,TF_mean,CR_mean,FMR_mean,fluxmx_mean,fluxmy_mean,Smelt_mean,runoff_mean,rain_mean,acc_mean]=InitYearlyMeans(Melt, ...
+            Bmelt,Ts,Mb,To,So,TF,CR,FMR,fluxmx,fluxmy,Smelt,runoff,rain,acc);
     end
     if ctr.timeslice==1 
         if cnt==1 || (ctr.snapshot_list==1 && fc.snap_year(slicecount)==time(cnt)) || (ctr.snapshot_list==0 && rem(cnt-1,plotst)==0)
@@ -772,8 +772,9 @@ for cnt=cnt0:ctr.nsteps
         end
     end
     if ctr.CalculateYearlyMeans==1
-        [Melt_mean,Bmelt_mean,Ts_mean,Mb_mean,To_mean,So_mean,TF_mean,CR_mean,FMR_mean,fluxmx_mean,fluxmy_mean]=YearlyMeans(Melt, ...
-            Bmelt,Ts,Mb,To,So,TF,CR,FMR,fluxmx,fluxmy,cnt,ctr,Melt_mean,Bmelt_mean,Ts_mean,Mb_mean,To_mean,So_mean,TF_mean,CR_mean,FMR_mean,fluxmx_mean,fluxmy_mean);
+        [Melt_mean,Bmelt_mean,Ts_mean,Mb_mean,To_mean,So_mean,TF_mean,CR_mean,FMR_mean,fluxmx_mean,fluxmy_mean,Smelt_mean,runoff_mean,rain_mean,acc_mean]=YearlyMeans(Melt, ...
+            Bmelt,Ts,Mb,To,So,TF,CR,FMR,fluxmx,fluxmy,Smelt,runoff,rain,acc,cnt,ctr,Melt_mean,Bmelt_mean,Ts_mean,Mb_mean,To_mean,So_mean,TF_mean,CR_mean,FMR_mean,fluxmx_mean, ...
+            fluxmy_mean,Smelt_mean,runoff_mean,rain_mean,acc_mean);
     end
     
 %------------------------------------

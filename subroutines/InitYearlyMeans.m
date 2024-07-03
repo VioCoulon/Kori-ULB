@@ -1,4 +1,5 @@
-function [Melt_mean,Bmelt_mean,Ts_mean,Mb_mean,To_mean,So_mean,TF_mean,CMB_mean,FMB_mean,fluxmx_mean,fluxmy_mean]=InitYearlyMeans(Melt,Bmelt,Ts,Mb,To,So,TF,CR,FMR,fluxmx,fluxmy,cnt,ctr,Melt_mean,Bmelt_mean,Ts_mean,Mb_mean,To_mean,So_mean,TF_mean,CMB_mean,FMB_mean,fluxmx_mean,fluxmy_mean)
+function [Melt_mean,Bmelt_mean,Ts_mean,Mb_mean,To_mean,So_mean,TF_mean,CR_mean,FMR_mean,fluxmx_mean,fluxmy_mean,Smelt_mean,runoff_mean,rain_mean,acc_mean]=InitYearlyMeans(Melt, ...
+            Bmelt,Ts,Mb,To,So,TF,CR,FMR,fluxmx,fluxmy,Smelt,runoff,rain,acc)
 
     Melt_mean=Melt;
     Bmelt_mean=Bmelt;
@@ -11,5 +12,9 @@ function [Melt_mean,Bmelt_mean,Ts_mean,Mb_mean,To_mean,So_mean,TF_mean,CMB_mean,
     FMR_mean=FMR;
     fluxmx_mean=fluxmx;
     fluxmy_mean=fluxmy;
+    Smelt_mean=Smelt;
+    runoff_mean=runoff;
+    rain_mean=rain;
+    acc_mean=acc;
 
 end
