@@ -24,10 +24,10 @@ function FinalPlots(ctr,outfile,time,InvVol,SLC,u,v,MASK,bMASK,glMASK)
 
     % Daniel. Plot ice-shelf front position.
     % TO DO THIS!!!!!
-    figure('Name',['Front position: ' outfile],'NumberTitle','off');
-    plot(time,SLC); grid on; 
-    xlabel('Time (year)');
-    ylabel('Ice-shelf front position (km)');
+    %figure('Name',['Front position: ' outfile],'NumberTitle','off');
+    %plot(time,SLC); grid on; 
+    %xlabel('Time (year)');
+    %ylabel('Ice-shelf front position (km)');
     
     if ctr.vexist==1
         figure('Name',['Velocity: ' outfile],'NumberTitle','off');

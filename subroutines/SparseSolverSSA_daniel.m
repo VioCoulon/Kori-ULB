@@ -54,8 +54,8 @@ function [u,v,s,flag,relres,iter]=SparseSolverSSA_daniel(nodeu,nodev,s0, ...
     % Frank.
     dmudx=(eta1-eta)/ctr.delta;
     dmudy=0.25*(eta2+eta3-eta4-eta5)/ctr.delta;
-    %dmudx=min(limit,max(dmudx,-limit));
-    %dmudy=min(limit,max(dmudy,-limit));
+    dmudx=min(limit,max(dmudx,-limit));
+    dmudy=min(limit,max(dmudy,-limit));
     
 
     % Daniel.
@@ -172,6 +172,10 @@ function [u,v,s,flag,relres,iter]=SparseSolverSSA_daniel(nodeu,nodev,s0, ...
         % Frank.
         R0(MASKb==1)=0.5*par.rho*par.g*H1(MASKb==1).^2.*(1.- ...
             par.rho/par.rhow);
+
+        % Daniel.
+        %R0(MASKb==1)=0.5*par.rho*par.g*H(MASKb==1).^2.*(1.- ...
+        %    par.rho/par.rhow);
 
         % j=jmax-1; contact with ocean
         MASKb=zeros(ctr.imax,ctr.jmax); % boundary mask
@@ -395,8 +399,8 @@ function [u,v,s,flag,relres,iter]=SparseSolverSSA_daniel(nodeu,nodev,s0, ...
     % Frank.
     dmudy=(eta1-eta)/ctr.delta;
     dmudx=0.25*(eta2+eta3-eta4-eta5)/ctr.delta;
-    %dmudx=min(limit,max(dmudx,-limit));
-    %dmudy=min(limit,max(dmudy,-limit));
+    dmudx=min(limit,max(dmudx,-limit));
+    dmudy=min(limit,max(dmudy,-limit));
 
     % Daniel.
     %dmudy=(eta1-eta)/ctr.delta;
