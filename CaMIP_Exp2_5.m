@@ -6,7 +6,6 @@ clear; close all;
 
      
 %CalvingMIP-Algorithim 1
-
 ctr.delta=5e3;
 ctr.imax=322; 
 ctr.jmax=322;
@@ -24,10 +23,10 @@ ctr.SSA=1;
 %ctr.Calve_Mass=1;  % Not needed in Vio's version.
 
 ctr.calving=7;       % Jim: 5 CalveMip Periodic forcing, but it is 7 in Vio's version.
-ctr.nsteps=1000;    % Daniel 1000; Jim: 10000
+ctr.nsteps=500;    % Daniel 1000; Jim: 10000
 ctr.timeslice=1;
 ctr.LSFReset=1000;
-ctr.snapshot=1000; % Jim: 1000
+ctr.snapshot=500; % Jim: 1000
 %ctr.CalveCirc=1;                     % Not needed in Vio's version.
 %ctr.CF_Boundary='CircThule.mat';     % Not needed in Vio's version.
 ctr.CR_AMP=300;      % ctr.CR_AMP is max rate of front position change
@@ -35,7 +34,8 @@ ctr.MMELT=300;
 ctr.t=500;
 
 %KoriModel('Exp1_5','Exp2_5',ctr);
-KoriModel('Exp1_5_visceff1e10_limityes','Exp2_5_visceff1e10_limityes_omega05',ctr);
+%KoriModel('Exp1_5_visceff1e10_limityes','Exp2_5_visceff1e10_limityes_retreated',ctr);
+KoriModel('Exp2_5_visceff1e10_limityes_retreated','Exp2_5_visceff1e10_limityes_ij',ctr);
 
 end
 

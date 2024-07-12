@@ -788,8 +788,20 @@ function [u,v,s,flag,relres,iter]=SparseSolverSSA_daniel(nodeu,nodev,s0, ...
         s=A\R;
         [flag,relres,iter]=deal(false);
     end
+
+    % Frank.
     u=s(nodeu);
     v=s(nodev);
+
+    % Daniel.
+    %u_new=s(nodeu);
+    %v_new=s(nodev);
+
+    % Try relaxation to avoid jump in velocities?
+    % Not enough with alpha=0.3.
+    %alpha = 0.3;
+    %u = alpha * u + (1.0 - alpha) * u_new;
+    %v = alpha * v + (1.0 - alpha) * v_new;
 
 end
 

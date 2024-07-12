@@ -15,7 +15,7 @@ function default=InitDefault
     default.Hinv=500;
     default.Tinv=200;
     default.stopoptim=0.1;
-    default.HinvMelt=100;   %VL: new parameter
+    default.HinvMelt=100;   %VL: new 
     default.TinvMelt=50;   %VL: new parameter
     default.radnorm=50;     %VL: new parameter
     default.shelftune=0.5;
@@ -34,6 +34,7 @@ function default=InitDefault
     default.Asin=1e-10;
     default.Hcrit=200; % PD16
     default.taulim=0.7e5;
+    default.tauice=0.7e5;
 
 end
 

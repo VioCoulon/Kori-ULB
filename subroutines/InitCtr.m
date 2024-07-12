@@ -43,7 +43,10 @@ function [ctr,fc]=InitCtr(ctr,fc,default)
     ctr.NumCheck(any(ismember(fields(ctr),'NumCheck'))==0)=0;
     ctr.mismip(any(ismember(fields(ctr),'mismip'))==0)=0;
     ctr.basin(any(ismember(fields(ctr),'basin'))==0)=0;
+    ctr.bassis_reg(any(ismember(fields(ctr),'bassis_reg'))==0)=0;
     ctr.damage(any(ismember(fields(ctr),'damage'))==0)=0;
+    ctr.thinning(any(ismember(fields(ctr),'thinning'))==0)=0;
+    ctr.localdamage(any(ismember(fields(ctr),'localdamage'))==0)=0;
     ctr.GroundedMelt(any(ismember(fields(ctr),'GroundedMelt'))==0)=0;
     ctr.PDDcalc(any(ismember(fields(ctr),'PDDcalc'))==0)=0;
     ctr.monthly(any(ismember(fields(ctr),'monthly'))==0)=0;
@@ -68,6 +71,7 @@ function [ctr,fc]=InitCtr(ctr,fc,default)
     ctr.ItSolv(any(ismember(fields(ctr),'ItSolv'))==0)=default.ItSolv;
     ctr.Asin(any(ismember(fields(ctr),'Asin'))==0)=default.Asin;
     ctr.taulim(any(ismember(fields(ctr),'taulim'))==0)=default.taulim;
+    ctr.tauice(any(ismember(fields(ctr),'tauice'))==0)=default.tauice;
     if any(ismember(fields(ctr),'gammaT'))==0
         if ctr.meltfunc==1
             ctr.gammaT=default.gammaTlin;

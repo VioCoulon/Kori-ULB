@@ -190,7 +190,7 @@ slicecount=0;
     MASKo,Mb,Ts,As,G,u,VAF,VA0,POV,SLC,Ag,Af,Btau,IVg,IVf,glflux, ...
     cfflux,dHdt,time,mbcomp,InvVol,ncor,dSLR,SLR,Wd,Wtil,Bmelt,NumStab, ...
     CMB,FMB,flw,p,px,py,pxy,nodeu,nodev,nodes,node,VM,Tof,Sof, ...
-    TFf,Tsf,Mbf,Prf,Evpf,runofff,Melt,damage,shelftune,Melt_mean, ... 
+    TFf,Tsf,Mbf,Prf,Evpf,runofff,Melt,damage,ThinComp,shelftune,Melt_mean, ... 
     Bmelt_mean,Ts_mean,Mb_mean,To_mean,So_mean,TF_mean,CR_mean,FMR_mean, ...
     fluxmx_mean,fluxmy_mean]=InitMatrices(ctr,par,default,fc);
 
@@ -538,7 +538,7 @@ for cnt=cnt0:ctr.nsteps
             SSAvelocity(ctr,par,su,Hmx,Hmy,gradmx,gradmy,signx,signy, ...
             uxssa,uyssa,H,HB,B,stdB,Asf,A,MASK,glMASK,HAF,HAFmx,HAFmy,cnt, ...
             nodeu,nodev,MASKmx,MASKmy,bMASK,uxsia,uysia,udx,udy,node,nodes, ...
-            Mb,Melt,dtdx,dtdx2,VM,damage,shelftune);
+            Mb,Melt,dtdx,dtdx2,VM,damage,ThinComp,shelftune);
         if ctr.NumCheck==1
             NumStab(cnt,1:5)=NumStabVel;
         end
@@ -645,6 +645,195 @@ for cnt=cnt0:ctr.nsteps
         dHdt(cnt)=mean(abs(Hn(:)-H(:)))/ctr.dt; % ice-sheet imbalance
     end
 
+    % Daniel update on calving front.
+    % Points that become calving front take the thickness of the last inner shelf.
+    % Try to remove numerical oscillations in Calving MIP Experiment 2.
+    % It should be here so that matrices are updated before being safe.
+    if cnt>1 % >500 for the full sim.        
+        for i=1:ctr.imax
+            for j=1:ctr.jmax
+
+                % Option 2.
+                % Consistency in calving front.
+                if glMASK(i,j)==5 && glMASK_old(i,j)==6
+                    im = i;
+                    jm = j;
+                    ip = i;
+                    jp = j;
+
+                    for k=1:ctr.imax
+
+                        im = im - k;
+                        ip = ip + k;
+                        jp = jp + k;
+                        jm = jm - k;
+
+                        if glMASK_old(im,j)==4 %&& glMASK_old(im,j)==4 inestead??
+
+                            %im = im - 1;
+
+                            H(i,j)=H(im,j); % Necessary to add this?
+                            Hn(i,j)=Hn(im,j);
+                            
+                            %uxssa(i,j)=uxssa(im,j);
+                            %uyssa(i,j)=uyssa(im,j);
+                            ux(i,j)=ux_old(im,j);
+                            uy(i,j)=uy_old(im,j);
+
+                            %ux(i,j) = ux_old(im,j);
+                            %uy(i,j) = uy_old(im,j);
+                            %uxssa(i,j) = uxssa_old(im,j);
+                            %uyssa(i,j) = uyssa_old(im,j);
+                            break; 
+                        end
+
+                        if glMASK_old(ip,j)==4 %&& glMASK(ip,j)==4
+
+                            %ip = ip + 1;
+
+                            H(i,j)=H(ip,j);
+                            Hn(i,j)=Hn(ip,j);
+                            
+                            
+                            ux(i,j)=ux_old(ip,j);
+                            uy(i,j)=uy_old(ip,j);
+                            %uxssa(i,j)=uxssa(ip,j);
+                            %uyssa(i,j)=uyssa(ip,j);
+
+                            %ux(i,j) = ux_old(ip,j);
+                            %uy(i,j) = uy_old(ip,j);
+                            %uxssa(i,j) = uxssa_old(ip,j);
+                            %uyssa(i,j) = uyssa_old(ip,j);
+                            break;
+                        end
+
+                        if glMASK_old(i,jm)==4 %&& glMASK(i,jm)==4
+
+                            %jm = jm - 1;
+
+                            H(i,j)=H(i,jm);
+                            Hn(i,j)=Hn(i,jm);
+
+                            
+                            ux(i,j)=ux_old(i,jm);
+                            uy(i,j)=uy_old(i,jm);
+                            %uxssa(i,j)=uxssa(i,jm);
+                            %uyssa(i,j)=uyssa(i,jm);
+
+                            %ux(i,j) = ux_old(i,jm);
+                            %uy(i,j) = uy_old(i,jm);
+                            %uxssa(i,j) = uxssa_old(i,jm);
+                            %uyssa(i,j) = uyssa_old(i,jm);
+                            break;
+                        end
+                        
+                        if glMASK_old(i,jp)==4 %&& glMASK(i,jp)==4
+
+                            %jp = jp + 1;
+
+                            H(i,j)=H(i,jp);
+                            Hn(i,j)=Hn(i,jp);
+                            
+                            
+                            ux(i,j)=ux_old(i,jp);
+                            uy(i,j)=uy_old(i,jp);
+                            %uxssa(i,j)=uxssa(i,jp);
+                            %uyssa(i,j)=uyssa(i,jp);
+                            
+                            %ux(i,j)=ux_old(i,jp);
+                            %uy(i,j)=uy_old(i,jp);
+                            %uxssa(i,j)=uxssa_old(i,jp);
+                            %uyssa(i,j)=uyssa_old(i,jp);
+                            break;
+                        end
+
+                        if glMASK_old(im,jm)==4 %&& glMASK(im,jm)==4
+
+                            %im = im - 1;
+                            %jm = jm - 1;
+
+                            H(i,j)=H(im,jm);
+                            Hn(i,j)=Hn(im,jm);
+                            
+                            
+                            ux(i,j)=ux_old(im,jm);
+                            uy(i,j)=uy_old(im,jm);
+                            %uxssa(i,j)=uxssa(im,jm);
+                            %uyssa(i,j)=uyssa(im,jm);
+                            
+                            %ux(i,j)=ux_old(im,jm);
+                            %uy(i,j)=uy_old(im,jm);
+                            %uxssa(i,j)=uxssa_old(im,jm);
+                            %uyssa(i,j)=uyssa_old(im,jm);
+                            break;
+                        end
+
+                        if glMASK_old(im,jp)==4 %&& glMASK(im,jp)==4
+
+                            %im = im - 1;
+                            %jp = jp + 1;
+
+                            H(i,j)=H(im,jp);
+                            Hn(i,j)=Hn(im,jp);
+                            
+                            ux(i,j)=ux_old(im,jp);
+                            uy(i,j)=uy_old(im,jp);
+                            %uxssa(i,j)=uxssa(im,jp);
+                            %uyssa(i,j)=uyssa(im,jp);
+                            
+                            %ux(i,j)=ux_old(im,jp);
+                            %uy(i,j)=uy_old(im,jp);
+                            %uxssa(i,j)=uxssa_old(im,jp);
+                            %uyssa(i,j)=uyssa_old(im,jp);
+                            break;
+                        end
+
+                        if glMASK_old(ip,jm)==4 %&& glMASK(ip,jm)==4
+
+                            %ip = ip + 1;
+                            %jm = jm - 1;
+
+                            H(i,j)=H(ip,jm);
+                            Hn(i,j)=Hn(ip,jm);
+                            
+                            
+                            ux(i,j)=ux_old(ip,jm);
+                            uy(i,j)=uy_old(ip,jm);
+                            %uxssa(i,j)=uxssa(ip,jm);
+                            %uyssa(i,j)=uyssa(ip,jm);
+                            
+                            %ux(i,j)=ux_old(ip,jm);
+                            %uy(i,j)=uy_old(ip,jm);
+                            %uxssa(i,j)=uxssa_old(ip,jm);
+                            %uyssa(i,j)=uyssa_old(ip,jm);
+                            break;
+                        end
+
+                        if glMASK_old(ip,jp)==4 %&& glMASK(ip,jp)==4
+
+                            %ip = ip + 1;
+                            %jp = jp + 1;
+                            
+                            H(i,j)=H(ip,jp);
+                            Hn(i,j)=Hn(ip,jp);
+                            
+                            
+                            ux(i,j)=ux_old(ip,jp);
+                            uy(i,j)=uy_old(ip,jp);
+                            %uxssa(i,j)=uxssa(ip,jp);
+                            %uyssa(i,j)=uyssa(ip,jp);
+                            %uxssa(i,j)=uxssa_old(ip,jp);
+                            %uyssa(i,j)=uyssa_old(ip,jp);
+                            break;
+                        end
+                    end
+                end
+            
+            
+            end
+        end
+    end
+
 %----------------------
 % Bedrock adjustment
 %----------------------
@@ -667,7 +856,7 @@ for cnt=cnt0:ctr.nsteps
     end
     % optimization of basal melt rates based on Bernales (2017)
     if ctr.inverse==2 && rem(cnt*ctr.dt,ctr.TinvMelt)==0
-        if ctr.GroundedMelt==1
+        if ctr.GroundedMelt==1 
             [MeltInv]=OptimizeIceShelf(ctr,MASKo,glMASK,H,Ho,Melt,bMASK);
         else
             [MeltInv]=OptimizeIceShelf(ctr,MASK,glMASK,H,Ho,Melt,bMASK);
@@ -799,6 +988,16 @@ for cnt=cnt0:ctr.nsteps
             end
         end
     end
+
+    
+    % Daniel. Update MASK to keep track of moving calving front.
+    glMASK_old = glMASK;
+    %ux_old     = ux;
+    %uy_old     = uy;
+    %uxssa_old  = uxssa;
+    %uyssa_old  = uyssa;
+
+    
         
 %------------------------------------
 % End of time loop

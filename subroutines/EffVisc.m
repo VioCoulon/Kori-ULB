@@ -42,6 +42,22 @@ function [eta,dudx,dvdy,dudy,dvdx]=EffVisc(A,uxssa,uyssa,H,par,MASK, ...
     EffStr=max(EffStr,1e-12);
     eta=0.5*H.*A.^(-1./par.n).*EffStr.^((1-par.n)/(2*par.n));
     eta(MASK==0)=eta(MASK==0)./shelftune(MASK==0);  %VL: 2D shelftune
+
+    % Jablasco regularizitaion implementation.
+    % Bassis et al., (2021) regularization
+    if ctr.bassis_reg==1
+        % Glen flow law
+        eta_glen=eta;
+        % Diffussion creep
+        d_grain=5e-3; % tunable parameter? Bassis found low effect.
+        eta_diff=H.*(A.^(-1/par.n))./(2*d_grain^2);
+        % Plastic regime
+        eta_plas = H.*(ctr.tauice)./(2*EffStr.^0.5);
+        % minimum viscosity necessary for numerical convergence
+        eta_min=1e10; % tunable parameter?
+        % regularized viscosity
+        eta=(eta_min+((eta_diff.^-1) + (eta_glen.^-1) + (eta_plas.^-1)).^-1);
+    end
     
     if ctr.shelf==1 || ctr.schoof>0
         MASKb=ones(ctr.imax,ctr.jmax); % use constant eta on edges of ice shelf
