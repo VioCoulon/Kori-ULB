@@ -45,7 +45,6 @@ function [u,v,s,flag,relres,iter]=SparseSolverSSA_daniel(nodeu,nodev,s0, ...
     %eta1=circshift(eta,[0 1]); % eta(i,j-1)
     %H1=circshift(H,[0 1]); % H(i,j+1)
     
-
     eta2=circshift(eta,[-1 0]); % eta(i+1,j)
     eta3=circshift(eta,[-1 -1]); % eta(i+1,j+1)
     eta4=circshift(eta,[1 0]); % eta(i-1,j)
@@ -92,7 +91,7 @@ function [u,v,s,flag,relres,iter]=SparseSolverSSA_daniel(nodeu,nodev,s0, ...
         (dmudx(MASKb==1)-0.5*dmudy(MASKb==1))/ctr.delta;
 
 
-
+    % UNDER DEVELOPMENT.
     %U1(MASKb==1)=0.0;
     %U2(MASKb==1)=0.0;
     %U3(MASKb==1)=0.5*(eta1(MASKb==1)+eta(MASKb==1))/(ctr.delta^2);

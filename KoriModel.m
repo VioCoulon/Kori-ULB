@@ -560,6 +560,10 @@ for cnt=cnt0:ctr.nsteps
     else
         ux=uxsia;
         uy=uysia;
+
+        % Daniel.
+        ux_old = ux;
+        uy_old = uy;
     end
     % Daniel test.
     %alpha=0.3;
