@@ -45,7 +45,7 @@ par.maxspeed=40e3; % maximum ice speed limit (m/a)
 par.omega=2.5; % Crank-Nicolson scale factor (0=explicit; 1=implicit; >1 over-implicit) Frank: 2.5
 par.secperyear=31556926;
 % 2d variables to be saved when timeslice=1
-par.varlist={'MASK','H','Hn','B','ux','uy','fluxmx_mean','fluxmy_mean','Tb','glMASK','Melt_mean','FMR_mean','CR_mean','Mb_mean','Bmelt_mean','ubx','uby','beta2'};
+par.varlist={'MASK','H','Hn','B','ux','uy','fluxmx_mean','fluxmy_mean','Tb','glMASK','Melt_mean','FMR_mean','CR_mean','Mb_mean','Bmelt_mean','ubx','uby','beta2','eta','LSF'};
 
 
 %-----------------------------------
