@@ -666,10 +666,10 @@ for cnt=cnt0:ctr.nsteps
         dHdt(cnt)=mean(abs(Hn(:)-H(:)))/ctr.dt; % ice-sheet imbalance
     end
 
-    % Daniel update on calving front.
+    % STILL UNDER DEVELOPMENT!
+    % Daniel update on calving front and dynamics.
     % Points that become calving front take the thickness of the last inner shelf.
-    % Try to remove numerical oscillations in Calving MIP Experiment 2.
-    % It should be here so that matrices are updated before being safe.
+    % Removal of numerical oscillations in Calving MIP Experiment 2.
     if cnt>1 % >500 for the full sim.   
 
         % Current velocity difference from previous iteration.
@@ -678,6 +678,7 @@ for cnt=cnt0:ctr.nsteps
         for i=1:ctr.imax
             for j=1:ctr.jmax
 
+                % Consistent velocities.
                 if glMASK(i,j)==6 || glMASK(i,j)==5 || glMASK(i,j)==4
 
                     if delta_u(i,j) > 5.0e-3 % 0.01 gives nice results.
@@ -686,12 +687,8 @@ for cnt=cnt0:ctr.nsteps
                     end
                 end
 
-                % Option 2.
-                % Consistency in calving front.
+                % Continuity in calving front.
                 if glMASK(i,j)==5 && glMASK_old(i,j)==6
-
-                    %ux(i,j)=ux_old(i,j);
-                    %uy(i,j)=uy_old(i,j);
                         
                     im = i;
                     jm = j;
@@ -709,14 +706,6 @@ for cnt=cnt0:ctr.nsteps
 
                             H(i,j)=H(im,j); % Necessary to add this?
                             Hn(i,j)=Hn(im,j);
-                            
-                            %im = im - 1;
-                            %ux(i,j)=ux(im,j);
-                            %uy(i,j)=uy(im,j);
-                            
-                            % NOT BAD RESULTS WITH THIS!
-                            %ux(i,j)=ux_old(i,j);
-                            %uy(i,j)=uy_old(i,j);
 
                             break; 
                         end
@@ -725,13 +714,6 @@ for cnt=cnt0:ctr.nsteps
 
                             H(i,j)=H(ip,j);
                             Hn(i,j)=Hn(ip,j);
-                            
-                            %ip = ip + 1;
-                            %ux(i,j)=ux(ip,j);
-                            %uy(i,j)=uy(ip,j);
-
-                            %ux(i,j)=ux_old(i,j);
-                            %uy(i,j)=uy_old(i,j);
 
                             break;
                         end
@@ -743,13 +725,6 @@ for cnt=cnt0:ctr.nsteps
                             H(i,j)=H(i,jm);
                             Hn(i,j)=Hn(i,jm);
 
-                            %jm = jm - 1;
-                            %ux(i,j)=ux(i,jm);
-                            %uy(i,j)=uy(i,jm);
-
-                            %ux(i,j)=ux_old(i,j);
-                            %uy(i,j)=uy_old(i,j);
-
                             break;
                         end
                         
@@ -759,49 +734,23 @@ for cnt=cnt0:ctr.nsteps
 
                             H(i,j)=H(i,jp);
                             Hn(i,j)=Hn(i,jp);
-                            
-                            %jp = jp + 1;
-                            %ux(i,j)=ux(i,jp);
-                            %uy(i,j)=uy(i,jp);
-
-                            %ux(i,j)=ux_old(i,j);
-                            %uy(i,j)=uy_old(i,j);
 
                             break;
                         end
 
-                        if glMASK(im,jm)==4 %&& glMASK(im,jm)==4
-
-                            
+                        if glMASK(im,jm)==4 %&& glMASK(im,jm)==4                    
 
                             H(i,j)=H(im,jm);
                             Hn(i,j)=Hn(im,jm);
                             
-                            %im = im - 1;
-                            %jm = jm - 1;
-                            %ux(i,j)=ux(im,jm);
-                            %uy(i,j)=uy(im,jm);
-
-                            %ux(i,j)=ux_old(i,j);
-                            %uy(i,j)=uy_old(i,j);
 
                             break;
                         end
 
                         if glMASK(im,jp)==4 %&& glMASK(im,jp)==4
 
-                            
-
                             H(i,j)=H(im,jp);
                             Hn(i,j)=Hn(im,jp);
-                            
-                            %im = im - 1;
-                            %jp = jp + 1;
-                            %ux(i,j)=ux(im,jp);
-                            %uy(i,j)=uy(im,jp);
-
-                            %ux(i,j)=ux_old(i,j);
-                            %uy(i,j)=uy_old(i,j);
 
                             break;
                         end
@@ -811,15 +760,6 @@ for cnt=cnt0:ctr.nsteps
                             
                             H(i,j)=H(ip,jm);
                             Hn(i,j)=Hn(ip,jm);
-                            
-                            %ip = ip + 1;
-                            %jm = jm - 1;
-
-                            %ux(i,j)=ux(ip,jm);
-                            %uy(i,j)=uy(ip,jm);
-
-                            %ux(i,j)=ux_old(i,j);
-                            %uy(i,j)=uy_old(i,j);
 
                             break;
                         end
@@ -828,15 +768,6 @@ for cnt=cnt0:ctr.nsteps
 
                             H(i,j)=H(ip,jp);
                             Hn(i,j)=Hn(ip,jp);
-                            
-                            %ip = ip + 1;
-                            %jp = jp + 1;
-                            
-                            %ux(i,j)=ux(ip,jp);
-                            %uy(i,j)=uy(ip,jp);
-
-                            %ux(i,j)=ux_old(i,j);
-                            %uy(i,j)=uy_old(i,j);
 
                             break;
                         end
