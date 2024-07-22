@@ -525,24 +525,25 @@ for cnt=cnt0:ctr.nsteps
     if ctr.SSA>=1
         if cnt==1
             su=zeros(ctr.imax*ctr.jmax*2,1);
+
+            % Daniel test.
+            ux=zeros(ctr.imax,ctr.jmax);
+            uy=zeros(ctr.imax,ctr.jmax);
+
+            uxssa=zeros(ctr.imax,ctr.jmax);
+            uyssa=zeros(ctr.imax,ctr.jmax);
+            %%%
+
             if ctr.uSSAexist==1
                 su(nodeu)=uxssa;
                 su(nodev)=uyssa;
-                
-                % Daniel test.
-                ux=zeros(ctr.imax,ctr.jmax);
-                uy=zeros(ctr.imax,ctr.jmax);
-                %%%
             else
                 % Daniel test.
                 ux=zeros(ctr.imax,ctr.jmax);
                 uy=zeros(ctr.imax,ctr.jmax);
-                %%%
-
-                uxssa=zeros(ctr.imax,ctr.jmax);
-                uyssa=zeros(ctr.imax,ctr.jmax);
             end
         end
+
         % Daniel test.
         u_old  = u;
         ux_old = ux;
@@ -562,6 +563,7 @@ for cnt=cnt0:ctr.nsteps
         uy=uysia;
 
         % Daniel.
+        u_old  = u;
         ux_old = ux;
         uy_old = uy;
     end
