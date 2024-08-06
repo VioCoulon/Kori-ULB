@@ -644,7 +644,7 @@ for cnt=cnt0:ctr.nsteps
         [FMB,FMR]=VerticalFaceMelt(ctr,par,SLR,B,Melt,MASK,glMASK,he);
         [CMB,LSF,CR]=CalvingAlgorithms(ctr,par,dudx,dvdy,dudy,dvdx,glMASK,H,A, ...
             uxssa,uyssa,arcocn,B,runoff,MASK,MASKo,Ho,bMASK,LSF,node,nodes,VM, ...
-            cnt,ux,uy,Melt,he,fi,FMR);
+            cnt,ux,uy,Melt,he,fi,FMR,X,Y);
     end
 
 %---------------------------------------------------------
@@ -666,7 +666,10 @@ for cnt=cnt0:ctr.nsteps
         end
         if ctr.calving>=1
             % remove icebergs
-            Hn(LSF<0)=par.SeaIceThickness;
+            %Hn(LSF<0)=par.SeaIceThickness;
+            
+            % Daniel: avoid calving front surpassing GL.
+            Hn(LSF<0 & ( (glMASK==4) | (glMASK==5) | (glMASK==6) ))=par.SeaIceThickness;
         end
         Hn(Hn<0)=0; % limit on minimal ice thickness
         dHdt(cnt)=mean(abs(Hn(:)-H(:)))/ctr.dt; % ice-sheet imbalance
@@ -676,13 +679,38 @@ for cnt=cnt0:ctr.nsteps
     % Daniel update on calving front and dynamics.
     % Points that become calving front take the thickness of the last inner shelf.
     % Removal of numerical oscillations in Calving MIP Experiment 2.
-    if cnt>1 % >500 for the full sim.   
+    if cnt>10000 % >500 for the full sim.  >1
 
         % Current velocity difference from previous iteration.
         delta_u=abs(u-u_old)./u_old;
-            
+
+        % Extremely important to leave the first floaing point unchanged (glMASK==3).
+        ux(delta_u>5.0e-3 & ((glMASK==6)|(glMASK==5)|(glMASK==4))) = ux_old(delta_u>5.0e-3 & ((glMASK==6)|(glMASK==5)|(glMASK==4)));
+        uy(delta_u>5.0e-3 & ((glMASK==6)|(glMASK==5)|(glMASK==4))) = uy_old(delta_u>5.0e-3 & ((glMASK==6)|(glMASK==5)|(glMASK==4)));
+
+        %ux((delta_u>5.0e-3) & (MASK==0)) = ux_old((delta_u>5.0e-3) & (MASK==0));
+        %uy((delta_u>5.0e-3) & (MASK==0)) = uy_old((delta_u>5.0e-3) & (MASK==0));
+
+        %H((glMASK==5) & (glMASK_old==6))  = H((glMASK==4) & (glMASK_old==5));
+        %Hn((glMASK==5) & (glMASK_old==6)) = Hn((glMASK==4) & (glMASK_old==5));
+        
+        %if sum( (glMASK==5) & (glMASK_old==6) )~=0
+        if any( (glMASK==5) & (glMASK_old==6) )==true
+    
+            %H((glMASK==5) & (glMASK_old==6))  = max(H((glMASK==4) & (glMASK_old==5)));
+            %Hn((glMASK==5) & (glMASK_old==6)) = max(Hn((glMASK==4) & (glMASK_old==5)));
+
+            H((glMASK==5) & (glMASK_old==6))  = max(H(glMASK==4));
+            Hn((glMASK==5) & (glMASK_old==6)) = max(Hn(glMASK==4));
+        end
+
+    end
+    
+    if cnt>1
+        % Current velocity difference from previous iteration.
+        delta_u=abs(u-u_old)./u_old;
         for i=1:ctr.imax
-            for j=1:ctr.jmax
+            for j=1:ctr.jmax  
 
                 % Consistent velocities.
                 if glMASK(i,j)==6 || glMASK(i,j)==5 || glMASK(i,j)==4
@@ -708,7 +736,12 @@ for cnt=cnt0:ctr.nsteps
                         jp = jp + k;
                         jm = jm - k;
 
-                        if glMASK(im,j)==4 %&& glMASK_old(im,j)==4 inestead??
+                        % Ensure indixes within limits.
+                        if (im < 1) || (jm < 1) || (ip > ctr.imax) || (jp > ctr.jmax)
+                            break;
+                        end
+
+                        if glMASK(im,j)==4 %&& glMASK_old(im,j)==4 instead??
 
                             H(i,j)=H(im,j); % Necessary to add this?
                             Hn(i,j)=Hn(im,j);
@@ -781,9 +814,9 @@ for cnt=cnt0:ctr.nsteps
                 end
             
             
-            end
-        end
-    end
+           end
+       end
+   end
 
 %----------------------
 % Bedrock adjustment

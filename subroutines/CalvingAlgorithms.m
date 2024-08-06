@@ -1,5 +1,5 @@
 function [CMB,LSF,CR]=CalvingAlgorithms(ctr,par,dudx,dvdy,dudy,dvdx,glMASK,H,A, ...
-    uxssa,uyssa,arcocn,B,runoff,MASK,MASKo,Ho,bMASK,LSF,node,nodes,VM,cnt,ux,uy,Melt,he,fi,FMR)
+    uxssa,uyssa,arcocn,B,runoff,MASK,MASKo,Ho,bMASK,LSF,node,nodes,VM,cnt,ux,uy,Melt,he,fi,FMR,X,Y)
 
 ux1=circshift(ux,[0 1]); % ux(i,j-1)
 uy1=circshift(uy,[1 0]); % uy(i-1,j)
@@ -104,7 +104,9 @@ if ctr.calving>=1 % LSF function calving. Generate a calving rate, CR
     if ctr.calving==7 % CalveMip Periodic forcing, ctr.CR_AMP is max rate of front position change
 
         Wv=-ctr.CR_AMP*sind(cnt*360/ctr.nsteps); % Wv=-ctr.CR_AMP*sind(cnt*360/ctr.nsteps);
-        % Wv=-ctr.CR_AMP*sind((cnt+500)*360/1000);
+        %Wv=-ctr.CR_AMP*sind((cnt+500)*360/1000);
+        
+        %Wv=-ctr.CR_AMP*sind(cnt*360/1000);
         MAGV=sqrt(ux.^2+uy.^2);
         CR=MAGV-Wv;
 
@@ -137,7 +139,16 @@ if ctr.calving>=1 % LSF function calving. Generate a calving rate, CR
     % Diagnostic calculation of calving rate as a surface balance term over
     % the entire grid cell.
     CMB=CR.*Hshelf/ctr.delta;
+    % Frank.
     CMB(glMASK~=5)=0;
+
+    % Daniel. Allow for a one grid cell of calving front between GL and open ocean.
+    %MASK1=circshift(glMASK,[0 -1]); % glMASK(i,j+1)
+    %MASK2=circshift(glMASK,[0 1]); % glMASK(i,j-1)
+    %MASK3=circshift(glMASK,[-1 0]); % glMASK(i+1,j)
+    %MASK4=circshift(glMASK,[1 0]); % glMASK(i-1,j)
+    %CMB((glMASK==1) & (glMASK==2) & (glMASK==3) & (glMASK==4) & (glMASK==6) & ((MASK1==2) | (MASK2==2) | (MASK3==2) | (MASK4==2)) )=0;
+
 
     if  ctr.shelf==1 && ctr.FrontalMelt==1 % Add front melt to calve rate. Just uses vertical melt in calving front cell.....may need to improve this in future
         CR(glMASK==5)=CR(glMASK==5)+FMR(glMASK==5);
@@ -149,7 +160,9 @@ if ctr.calving>=1 % LSF function calving. Generate a calving rate, CR
     wx=uxh+CRx;
     wy=uyh+CRy;
 
-    LSF=LSFfunction(LSF,ctr,wx,wy,node,nodes,VM,MASK); %Advect calving front position
+    %LSF=LSFfunction(LSF,ctr,wx,wy,node,nodes,VM,MASK); %Advect calving front position
+    % Daniel.
+    LSF=LSFfunction(LSF,ctr,wx,wy,node,nodes,VM,MASK,glMASK,X,Y);
 
     if ctr.LimitFront==1 % Impose maximum calving front extent from observed front position
         LSF(MASKo==0)=-1;

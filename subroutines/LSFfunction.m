@@ -1,11 +1,11 @@
-function LSF=LSFfunction(LSF,ctr,u,v,node,nodes,VM,MASK)
+function LSF=LSFfunction(LSF,ctr,u,v,node,nodes,VM,MASK,glMASK,X,Y)
 
 % Kori-ULB
 % Calculate the Level Set Function (LSF) for following the calving front.
 % Used in the calving algorihms
 % Still under development
 
-    epsilon=1e-2;
+    epsilon=1e-3; % Frank: 1.0e-2. Daniel: 1.0e-3
     
     dtdx2=epsilon*ctr.dt/(ctr.delta*ctr.delta);
     dtdx=ctr.dt/ctr.delta;
@@ -144,6 +144,26 @@ function LSF=LSFfunction(LSF,ctr,u,v,node,nodes,VM,MASK)
     end
 
     LSF(node>0)=s(node(node>0));
+
+    % Daniel: calving front cannot retreat further than the GL by definition.
+    LSF(glMASK==2) = R0(glMASK==2);
+
+    % Ensure calving maintains circular symmetry,
+    %dist     = sqrt((X-800.0).^2 + (Y-800.0).^2);
+    %dist_min = min(dist(glMASK==5));
+    %delta = 100.0;
+    
+    %LSF((dist>dist_min+delta)|(dist<dist_min-delta)) = R0((dist>dist_min+delta)|(dist<dist_min-delta));
+    %LSF(dist>dist_min+delta) = R0(dist>dist_min+delta);
+
+    %MASK1=circshift(MASK,[0 -1]); % glMASK(i,j+1)
+    %MASK2=circshift(MASK,[0 1]); % glMASK(i,j-1)
+    %MASK3=circshift(MASK,[-1 0]); % glMASK(i+1,j)
+    %MASK4=circshift(MASK,[1 0]); % glMASK(i-1,j)
+    %LSF(MASK==1 & ( (MASK1==1 & MASK3==1)|(MASK1==1 & MASK4==1)|(MASK1==1 & MASK4==1)|(MASK2==1 & MASK3==1)|(MASK2==1 & MASK4==1) ) ) = R0(MASK==1 & ( (MASK1==1 & MASK3==1)|(MASK1==1 & MASK4==1)|(MASK1==1 & MASK4==1)|(MASK2==1 & MASK3==1)|(MASK2==1 & MASK4==1) ) );
+    %LSF(MASK==1 & MASK1==1 & MASK2==1 & MASK3==1 & MASK4==1 ) = R0(MASK==1 & MASK1==1 & MASK2==1 & MASK3==1 & MASK4==1 );
+    %LSF(glMASK==1) = imgaussfilt(LSF(glMASK==1),1);
+
 end
 
 

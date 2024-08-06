@@ -12,5 +12,3 @@ function [HAF,MASK,HB,sn]=Floatation(par,B,SLR,H,MASK)
     sn=HB+H;
     
 end
-
-
