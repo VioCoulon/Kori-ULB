@@ -306,6 +306,10 @@ if exist('LSF','var')==0
     LSF(MASK==0 & H<=par.SeaIceThickness)=-1;
 end
 
+% Daniel. For only re-advance, LSFo is loaded from the end of Exp3_5 to avoid advancing beyond original limits..
+LSFo=LSF;
+%Hunf=H;
+%Hold=H;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %                                                 %
@@ -527,12 +531,26 @@ for cnt=cnt0:ctr.nsteps
             su=zeros(ctr.imax*ctr.jmax*2,1);
 
             % Daniel test.
-            ux=zeros(ctr.imax,ctr.jmax);
-            uy=zeros(ctr.imax,ctr.jmax);
+            %ux=zeros(ctr.imax,ctr.jmax);
+            %uy=zeros(ctr.imax,ctr.jmax);
 
-            uxssa=zeros(ctr.imax,ctr.jmax);
-            uyssa=zeros(ctr.imax,ctr.jmax);
+            %uxssa=zeros(ctr.imax,ctr.jmax);
+            %uyssa=zeros(ctr.imax,ctr.jmax);
             %%%
+
+            % Daniel pseudo-transient method.
+            ux=0.1*ones(ctr.imax,ctr.jmax);
+            uy=0.1*ones(ctr.imax,ctr.jmax);
+
+            uxssa=0.1*ones(ctr.imax,ctr.jmax);
+            uyssa=0.1*ones(ctr.imax,ctr.jmax);
+
+            %ux=5*ones(ctr.imax,ctr.jmax);
+            %uy=5*ones(ctr.imax,ctr.jmax);
+
+            %uxssa=5*ones(ctr.imax,ctr.jmax);
+            %uyssa=5*ones(ctr.imax,ctr.jmax);
+            %
 
             if ctr.uSSAexist==1
                 su(nodeu)=uxssa;
@@ -644,7 +662,7 @@ for cnt=cnt0:ctr.nsteps
         [FMB,FMR]=VerticalFaceMelt(ctr,par,SLR,B,Melt,MASK,glMASK,he);
         [CMB,LSF,CR]=CalvingAlgorithms(ctr,par,dudx,dvdy,dudy,dvdx,glMASK,H,A, ...
             uxssa,uyssa,arcocn,B,runoff,MASK,MASKo,Ho,bMASK,LSF,node,nodes,VM, ...
-            cnt,ux,uy,Melt,he,fi,FMR,X,Y);
+            cnt,ux,uy,Melt,he,fi,FMR,X,Y,LSFo);
     end
 
 %---------------------------------------------------------
@@ -658,18 +676,26 @@ for cnt=cnt0:ctr.nsteps
         if ctr.basin==1
             Massb(bMASK==1)=0; % only for ice thickness evolution
         end
-        [Hn,flagH,relresH,iterH]=SparseSolverIceThickness(node,nodes, ...
-            Massb,H,B,SLR,glMASK,dtdx,dtdx2, ...
-            d,uxsch,uysch,ctr,cnt,bMASK,VM,par);
+        % Frank.
+        %[Hn,flagH,relresH,iterH]=SparseSolverIceThickness(node,nodes, ...
+        %    Massb,H,B,SLR,glMASK,dtdx,dtdx2, ...
+        %    d,uxsch,uysch,ctr,cnt,bMASK,VM,par);
+        
+        % Daniel.
+        %Hn=SparseSolverIceThickness_daniel(Massb,H, ...
+        %    dtdx,uxsch,uysch,ctr);
+        Hn=SolverIceThickness_optimised(Massb,H, ...
+            dtdx,uxsch,uysch,ctr);
+
         if ctr.NumCheck==1
             NumStab(cnt,6:8)=[relresH,iterH,flagH];
         end
         if ctr.calving>=1
             % remove icebergs
-            %Hn(LSF<0)=par.SeaIceThickness;
+            Hn(LSF<0)=par.SeaIceThickness;
             
             % Daniel: avoid calving front surpassing GL.
-            Hn(LSF<0 & ( (glMASK==4) | (glMASK==5) | (glMASK==6) ))=par.SeaIceThickness;
+            %Hn(LSF<0 & ( (glMASK==4) | (glMASK==5) | (glMASK==6) ))=par.SeaIceThickness;
         end
         Hn(Hn<0)=0; % limit on minimal ice thickness
         dHdt(cnt)=mean(abs(Hn(:)-H(:)))/ctr.dt; % ice-sheet imbalance
@@ -679,14 +705,14 @@ for cnt=cnt0:ctr.nsteps
     % Daniel update on calving front and dynamics.
     % Points that become calving front take the thickness of the last inner shelf.
     % Removal of numerical oscillations in Calving MIP Experiment 2.
-    if cnt>10000 % >500 for the full sim.  >1
+    if cnt>1000000 % >500 for the full sim.  >1
 
         % Current velocity difference from previous iteration.
         delta_u=abs(u-u_old)./u_old;
 
         % Extremely important to leave the first floaing point unchanged (glMASK==3).
-        ux(delta_u>5.0e-3 & ((glMASK==6)|(glMASK==5)|(glMASK==4))) = ux_old(delta_u>5.0e-3 & ((glMASK==6)|(glMASK==5)|(glMASK==4)));
-        uy(delta_u>5.0e-3 & ((glMASK==6)|(glMASK==5)|(glMASK==4))) = uy_old(delta_u>5.0e-3 & ((glMASK==6)|(glMASK==5)|(glMASK==4)));
+        ux(delta_u>5.0e-3 & ((glMASK==6)|(glMASK==5)|(glMASK==4))) = ux_old(delta_u>1.0e-3 & ((glMASK==6)|(glMASK==5)|(glMASK==4)));
+        uy(delta_u>5.0e-3 & ((glMASK==6)|(glMASK==5)|(glMASK==4))) = uy_old(delta_u>1.0e-3 & ((glMASK==6)|(glMASK==5)|(glMASK==4)));
 
         %ux((delta_u>5.0e-3) & (MASK==0)) = ux_old((delta_u>5.0e-3) & (MASK==0));
         %uy((delta_u>5.0e-3) & (MASK==0)) = uy_old((delta_u>5.0e-3) & (MASK==0));
@@ -695,27 +721,35 @@ for cnt=cnt0:ctr.nsteps
         %Hn((glMASK==5) & (glMASK_old==6)) = Hn((glMASK==4) & (glMASK_old==5));
         
         %if sum( (glMASK==5) & (glMASK_old==6) )~=0
-        if any( (glMASK==5) & (glMASK_old==6) )==true
+        if any( (glMASK==5) & (glMASK_old==6) ) %==true
     
             %H((glMASK==5) & (glMASK_old==6))  = max(H((glMASK==4) & (glMASK_old==5)));
             %Hn((glMASK==5) & (glMASK_old==6)) = max(Hn((glMASK==4) & (glMASK_old==5)));
 
             H((glMASK==5) & (glMASK_old==6))  = max(H(glMASK==4));
             Hn((glMASK==5) & (glMASK_old==6)) = max(Hn(glMASK==4));
+
+            % Statistical.
+            %H((glMASK==5) & (glMASK_old==6))  = median(H(glMASK==4));
+            %Hn((glMASK==5) & (glMASK_old==6)) = median(Hn(glMASK==4));
+
+            %H((glMASK==5) & (glMASK_old==6))  = max(H(glMASK_old==4));
+            %Hn((glMASK==5) & (glMASK_old==6)) = max(Hn(glMASK_old==4));
         end
 
     end
     
-    if cnt>1
+    if cnt>1000000
+        
         % Current velocity difference from previous iteration.
-        delta_u=abs(u-u_old)./u_old;
+        %delta_u=abs(u-u_old)./u_old;
         for i=1:ctr.imax
             for j=1:ctr.jmax  
 
                 % Consistent velocities.
                 if glMASK(i,j)==6 || glMASK(i,j)==5 || glMASK(i,j)==4
 
-                    if delta_u(i,j) > 5.0e-3 % 0.01 gives nice results.
+                    if delta_u(i,j) > 1.0e-3 % 5.0e-3, 0.01 gives nice results.
                         ux(i,j)=ux_old(i,j);
                         uy(i,j)=uy_old(i,j);
                     end
@@ -976,6 +1010,9 @@ for cnt=cnt0:ctr.nsteps
     
     % Daniel. Update MASK to keep track of moving calving front.
     glMASK_old = glMASK;
+    
+    %Hold = H;
+    %Hunf = Hnew;
     %if cnt >1
     %    ux_old_2   = ux_old;
     %    uy_old_2   = uy_old; 

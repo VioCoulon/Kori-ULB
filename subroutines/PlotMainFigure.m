@@ -60,7 +60,7 @@ function PlotMainFigure(ctr,par,x,y,sn,S0,H,u,B,MASK,glMASK,LSF)
     ylabel('y (km)');
 
     ax2=subplot(1,2,2);
-    imagescn(x,y,log10(u1),[-1 3.5]);
+    imagescn(x,y,log10(u1),[-1 3.5]); % [-1 3.5]
     axis xy;
     if ctr.mismip==0 || ctr.mismip==2
         axis equal;

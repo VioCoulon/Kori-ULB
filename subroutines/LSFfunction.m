@@ -1,11 +1,11 @@
-function LSF=LSFfunction(LSF,ctr,u,v,node,nodes,VM,MASK,glMASK,X,Y)
+function LSF=LSFfunction(LSF,ctr,u,v,node,nodes,VM,MASK,glMASK,X,Y,LSFo)
 
 % Kori-ULB
 % Calculate the Level Set Function (LSF) for following the calving front.
 % Used in the calving algorihms
 % Still under development
 
-    epsilon=1e-3; % Frank: 1.0e-2. Daniel: 1.0e-3
+    epsilon=0.0; % Frank: 1.0e-2. Daniel: 1.0e-3
     
     dtdx2=epsilon*ctr.dt/(ctr.delta*ctr.delta);
     dtdx=ctr.dt/ctr.delta;
@@ -19,7 +19,7 @@ function LSF=LSFfunction(LSF,ctr,u,v,node,nodes,VM,MASK,glMASK,X,Y)
     V3=zeros(ctr.imax,ctr.jmax)-dtdx2; % i+1,j
     V4=zeros(ctr.imax,ctr.jmax)-dtdx2; % i-1,j
 
-    % Velocity sign masks
+    % Velocity sign masks.
     MU=ones(ctr.imax,ctr.jmax);
     MU(u<=0)=2;
     MV=ones(ctr.imax,ctr.jmax);
@@ -146,7 +146,13 @@ function LSF=LSFfunction(LSF,ctr,u,v,node,nodes,VM,MASK,glMASK,X,Y)
     LSF(node>0)=s(node(node>0));
 
     % Daniel: calving front cannot retreat further than the GL by definition.
-    LSF(glMASK==2) = R0(glMASK==2);
+    LSF(MASK==1) = R0(MASK==1);
+    
+    % Leave one grid cell of calving front. IT DOES NOT WORK.
+    %LSF((glMASK==1)&(glMASK==2)&(glMASK==3)) = R0((glMASK==1)&(glMASK==2)&(glMASK==3));
+    
+    % Calving front will not advance further than original position.
+    %LSF(LSFo<0) = LSFo(LSFo<0);
 
     % Ensure calving maintains circular symmetry,
     %dist     = sqrt((X-800.0).^2 + (Y-800.0).^2);
@@ -163,6 +169,32 @@ function LSF=LSFfunction(LSF,ctr,u,v,node,nodes,VM,MASK,glMASK,X,Y)
     %LSF(MASK==1 & ( (MASK1==1 & MASK3==1)|(MASK1==1 & MASK4==1)|(MASK1==1 & MASK4==1)|(MASK2==1 & MASK3==1)|(MASK2==1 & MASK4==1) ) ) = R0(MASK==1 & ( (MASK1==1 & MASK3==1)|(MASK1==1 & MASK4==1)|(MASK1==1 & MASK4==1)|(MASK2==1 & MASK3==1)|(MASK2==1 & MASK4==1) ) );
     %LSF(MASK==1 & MASK1==1 & MASK2==1 & MASK3==1 & MASK4==1 ) = R0(MASK==1 & MASK1==1 & MASK2==1 & MASK3==1 & MASK4==1 );
     %LSF(glMASK==1) = imgaussfilt(LSF(glMASK==1),1);
+
+
+    % Daniel's explicit calculation of LSF.
+    dtdx=ctr.dt/ctr.delta;
+
+    LSF_now = LSF;
+
+    for i=1:ctr.imax
+        for j=1:ctr.jmax  
+            if u(i,j) > 0.0
+                LSF_x = LSF(i,j) - LSF(i,j-1);
+            end
+            if u(i,j) < 0.0
+                LSF_x = LSF(i,j-1) - LSF(i,j);
+            end
+            if v(i,j) > 0.0
+                LSF_y = LSF(i,j) - LSF(i-1,j);
+            end
+            if v(i,j) < 0.0
+                LSF_y = LSF(i-1,j) - LSF(i,j);
+            end
+
+        LSF_now(i,j) = LSF(i,j) + dtdx * ( u(i,j)*LSF_x(i,j) + v(i,j)*LSF_y(i,j) );
+
+        end 
+    end
 
 end
 

@@ -14,12 +14,18 @@ function [eta,dudx,dvdy,dudy,dvdx]=EffVisc(A,uxssa,uyssa,H,par,MASK, ...
     dvdy(ctr.imax,:)=dvdy(ctr.imax-1,:);
     dudy=(circshift(uxssa,[-1 1])+circshift(uxssa,[-1 0])- ...
         circshift(uxssa,[1 1])-circshift(uxssa,[1 0]))/(4*ctr.delta);
+    % Daniel.
+    %dudy=(uxssa+circshift(uxssa,[0 1])- ...
+    %    circshift(uxssa,[1 1])-circshift(uxssa,[1 0]))/(2*ctr.delta);
     dudy(1,:)=dudy(2,:);
     dudy(ctr.imax,:)=dudy(ctr.imax-1,:);
     dudy(:,1)=dudy(:,2);
     dudy(:,ctr.jmax)=dudy(:,ctr.jmax-1);
     dvdx=(circshift(uyssa,[0 -1])+circshift(uyssa,[1 -1])- ...
         circshift(uyssa,[0 1])-circshift(uyssa,[1 1]))/(4*ctr.delta);
+    % Daniel.
+    %dvdx=(uyssa+circshift(uyssa,[1 0])- ...
+    %    circshift(uyssa,[0 1])-circshift(uyssa,[1 1]))/(2*ctr.delta);
     dvdx(1,:)=dvdx(2,:);
     dvdx(ctr.imax,:)=dvdx(ctr.imax-1,:);
     dvdx(:,1)=dvdx(:,2);

@@ -101,42 +101,51 @@ function [uxssa,uyssa,beta2,eta,dudx,dudy,dvdx,dvdy,su,ubx,uby,ux,uy, ...
         end
         eta=eta.*scale_eta;
         
-        [uxs1,uys1,su,flagU,relresU,iterU]=SparseSolverSSA_daniel(nodeu,nodev, ...
-            su,MASKmx,MASKmy,bMASK, ...
-            H,eta,betax,betay,uxssa,uyssa,uxsia,uysia,udx,udy,taudx, ...
-            taudy,ctr,par);
+        %[uxs1,uys1,su,flagU,relresU,iterU]=SparseSolverSSA_daniel(nodeu,nodev, ...
+        %    su,MASKmx,MASKmy,bMASK, ...
+        %    H,eta,betax,betay,uxssa,uyssa,uxsia,uysia,udx,udy,taudx, ...
+        %    taudy,ctr,par);
+
+        % Pseudo-transient method.
+        %[uxs1,uys1,betax,betay]=SparseSolverSSA_daniel_2(nodeu,nodev, ...
+        %        su,MASKmx,MASKmy,bMASK,H,eta,uxssa,uyssa,...
+        %            uxsia,uysia,udx,udy,taudx,taudy,MASK,Asf,cnt,ctr,par);
+        [uxs1,uys1]=SolverSSA_pseudo_transient(nodeu,nodev, ...
+            su,MASKmx,MASKmy,bMASK,H,eta,uxssa,uyssa,...
+                uxsia,uysia,udx,udy,taudx,taudy,MASK,Asf,cnt,ctr,par);
+
         duxs=sqrt((uxs1-uxssa).^2+(uys1-uyssa).^2);
         duxs(isnan(duxs))=0;
         uxssa=uxs1;
         uyssa=uys1;
         limit=sum(duxs(:))/(ctr.imax*ctr.jmax);
         %---------iterative beta---------
-        if cnt<=ctr.BetaIter
-            ussa=vec2h(uxssa,uyssa); %VL: ussa on h-grid
-            if ctr.u0>1e10
-                beta2=fg.*(ussa.^(1/ctr.m-1)).*Asf.^(-1/ctr.m);
-            else
-                beta2=fg.*(ussa.^(1/ctr.m-1)).*((ussa+ctr.u0).*Asf ...
-                    /ctr.u0).^(-1/ctr.m);
-            end
-            beta2=min(beta2,1e8);
-            beta2(MASK==0)=0;
-            betax=0.5*(beta2+circshift(beta2,[0 -1]));
-            betay=0.5*(beta2+circshift(beta2,[-1 0]));
-            if ctr.mismip>=1
-                betax(:,1)=betax(:,2); % symmetric divide
-                betax(1,:)=betax(3,:); % symmetry axis
-                betax(ctr.imax,:)=betax(ctr.imax-2,:); % periodic BC
-                betax(:,ctr.jmax)=0; % ocean
-                betay(:,1)=betay(:,3); % symmetric divide
-                betay(1,:)=betay(2,:); % symmetry axis
-                betay(ctr.imax,:)=betay(ctr.imax-1,:); % periodic BC
-                if ctr.mismip==2 % Thule setup
-                    betax(ctr.imax,:)=0;
-                    betay(ctr.imax,:)=0;
-                end
-            end
-        end
+        %if cnt<=ctr.BetaIter
+        %    ussa=vec2h(uxssa,uyssa); %VL: ussa on h-grid
+        %    if ctr.u0>1e10
+        %        beta2=fg.*(ussa.^(1/ctr.m-1)).*Asf.^(-1/ctr.m);
+        %    else
+        %        beta2=fg.*(ussa.^(1/ctr.m-1)).*((ussa+ctr.u0).*Asf ...
+        %            /ctr.u0).^(-1/ctr.m);
+        %    end
+        %    beta2=min(beta2,1e8);
+        %    beta2(MASK==0)=0;
+        %    betax=0.5*(beta2+circshift(beta2,[0 -1]));
+        %    betay=0.5*(beta2+circshift(beta2,[-1 0]));
+        %    if ctr.mismip>=1
+        %        betax(:,1)=betax(:,2); % symmetric divide
+        %        betax(1,:)=betax(3,:); % symmetry axis
+        %        betax(ctr.imax,:)=betax(ctr.imax-2,:); % periodic BC
+        %        betax(:,ctr.jmax)=0; % ocean
+        %        betay(:,1)=betay(:,3); % symmetric divide
+        %        betay(1,:)=betay(2,:); % symmetry axis
+        %        betay(ctr.imax,:)=betay(ctr.imax-1,:); % periodic BC
+        %        if ctr.mismip==2 % Thule setup
+        %            betax(ctr.imax,:)=0;
+        %            betay(ctr.imax,:)=0;
+        %        end
+        %    end
+        %end
         %--------------------------------
         if limit<par.visctol % Limit on convergence
             break;

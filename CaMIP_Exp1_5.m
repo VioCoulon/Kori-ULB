@@ -41,8 +41,12 @@ function CaMIP_Exp1_5
     save('ThuleIn5','B','H','Mb','Ts','LSF');
     
     % 1 - Initial spin up
+    ctr.dt=1;   
     ctr.nsteps=8000; % Jim: 15000, Daniel: 8000 is enough
-    KoriModel('ThuleIn5','Thule5_visceff1e10_limitno_daniel',ctr);
+    %KoriModel('ThuleIn5','Thule5_visceff1e10_limitno_daniel',ctr);
+    ctr.timeslice=1;
+    ctr.snapshot=800;
+    KoriModel('ThuleIn5','Thule5_thickness_daniel',ctr);
     
     % 2 - Adjustment to imposition of Calving Front
     ctr.calving=2;   % Direct, constant imposition of change in front positon.
@@ -50,8 +54,8 @@ function CaMIP_Exp1_5
     ctr.dt=1;
     ctr.LSFReset=30;
     ctr.nsteps=4000; %Jim: 10000, Daniel: 4000 is enough
-    %save('Thule5_visceff1e3_limityes','LSF','-append'); % save('Thule5','LSF','-append'); % Make sure to save the LSF that comes from the initial spinup. 
-    %KoriModel('Thule5_visceff1e3_limityes','Thule-Circ5_visceff1e3_limityes',ctr);
+    %save('Thule5_thickness_daniel','LSF','-append'); % save('Thule5','LSF','-append'); % Make sure to save the LSF that comes from the initial spinup. 
+    %KoriModel('Thule5_thickness_daniel','Thule-Circ5_thickness_daniel',ctr);
     
     % Old Jim's code.
     % %CalvingMIP-Algorithim 1
@@ -60,7 +64,7 @@ function CaMIP_Exp1_5
     ctr.nsteps=100;
     ctr.timeslice=1;
     ctr.snapshot=10;
-    %KoriModel('Thule-Circ5_visceff1e3_limityes','Exp1_5_visceff1e3_limityes',ctr); %KoriModel('Thule-Circ5','Exp1_5',ctr);
+    %KoriModel('Thule-Circ5_thickness_daniel','Exp1_5_thickness_daniel',ctr); %KoriModel('Thule-Circ5','Exp1_5',ctr);
     end
 
 function [B]=BedGeom(x,y,R,Bc,Bl,Ba)

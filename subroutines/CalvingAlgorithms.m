@@ -1,5 +1,5 @@
 function [CMB,LSF,CR]=CalvingAlgorithms(ctr,par,dudx,dvdy,dudy,dvdx,glMASK,H,A, ...
-    uxssa,uyssa,arcocn,B,runoff,MASK,MASKo,Ho,bMASK,LSF,node,nodes,VM,cnt,ux,uy,Melt,he,fi,FMR,X,Y)
+    uxssa,uyssa,arcocn,B,runoff,MASK,MASKo,Ho,bMASK,LSF,node,nodes,VM,cnt,ux,uy,Melt,he,fi,FMR,X,Y,LSFo)
 
 ux1=circshift(ux,[0 1]); % ux(i,j-1)
 uy1=circshift(uy,[1 0]); % uy(i-1,j)
@@ -103,12 +103,18 @@ if ctr.calving>=1 % LSF function calving. Generate a calving rate, CR
 
     if ctr.calving==7 % CalveMip Periodic forcing, ctr.CR_AMP is max rate of front position change
 
-        Wv=-ctr.CR_AMP*sind(cnt*360/ctr.nsteps); % Wv=-ctr.CR_AMP*sind(cnt*360/ctr.nsteps);
+        %Wv=-ctr.CR_AMP*sind(cnt*360/ctr.nsteps); % Wv=-ctr.CR_AMP*sind(cnt*360/ctr.nsteps);
         %Wv=-ctr.CR_AMP*sind((cnt+500)*360/1000);
         
         %Wv=-ctr.CR_AMP*sind(cnt*360/1000);
-        MAGV=sqrt(ux.^2+uy.^2);
-        CR=MAGV-Wv;
+        %MAGV=sqrt(ux.^2+uy.^2); % Daniel: this was already calculated above?
+        %CR=MAGV-Wv;
+
+        % Second half of the experiment the ice front is alowed to freely advance, with no calving imposed.
+        if cnt>0
+            %CR=0.0;
+            CR=zeros(size(LSF));
+        end
 
     end
 
@@ -160,9 +166,14 @@ if ctr.calving>=1 % LSF function calving. Generate a calving rate, CR
     wx=uxh+CRx;
     wy=uyh+CRy;
 
+    % Original.
     %LSF=LSFfunction(LSF,ctr,wx,wy,node,nodes,VM,MASK); %Advect calving front position
+    
     % Daniel.
-    LSF=LSFfunction(LSF,ctr,wx,wy,node,nodes,VM,MASK,glMASK,X,Y);
+    %LSF=LSFfunction(LSF,ctr,wx,wy,node,nodes,VM,MASK,glMASK,X,Y,LSFo);
+    
+    % Daniel function.
+    LSF=LSFfunction_daniel(LSF,ctr,wx,wy,node,nodes,VM,MASK,glMASK,X,Y,LSFo);
 
     if ctr.LimitFront==1 % Impose maximum calving front extent from observed front position
         LSF(MASKo==0)=-1;
@@ -171,6 +182,10 @@ if ctr.calving>=1 % LSF function calving. Generate a calving rate, CR
     if floor(cnt/par.LSFReset)==ceil(cnt/par.LSFReset)  % Reset LSF field for stability
         LSF(LSF<-1)=-1;
         LSF(LSF>1)=1;
+
+        % Daniel.
+        %LSF(LSF<0)=-1;
+        %LSF(LSF>0)=1;
     end
 
 end
