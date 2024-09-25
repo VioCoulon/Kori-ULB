@@ -23,12 +23,21 @@ function [gradm,gradmx,gradmy,gradxy,gradsx,gradsy,gradHx,gradHy, ...
     gradHx=(H2-H4)/(2*ctr.delta);
     gradHy=(H1-H5)/(2*ctr.delta);
     
+    % Frank.
     gradmx=(sn2-sn)/ctr.delta;
     Hmx=(H+circshift(H,[0 -1]))/2.;
     Bmx=(B+circshift(B,[0 -1]))/2.;
     gradmy=(sn1-sn)/ctr.delta;
     Hmy=(H+circshift(H,[-1 0]))/2.;
     Bmy=(B+circshift(B,[-1 0]))/2.;
+
+    % Daniel
+    %gradmx=0.5*(sn2-circshift(sn,[0 1]))/ctr.delta;
+    %Hmx=(circshift(H,[0 1])+circshift(H,[0 -1]))/4.;
+    %Bmx=(circshift(B,[0 1])+circshift(B,[0 -1]))/4.;
+    %gradmy=0.5*(sn1-circshift(sn,[1 0]))/ctr.delta;
+    %Hmy=(circshift(H,[1 0])+circshift(H,[-1 0]))/4.;
+    %Bmy=(circshift(B,[1 0])+circshift(B,[-1 0]))/4.;
     
     signx=sign(-gradmx);
     signy=sign(-gradmy);

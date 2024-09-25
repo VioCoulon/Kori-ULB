@@ -5,7 +5,7 @@ function LSF=LSFfunction(LSF,ctr,u,v,node,nodes,VM,MASK,glMASK,X,Y,LSFo)
 % Used in the calving algorihms
 % Still under development
 
-    epsilon=0.0; % Frank: 1.0e-2. Daniel: 1.0e-3
+    epsilon=1.0e-2; % Frank: 1.0e-2. Daniel: 1.0e-3
     
     dtdx2=epsilon*ctr.dt/(ctr.delta*ctr.delta);
     dtdx=ctr.dt/ctr.delta;
@@ -172,29 +172,29 @@ function LSF=LSFfunction(LSF,ctr,u,v,node,nodes,VM,MASK,glMASK,X,Y,LSFo)
 
 
     % Daniel's explicit calculation of LSF.
-    dtdx=ctr.dt/ctr.delta;
+    %dtdx=ctr.dt/ctr.delta;
 
-    LSF_now = LSF;
+    %LSF_now = LSF;
 
-    for i=1:ctr.imax
-        for j=1:ctr.jmax  
-            if u(i,j) > 0.0
-                LSF_x = LSF(i,j) - LSF(i,j-1);
-            end
-            if u(i,j) < 0.0
-                LSF_x = LSF(i,j-1) - LSF(i,j);
-            end
-            if v(i,j) > 0.0
-                LSF_y = LSF(i,j) - LSF(i-1,j);
-            end
-            if v(i,j) < 0.0
-                LSF_y = LSF(i-1,j) - LSF(i,j);
-            end
+    %for i=1:ctr.imax
+    %    for j=1:ctr.jmax  
+    %        if u(i,j) > 0.0
+    %            LSF_x = LSF(i,j) - LSF(i,j-1);
+    %        end
+    %        if u(i,j) < 0.0
+    %            LSF_x = LSF(i,j-1) - LSF(i,j);
+    %        end
+    %        if v(i,j) > 0.0
+    %            LSF_y = LSF(i,j) - LSF(i-1,j);
+    %        end
+    %        if v(i,j) < 0.0
+    %            LSF_y = LSF(i-1,j) - LSF(i,j);
+    %        end
 
-        LSF_now(i,j) = LSF(i,j) + dtdx * ( u(i,j)*LSF_x(i,j) + v(i,j)*LSF_y(i,j) );
+    %    LSF_now(i,j) = LSF(i,j) + dtdx * ( u(i,j)*LSF_x(i,j) + v(i,j)*LSF_y(i,j) );
 
-        end 
-    end
+    %    end 
+    %end
 
 end
 

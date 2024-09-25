@@ -106,15 +106,15 @@ if ctr.calving>=1 % LSF function calving. Generate a calving rate, CR
         %Wv=-ctr.CR_AMP*sind(cnt*360/ctr.nsteps); % Wv=-ctr.CR_AMP*sind(cnt*360/ctr.nsteps);
         %Wv=-ctr.CR_AMP*sind((cnt+500)*360/1000);
         
-        %Wv=-ctr.CR_AMP*sind(cnt*360/1000);
-        %MAGV=sqrt(ux.^2+uy.^2); % Daniel: this was already calculated above?
-        %CR=MAGV-Wv;
+        Wv=-ctr.CR_AMP*sind(cnt*360/1000);
+        MAGV=sqrt(ux.^2+uy.^2); % Daniel: this was already calculated above?
+        CR=MAGV-Wv;
 
         % Second half of the experiment the ice front is alowed to freely advance, with no calving imposed.
-        if cnt>0
-            %CR=0.0;
-            CR=zeros(size(LSF));
-        end
+        %if cnt>0
+        %    %CR=0.0;
+        %    CR=zeros(size(LSF));
+        %end
 
     end
 
@@ -173,6 +173,7 @@ if ctr.calving>=1 % LSF function calving. Generate a calving rate, CR
     %LSF=LSFfunction(LSF,ctr,wx,wy,node,nodes,VM,MASK,glMASK,X,Y,LSFo);
     
     % Daniel function.
+    % IT WORKS VERY NICELY!
     LSF=LSFfunction_daniel(LSF,ctr,wx,wy,node,nodes,VM,MASK,glMASK,X,Y,LSFo);
 
     if ctr.LimitFront==1 % Impose maximum calving front extent from observed front position

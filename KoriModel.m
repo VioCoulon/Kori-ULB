@@ -308,6 +308,8 @@ end
 
 % Daniel. For only re-advance, LSFo is loaded from the end of Exp3_5 to avoid advancing beyond original limits..
 LSFo=LSF;
+k=0;
+err=0;
 %Hunf=H;
 %Hold=H;
 
@@ -349,7 +351,7 @@ for cnt=cnt0:ctr.nsteps
     if cnt>1
         fprintf('\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b');
     end
-    fprintf('t = %12.2f', time(cnt));
+    fprintf('\n t = %12.2f \n ', time(cnt));
     if cnt==ctr.nsteps
         fprintf('\n... End model run ...\n');
     end    
@@ -568,14 +570,19 @@ for cnt=cnt0:ctr.nsteps
         uy_old = uy;
         %%%
         [uxssa,uyssa,beta2,eta,dudx,dudy,dvdx,dvdy,su,ubx,uby,ux,uy, ...
-            damage,NumStabVel]= ...
+            damage,NumStabVel,k,err]= ...
             SSAvelocity(ctr,par,su,Hmx,Hmy,gradmx,gradmy,signx,signy, ...
             uxssa,uyssa,H,HB,B,stdB,Asf,A,MASK,glMASK,HAF,HAFmx,HAFmy,cnt, ...
             nodeu,nodev,MASKmx,MASKmy,bMASK,uxsia,uysia,udx,udy,node,nodes, ...
             Mb,Melt,dtdx,dtdx2,VM,damage,ThinComp,shelftune);
+
+        %fprintf('\n k = %1.0f \n ', k);
+        k
+
         if ctr.NumCheck==1
             NumStab(cnt,1:5)=NumStabVel;
         end
+
     else
         ux=uxsia;
         uy=uysia;
@@ -684,8 +691,9 @@ for cnt=cnt0:ctr.nsteps
         % Daniel.
         %Hn=SparseSolverIceThickness_daniel(Massb,H, ...
         %    dtdx,uxsch,uysch,ctr);
+        
         Hn=SolverIceThickness_optimised(Massb,H, ...
-            dtdx,uxsch,uysch,ctr);
+            uxsch,uysch,glMASK,ctr);
 
         if ctr.NumCheck==1
             NumStab(cnt,6:8)=[relresH,iterH,flagH];
@@ -700,6 +708,9 @@ for cnt=cnt0:ctr.nsteps
         Hn(Hn<0)=0; % limit on minimal ice thickness
         dHdt(cnt)=mean(abs(Hn(:)-H(:)))/ctr.dt; % ice-sheet imbalance
     end
+
+    
+    
 
     % STILL UNDER DEVELOPMENT!
     % Daniel update on calving front and dynamics.
@@ -747,13 +758,13 @@ for cnt=cnt0:ctr.nsteps
             for j=1:ctr.jmax  
 
                 % Consistent velocities.
-                if glMASK(i,j)==6 || glMASK(i,j)==5 || glMASK(i,j)==4
+                %if glMASK(i,j)==6 || glMASK(i,j)==5 || glMASK(i,j)==4
 
-                    if delta_u(i,j) > 1.0e-3 % 5.0e-3, 0.01 gives nice results.
-                        ux(i,j)=ux_old(i,j);
-                        uy(i,j)=uy_old(i,j);
-                    end
-                end
+                %    if delta_u(i,j) > 1.0e-3 % 5.0e-3, 0.01 gives nice results.
+                %        ux(i,j)=ux_old(i,j);
+                %        uy(i,j)=uy_old(i,j);
+                %    end
+                %end
 
                 % Continuity in calving front.
                 if glMASK(i,j)==5 && glMASK_old(i,j)==6
@@ -850,7 +861,7 @@ for cnt=cnt0:ctr.nsteps
             
            end
        end
-   end
+    end
 
 %----------------------
 % Bedrock adjustment
@@ -990,6 +1001,9 @@ for cnt=cnt0:ctr.nsteps
     if ctr.runmode<2 && rem(cnt-1,plotst)==0
         PlotMainFigure(ctr,par,x,y,sn,S0,H,u,B,MASK,glMASK,LSF);
     end
+
+    fprintf('\n err = %2.4f \n ', err);
+    err
     
 %------------------------------------
 % Save intermediate output

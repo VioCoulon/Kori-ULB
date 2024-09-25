@@ -7,9 +7,13 @@ function [eta,dudx,dvdy,dudy,dvdx]=EffVisc(A,uxssa,uyssa,H,par,MASK, ...
 % determines eta1
 
     dudx=(uxssa-circshift(uxssa,[0 1]))/ctr.delta;
+    % Daniel choice: SYMMETRIC!!
+    %dudx=0.5*(circshift(uxssa,[0 -1])-circshift(uxssa,[0 1]))/ctr.delta;
     dudx(:,1)=dudx(:,2);
     dudx(:,ctr.jmax)=dudx(:,ctr.jmax-1);
     dvdy=(uyssa-circshift(uyssa,[1 0]))/ctr.delta;
+    % Daniel
+    %dvdy=0.5*(circshift(uyssa,[-1 0])-circshift(uyssa,[1 0]))/ctr.delta;
     dvdy(1,:)=dvdy(2,:);
     dvdy(ctr.imax,:)=dvdy(ctr.imax-1,:);
     dudy=(circshift(uxssa,[-1 1])+circshift(uxssa,[-1 0])- ...
@@ -82,7 +86,7 @@ function [eta,dudx,dvdy,dudy,dvdx]=EffVisc(A,uxssa,uyssa,H,par,MASK, ...
         % Instead of calculating effective viscosity on the sea ice,
         % keep constant viscosity. Need to further check how to deal
         % with this. May be quoted
-        eta(glMASK==6)=1e10; % Default: 1.0e7. Daniel: 1.0e10
+        eta(glMASK==6)=1.0e7; % Default: 1.0e7. Daniel: 1.0e10
     end
     
 end
