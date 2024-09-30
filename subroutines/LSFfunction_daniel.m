@@ -27,7 +27,7 @@ function LSF=LSFfunction_daniel(LSF,ctr,u,v,node,nodes,VM,MASK,glMASK,X,Y,LSFo)
     LSF(LSF<-1.0) = -1.0;
     LSF(LSF>1.0)  = 1.0;
 
-    
+    % TEST ON CALVING FRONT APPROACHING GL.
     M = zeros(ctr.imax,ctr.jmax);
     %M1 = circshift(MASK,[0 1]);
     %M2 = circshift(MASK,[1 0]);
