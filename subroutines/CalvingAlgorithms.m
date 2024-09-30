@@ -103,10 +103,10 @@ if ctr.calving>=1 % LSF function calving. Generate a calving rate, CR
 
     if ctr.calving==7 % CalveMip Periodic forcing, ctr.CR_AMP is max rate of front position change
 
-        %Wv=-ctr.CR_AMP*sind(cnt*360/ctr.nsteps); % Wv=-ctr.CR_AMP*sind(cnt*360/ctr.nsteps);
+        Wv=-ctr.CR_AMP*sind(cnt*360/ctr.nsteps); % Wv=-ctr.CR_AMP*sind(cnt*360/ctr.nsteps);
         %Wv=-ctr.CR_AMP*sind((cnt+500)*360/1000);
         
-        Wv=-ctr.CR_AMP*sind(cnt*360/1000);
+        %Wv=-ctr.CR_AMP*sind(cnt*360/1000);
         MAGV=sqrt(ux.^2+uy.^2); % Daniel: this was already calculated above?
         CR=MAGV-Wv;
 

@@ -10,32 +10,24 @@ function [u,v,k,err]=SolverSSA_pseudo_transient(nodeu,nodev, ...
 % with kinematic boundary conditions.
 % u-field on u-grid, viscosity on h-grid
 
-% STILL UNDER DEVELOPMENT!
-
-    %cnt_0 = 0;
-
-    % Implicit initialisation if desired. Old Kori velocity solver.
-    %if cnt < cnt_0
-    %    [u,v,su,flagU,relresU,iterU]=SparseSolverSSA_daniel(nodeu,nodev, ...
-    %        su,MASKmx,MASKmy,bMASK, ...
-    %        H,eta,betax,betay,uxssa,uyssa,uxsia,uysia,udx,udy,taudx, ...
-    %        taudy,ctr,par);
-    %end
-
         
     % Pseudo-time iteration parameters.
     rel   = 0.2;      % Relaxation between two consecutive solutions. 0.3
-    alpha = 1.0e-6;   % Pseudo-time step length. 1.0e-6. Critical to ensure convergence! Not increase too much.
-    iter  = 100;       % Max number of iterations 500, 100. 50 also works.
+    %alpha = 1.0e-6;   % Pseudo-time step length. 1.0e-6. Critical to ensure convergence! Not increase too much.
+    iter  = 200;       % Max number of iterations 500, 100. 50 also works.
     tol   = 1.0e-2;   % Tolerance to accept new solution. 1.0e-2, 1.0e-3 works. 1.0e-4 is better. 1.0e-2 is problematic.
-
     % Definitions for boundary conditions.
     A = 0.25*ctr.delta*par.rho*par.g*(1.-par.rho/par.rhow)*H.^2./eta;
 
-    %u_min = 0.1;
-    %u_max = 3.0e3; % 1.0e3
-    %alpha_min = 1.0e-6; % 1.0e-6
-    %alpha_max = 1.0e-5; % 1.0e-4
+    % Try good guess. Remember that in Kori eta = eta.*H.
+    D = par.rho * H ./ ( 4.0 * eta * par.secperyear );
+    eta_b = 0.5; % Ice bluk viscosity
+    n_dim = 4.1; % Dimension factor in 2D.
+    alpha = D .* (ctr.delta)^2 ./ ( (1.0+eta_b) * n_dim );
+
+    %a = max(alpha,[],"all");
+    %a
+    %alpha(alpha>1.0e-6) = 1.0e-6;
     
 
     % BOUNDARIES: j=1 and j=jmax.
@@ -43,32 +35,6 @@ function [u,v,k,err]=SolverSSA_pseudo_transient(nodeu,nodev, ...
     % BOUNDARIES: i=1 and i=imax.
     b = 2:ctr.jmax;
 
-    %fx_1 = zeros(ctr.imax,ctr.jmax);
-    %fy_1 = zeros(ctr.imax,ctr.jmax);
-    %fx_2 = zeros(ctr.imax,ctr.jmax);
-    %fy_2 = zeros(ctr.imax,ctr.jmax);
-
-    % Adaptative pseudo-time step length.
-    %alpha_min = 1.0e-6;
-    %alpha_max = 1.0e-5;
-    %u_min = 1.0e-1;
-    %u_max = 1.0e3;
-
-    %ussa=vec2h(u,v);
-
-    %alpha = alpha_min + alpha_max * ( abs(min(u) - u_min) / (u_max - u_min) );
-    %alpha = min(alpha, alpha_max);
-
-
-    %fx = zeros(ctr.imax,ctr.jmax);
-    %fy = zeros(ctr.imax,ctr.jmax);
-
-    %M = zeros(ctr.imax,ctr.jmax);
-    %M(4:ctr.imax-3,4:ctr.jmax-3) = 1;
-
-    % Taudxy are in H grid (Kori manual).
-    %taudx = 0.5 * ( taudx + circshift(taudx, [0 -1]) );
-    %taudy = 0.5 * ( taudy + circshift(taudy, [-1 0]) );
 
     dx_inv_2 = 1.0./(ctr.delta*ctr.delta);
 
@@ -157,33 +123,12 @@ function [u,v,k,err]=SolverSSA_pseudo_transient(nodeu,nodev, ...
         %betax=beta2;
         %betay=beta2;
 
-        %if ctr.mismip==1
-        %    betax(ctr.imax,:)=0.0;
-        %    betay(ctr.imax,:)=0.0;
-        %end
-
-        
-        % Evaluate stress balance.
-        %fx = dx_inv_2 * ( fx_1 + fx_2 ) - betax .* u;
-        %fy = dx_inv_2 * ( fy_1 + fy_2 ) - betay .* v;
-
-        % New velocity solution.
-        % Sign convention: SSA stress balance in Frank's:
-        % R0(MASKb==1)=-taudx(MASKb==1)-betax(MASKb==1).*udx(MASKb==1);
-        %alpha = alpha_min + ( alpha_max - alpha_min ) * ( ussa - u_min ) / ( u_max - u_min );
-        %alpha(alpha>alpha_max) = alpha_max;
-        %alpha(alpha<alpha_min) = alpha_min;
-
         % Evaluate stress balance.
         stress_x = dx_inv_2 * ( fx_1 + fx_2 ) - betax .* u + taudx;
         stress_y = dx_inv_2 * ( fy_1 + fy_2 ) - betay .* v + taudy;
 
-        u = u_old + alpha * stress_x;    
-        v = v_old + alpha * stress_y;
-
-        %u = u_old + alpha .* ( fx + taudx );    
-        %v = v_old + alpha .* ( fy + taudy );
-
+        u = u_old + alpha .* stress_x;    
+        v = v_old + alpha .* stress_y;
 
         % BOUNDARY CONDITIONS IN VECTORIAL FORM.
         v_y = v - circshift(v,[1 0]); % (i-1,j)
@@ -192,8 +137,6 @@ function [u,v,k,err]=SolverSSA_pseudo_transient(nodeu,nodev, ...
         u_x = u - circshift(u,[0 1]); % (i,j-1)
 
         % BOUNDARIES: j=1 and j=jmax.
-        %a = 2:ctr.imax;
-        
         % x-component.
         u(a,1)        = u(a,2) - 0.5 * ( - v_y(a,2) + A(a,2) );
         u(a,ctr.jmax) = u(a,ctr.jmax-1) + 0.5 * ( - v_y(a,ctr.jmax-1) + A(a,ctr.jmax-1) );
@@ -204,8 +147,6 @@ function [u,v,k,err]=SolverSSA_pseudo_transient(nodeu,nodev, ...
         
 
         % BOUNDARIES: i=1 and i=imax.
-        %b = 2:ctr.jmax;
-        
         % y-component.
         v(1,b)        = v(2,b) - 0.5 * ( - u_x(2,b) + A(2,b) );
         v(ctr.imax,b) = v(ctr.imax-1,b) + 0.5 * ( - u_x(ctr.imax-1,b) + A(ctr.imax-1,b) );

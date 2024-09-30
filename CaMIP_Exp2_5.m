@@ -22,18 +22,18 @@ ctr.SSA=1;
 
 
 ctr.calving=7;       % Jim: 5 CalveMip Periodic forcing, but it is 7 in Vio's version.
-ctr.nsteps=500;    % Daniel 500 (jsut for re-advance), 1000; Jim: 10000
+ctr.nsteps=1000;    % Daniel 500 (jsut for re-advance), 1000; Jim: 10000
 ctr.timeslice=1;
 ctr.LSFReset=1000;
-ctr.snapshot=500; % Jim: 1000
+ctr.snapshot=1000; % Jim: 1000
 ctr.CR_AMP=300;      % ctr.CR_AMP is max rate of front position change
 ctr.MMELT=300;
 ctr.t=500;
 
 %KoriModel('Exp1_5','Exp2_5',ctr);
-%KoriModel('Exp1_5_pseudo-transient','Exp2_5_pseudo-transient',ctr);
-KoriModel('Exp1_5_pseudo-transient','Exp2_5_pseudo-transient_retreat',ctr);
 
+KoriModel('Exp1_5_pseudo-transient','Exp2_5_pseudo-transient_H-frank_calv_H-lin',ctr);
+%KoriModel('Exp2_5_pseudo-transient_H-frank_retrear','Exp2_5_pseudo-transient_H-frank_advance',ctr);
 
 % Full retreate/advance.
 %KoriModel('Exp1_5_visceff1e10_limityes','Exp2_5_visceff1e10_limityes_ij',ctr);

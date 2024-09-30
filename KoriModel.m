@@ -308,8 +308,9 @@ end
 
 % Daniel. For only re-advance, LSFo is loaded from the end of Exp3_5 to avoid advancing beyond original limits..
 LSFo=LSF;
-k=0;
-err=0;
+glMASK_old=zeros(ctr.imax,ctr.jmax);
+%k=0;
+%err=0;
 %Hunf=H;
 %Hold=H;
 
@@ -468,6 +469,7 @@ for cnt=cnt0:ctr.nsteps
         SIAvelocity(ctr,par,A,Ad,Ax,Ay,Asfd,Asfx,Asfy,taud,G,Tb, ...
         H,Hm,Hmx,Hmy,gradm,gradmx,gradmy,gradxy,signx,signy,MASK,p,px,py,pxy);
     
+    
 %---------------------------------------------
 % Numerical solution of temperature field
 %---------------------------------------------
@@ -541,11 +543,11 @@ for cnt=cnt0:ctr.nsteps
             %%%
 
             % Daniel pseudo-transient method.
-            ux=0.1*ones(ctr.imax,ctr.jmax);
-            uy=0.1*ones(ctr.imax,ctr.jmax);
+            %ux=0.1*ones(ctr.imax,ctr.jmax);
+            %uy=0.1*ones(ctr.imax,ctr.jmax);
 
-            uxssa=0.1*ones(ctr.imax,ctr.jmax);
-            uyssa=0.1*ones(ctr.imax,ctr.jmax);
+            %uxssa=0.1*ones(ctr.imax,ctr.jmax);
+            %uyssa=0.1*ones(ctr.imax,ctr.jmax);
 
             %ux=5*ones(ctr.imax,ctr.jmax);
             %uy=5*ones(ctr.imax,ctr.jmax);
@@ -559,15 +561,17 @@ for cnt=cnt0:ctr.nsteps
                 su(nodev)=uyssa;
             else
                 % Daniel test.
-                ux=zeros(ctr.imax,ctr.jmax);
-                uy=zeros(ctr.imax,ctr.jmax);
+                %ux=zeros(ctr.imax,ctr.jmax);
+                %uy=zeros(ctr.imax,ctr.jmax);
+                uxssa=zeros(ctr.imax,ctr.jmax);
+                uyssa=zeros(ctr.imax,ctr.jmax);
             end
         end
 
         % Daniel test.
-        u_old  = u;
-        ux_old = ux;
-        uy_old = uy;
+        %u_old  = u;
+        %ux_old = ux;
+        %uy_old = uy;
         %%%
         [uxssa,uyssa,beta2,eta,dudx,dudy,dvdx,dvdy,su,ubx,uby,ux,uy, ...
             damage,NumStabVel,k,err]= ...
@@ -684,16 +688,16 @@ for cnt=cnt0:ctr.nsteps
             Massb(bMASK==1)=0; % only for ice thickness evolution
         end
         % Frank.
-        %[Hn,flagH,relresH,iterH]=SparseSolverIceThickness(node,nodes, ...
-        %    Massb,H,B,SLR,glMASK,dtdx,dtdx2, ...
-        %    d,uxsch,uysch,ctr,cnt,bMASK,VM,par);
+        [Hn,flagH,relresH,iterH]=SparseSolverIceThickness(node,nodes, ...
+            Massb,H,B,SLR,glMASK,dtdx,dtdx2, ...
+            d,uxsch,uysch,ctr,cnt,bMASK,VM,par);
         
         % Daniel.
         %Hn=SparseSolverIceThickness_daniel(Massb,H, ...
         %    dtdx,uxsch,uysch,ctr);
         
-        Hn=SolverIceThickness_optimised(Massb,H, ...
-            uxsch,uysch,glMASK,ctr);
+        %Hn=SolverIceThickness_optimised(Massb,H, ...
+        %    uxsch,uysch,MASK,d,B,SLR,par,ctr);
 
         if ctr.NumCheck==1
             NumStab(cnt,6:8)=[relresH,iterH,flagH];
@@ -716,44 +720,77 @@ for cnt=cnt0:ctr.nsteps
     % Daniel update on calving front and dynamics.
     % Points that become calving front take the thickness of the last inner shelf.
     % Removal of numerical oscillations in Calving MIP Experiment 2.
-    if cnt>1000000 % >500 for the full sim.  >1
+    if cnt>10000000 % >500 for the full sim.  >1
 
-        % Current velocity difference from previous iteration.
-        delta_u=abs(u-u_old)./u_old;
-
-        % Extremely important to leave the first floaing point unchanged (glMASK==3).
-        ux(delta_u>5.0e-3 & ((glMASK==6)|(glMASK==5)|(glMASK==4))) = ux_old(delta_u>1.0e-3 & ((glMASK==6)|(glMASK==5)|(glMASK==4)));
-        uy(delta_u>5.0e-3 & ((glMASK==6)|(glMASK==5)|(glMASK==4))) = uy_old(delta_u>1.0e-3 & ((glMASK==6)|(glMASK==5)|(glMASK==4)));
-
-        %ux((delta_u>5.0e-3) & (MASK==0)) = ux_old((delta_u>5.0e-3) & (MASK==0));
-        %uy((delta_u>5.0e-3) & (MASK==0)) = uy_old((delta_u>5.0e-3) & (MASK==0));
-
-        %H((glMASK==5) & (glMASK_old==6))  = H((glMASK==4) & (glMASK_old==5));
-        %Hn((glMASK==5) & (glMASK_old==6)) = Hn((glMASK==4) & (glMASK_old==5));
+        % Mask with points of advanced calving front.
+        CF_new = (glMASK==5) & (glMASK_old==6);
         
-        %if sum( (glMASK==5) & (glMASK_old==6) )~=0
-        if any( (glMASK==5) & (glMASK_old==6) ) %==true
-    
-            %H((glMASK==5) & (glMASK_old==6))  = max(H((glMASK==4) & (glMASK_old==5)));
-            %Hn((glMASK==5) & (glMASK_old==6)) = max(Hn((glMASK==4) & (glMASK_old==5)));
 
-            H((glMASK==5) & (glMASK_old==6))  = max(H(glMASK==4));
-            Hn((glMASK==5) & (glMASK_old==6)) = max(Hn(glMASK==4));
+        if any(CF_new,'All') == true
 
-            % Statistical.
-            %H((glMASK==5) & (glMASK_old==6))  = median(H(glMASK==4));
-            %Hn((glMASK==5) & (glMASK_old==6)) = median(Hn(glMASK==4));
+            M1 = circshift(glMASK,[-1 0]); % (i+1,j)
+            M2 = circshift(glMASK,[0 -1]); % (i,j+1)
+            M3 = circshift(glMASK,[0 1]); % (i,j-1)
+            M4 = circshift(glMASK,[1 0]); % (i-1,j)
 
-            %H((glMASK==5) & (glMASK_old==6))  = max(H(glMASK_old==4));
-            %Hn((glMASK==5) & (glMASK_old==6)) = max(Hn(glMASK_old==4));
+            %M5 = circshift(glMASK,[-1 1]); % (i+1,j-1)
+            %M6 = circshift(glMASK,[1 -1]); % (i,j+1)
+            %M7 = circshift(glMASK,[1 1]); % (i,j-1)
+            %M8 = circshift(glMASK,[-1 -1]); % (i-1,j)
+
+            Hn1 = circshift(Hn,[-1 0]); % (i+1,j)
+            Hn2 = circshift(Hn,[0 -1]); % (i,j+1)
+            Hn3 = circshift(Hn,[0 1]); % (i,j-1)
+            Hn4 = circshift(Hn,[1 0]); % (i-1,j)
+
+            H1 = circshift(H,[-1 0]); % (i+1,j)
+            H2 = circshift(H,[0 -1]); % (i,j+1)
+            H3 = circshift(H,[0 1]); % (i,j-1)
+            H4 = circshift(H,[1 0]); % (i-1,j)
+
+            %Hn5 = circshift(Hn,[-1 1]); % (i+1,j)
+            %Hn6 = circshift(Hn,[1 -1]); % (i,j+1)
+            %Hn7 = circshift(Hn,[1 1]); % (i,j-1)
+            %Hn8 = circshift(Hn,[-1 -1]); % (i-1,j)
+
+            % Mask with advanced calving front and shifted glMASK.
+            a1 = (CF_new) & (M1==4);
+            a2 = (CF_new) & (M2==4);
+            a3 = (CF_new) & (M3==4);
+            a4 = (CF_new) & (M4==4);
+
+            %a5 = (CF_new) & (M5==4);
+            %a6 = (CF_new) & (M6==4);
+            %a7 = (CF_new) & (M7==4);
+            %a8 = (CF_new) & (M8==4);
+
+            % Impose continuity of ice thickness between last ice-shelf point and calving front.
+            %var_rho = par.rho/par.rhow;
+            Hn(a1) = Hn1(a1);
+            Hn(a2) = Hn2(a2);
+            Hn(a3) = Hn3(a3);
+            Hn(a4) = Hn4(a4);
+
+            H(a1) = H1(a1);
+            H(a2) = H2(a2);
+            H(a3) = H3(a3);
+            H(a4) = H4(a4);
+
+            %Hn(a5) = Hn5(a5);
+            %Hn(a6) = Hn6(a6);
+            %Hn(a7) = Hn7(a7);
+            %Hn(a8) = Hn8(a8);
+        
         end
 
     end
     
-    if cnt>1000000
+    if cnt>0
         
         % Current velocity difference from previous iteration.
         %delta_u=abs(u-u_old)./u_old;
+        %var_rho = par.rho/par.rhow;
+
         for i=1:ctr.imax
             for j=1:ctr.jmax  
 
@@ -782,76 +819,82 @@ for cnt=cnt0:ctr.nsteps
                         jm = jm - k;
 
                         % Ensure indixes within limits.
-                        if (im < 1) || (jm < 1) || (ip > ctr.imax) || (jp > ctr.jmax)
+                        if (im < 2) || (jm < 2) || (ip > ctr.imax-1) || (jp > ctr.jmax-1)
                             break;
                         end
 
                         if glMASK(im,j)==4 %&& glMASK_old(im,j)==4 instead??
 
-                            H(i,j)=H(im,j); % Necessary to add this?
-                            Hn(i,j)=Hn(im,j);
+                            %H(i,j)=H(im,j); % Necessary to add this?
+                            %Hn(i,j)=Hn(im,j);
+                            Hn(i,j)=2*Hn(im,j) - Hn(im-1,j);
 
                             break; 
                         end
 
                         if glMASK(ip,j)==4 %&& glMASK(ip,j)==4
 
-                            H(i,j)=H(ip,j);
-                            Hn(i,j)=Hn(ip,j);
+                            %H(i,j)=H(ip,j);
+                            %Hn(i,j)=Hn(ip,j);
+                            Hn(i,j)=2*Hn(ip,j) - Hn(ip+1,j);
 
                             break;
                         end
 
                         if glMASK(i,jm)==4 %&& glMASK(i,jm)==4
 
-                            %
-
-                            H(i,j)=H(i,jm);
-                            Hn(i,j)=Hn(i,jm);
+                            %H(i,j)=H(i,jm);
+                            %Hn(i,j)=Hn(i,jm);
+                            Hn(i,j)=2*Hn(i,jm) - Hn(i,jm-1);
 
                             break;
                         end
                         
                         if glMASK(i,jp)==4 %&& glMASK(i,jp)==4
 
-                            %
-
-                            H(i,j)=H(i,jp);
-                            Hn(i,j)=Hn(i,jp);
+                            %H(i,j)=H(i,jp);
+                            %Hn(i,j)=Hn(i,jp);
+                            Hn(i,j)=2*Hn(i,jp) - Hn(i,jp+1);
 
                             break;
                         end
 
                         if glMASK(im,jm)==4 %&& glMASK(im,jm)==4                    
 
-                            H(i,j)=H(im,jm);
-                            Hn(i,j)=Hn(im,jm);
+                            %H(i,j)=H(im,jm);
+                            %Hn(i,j)=Hn(im,jm);
+                            Hn(i,j)=2*Hn(im,jm) - Hn(im-1,jm-1);
+                            fprintf('\n jm, jm')
                             
-
                             break;
                         end
 
                         if glMASK(im,jp)==4 %&& glMASK(im,jp)==4
 
-                            H(i,j)=H(im,jp);
-                            Hn(i,j)=Hn(im,jp);
+                            %H(i,j)=H(im,jp);
+                            %Hn(i,j)=Hn(im,jp);
+                            Hn(i,j)=2*Hn(im,jp) - Hn(im-1,jp+1);
+                            fprintf('\n im, jp')
 
                             break;
                         end
 
                         if glMASK(ip,jm)==4 %&& glMASK(ip,jm)==4
 
-                            
-                            H(i,j)=H(ip,jm);
-                            Hn(i,j)=Hn(ip,jm);
+                            %H(i,j)=H(ip,jm);
+                            %Hn(i,j)=Hn(ip,jm);
+                            Hn(i,j)=2*Hn(ip,jm) - Hn(ip+1,jm-1);
+                            fprintf('\n ip, jm')
 
                             break;
                         end
 
                         if glMASK(ip,jp)==4 %&& glMASK(ip,jp)==4
 
-                            H(i,j)=H(ip,jp);
-                            Hn(i,j)=Hn(ip,jp);
+                            %H(i,j)=H(ip,jp);
+                            %Hn(i,j)=Hn(ip,jp);
+                            Hn(i,j)=2*Hn(ip,jp) - Hn(ip+1,jp+1);
+                            fprintf('\n ip,ip')
 
                             break;
                         end
