@@ -1,4 +1,4 @@
-function LSF=LSFfunction(LSF,ctr,u,v,node,nodes,VM,MASK,glMASK,X,Y,LSFo)
+function LSF=LSFfunction_daniel(LSF,ctr,u,v,node,nodes,VM,MASK,glMASK,X,Y,LSFo)
 
 % Kori-ULB
 % Calculate the Level Set Function (LSF) for following the calving front.
@@ -28,7 +28,6 @@ function LSF=LSFfunction(LSF,ctr,u,v,node,nodes,VM,MASK,glMASK,X,Y,LSFo)
     LSF(LSF>1.0)  = 1.0;
 
     
-
     M = zeros(ctr.imax,ctr.jmax);
     %M1 = circshift(MASK,[0 1]);
     %M2 = circshift(MASK,[1 0]);
