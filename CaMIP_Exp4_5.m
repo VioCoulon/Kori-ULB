@@ -51,28 +51,31 @@ Ts=zeros(ctr.imax,ctr.jmax)-5.0;
 save('ThuleIn','B','H','Mb','Ts');
 
 % 1. Initial spin up.
-%ctr.SSA=1;
+ctr.SSA=1;
 %ctr.nsteps=6000;  % Jim: 10000; Daniel: 6000
 %KoriModel('ThuleIn','Thule',ctr); 
 
 % 2. Adjustment to imposition of Calving Front
-%ctr.MMELT=50;
-%ctr.Calve_Mass=1;
-%ctr.CalveGround=0;
-%ctr.WV=0;
-%ctr.dt=1;  
-%ctr.calving=2;
-%ctr.LSFReset=50;
-%ctr.nsteps=4000;
-%         KoriModel('Thule','Thule-Circ',ctr); 
+ctr.MMELT=50;
+ctr.Calve_Mass=1;
+ctr.CalveGround=0;
+ctr.WV=0;
+ctr.dt=1;  
+ctr.calving=2;
+ctr.LSFReset=50;
+ctr.nsteps=4000;
+ctr.timeslice=1;
+ctr.snapshot=10;
+%save('Thule_p-t','LSF','-append');
+%KoriModel('Thule_p-t','Thule-Circ_p-t',ctr); 
 
 % 3. Impose zero rate of calving position change WV.
-%ctr.WV=0;
-%ctr.nsteps=100; 
-%ctr.timeslice=1;
-%ctr.LSFReset=40;
-%ctr.snapshot=10;
-%        KoriModel('Thule-Circ','Exp3',ctr); 
+ctr.WV=0;
+ctr.nsteps=100; 
+ctr.timeslice=1;
+ctr.LSFReset=40;
+ctr.snapshot=10;
+%KoriModel('Thule-Circ_p-t','Exp3_5_p-t',ctr); 
 
 
 % 4. Calving MIP experiment 4 forcing.
@@ -80,26 +83,28 @@ ctr.SSA=1;
 ctr.calving=7;
 ctr.nsteps=500; 
 ctr.timeslice=1;
-ctr.LSFReset=250; %100, 1000
-ctr.snapshot=500;
-%ctr.CalveCirc=1;
+ctr.LSFReset=20; %100, 250, 1000
+ctr.snapshot=50;
 ctr.dt=1.0;  % Jim 0.05, Daniel: 1.0
 ctr.CR_AMP=750;
-  
-%KoriModel('Exp3_5','Exp4_5_CR0_retreated',ctr); 
+%KoriModel('Exp3_5_p-t','Exp4_5_p-t',ctr); 
+%KoriModel('Exp3_5_p-t','Exp4_5_p-t_retreat',ctr); 
+
 
 % START FROM RETREATED POSITION.
 % Load the original LSF field (Exp3) to force limits in the readvance.
-%load('Exp3_5','LSF')
-%LSFo=LSF;
-%save('Exp4_5_CR0_retreated','LSFo','-append');
+load('Exp3_5_p-t_009','LSF')
+LSFo=LSF;
+save('Exp4_5_p-t_retreat','LSFo','-append');
+KoriModel('Exp4_5_p-t_retreat','Exp4_5_p-t_advanced',ctr); 
+
 
 % Make sure to start from the LSF retreated position.
 %load('Exp4_5_CR0_retreated_499','LSF')
 %save('Exp4_5_CR0_retreated','LSF','-append');
 
 % Run Kori.
-KoriModel('Exp4_5_CR0_retreated','Exp4_5_thicknessdaniel_advanced',ctr); 
+%KoriModel('Exp4_5_CR0_retreated','Exp4_5_thicknessdaniel_advanced',ctr); 
 
 %KoriModel('Exp4_5_LSF_gl_2_retreated','Exp4_5_LSF_gl_2_advanced',ctr); 
 end

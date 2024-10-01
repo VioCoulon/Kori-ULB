@@ -306,8 +306,11 @@ if exist('LSF','var')==0
     LSF(MASK==0 & H<=par.SeaIceThickness)=-1;
 end
 
-% Daniel. For only re-advance, LSFo is loaded from the end of Exp3_5 to avoid advancing beyond original limits..
-LSFo=LSF;
+% LSFo is loaded from the end of Exp3_5 to avoid advancing beyond original limits.
+% If LSFo does not exist, just use the LSF.
+if exist('LSFo','var')==0
+    LSFo=LSF;
+end
 glMASK_old=zeros(ctr.imax,ctr.jmax);
 %k=0;
 %err=0;
@@ -864,7 +867,7 @@ for cnt=cnt0:ctr.nsteps
                             %H(i,j)=H(im,jm);
                             %Hn(i,j)=Hn(im,jm);
                             Hn(i,j)=2*Hn(im,jm) - Hn(im-1,jm-1);
-                            fprintf('\n jm, jm')
+                            %fprintf('\n jm, jm')
                             
                             break;
                         end
@@ -874,7 +877,7 @@ for cnt=cnt0:ctr.nsteps
                             %H(i,j)=H(im,jp);
                             %Hn(i,j)=Hn(im,jp);
                             Hn(i,j)=2*Hn(im,jp) - Hn(im-1,jp+1);
-                            fprintf('\n im, jp')
+                            %fprintf('\n im, jp')
 
                             break;
                         end
@@ -884,7 +887,7 @@ for cnt=cnt0:ctr.nsteps
                             %H(i,j)=H(ip,jm);
                             %Hn(i,j)=Hn(ip,jm);
                             Hn(i,j)=2*Hn(ip,jm) - Hn(ip+1,jm-1);
-                            fprintf('\n ip, jm')
+                            %fprintf('\n ip, jm')
 
                             break;
                         end
@@ -894,7 +897,7 @@ for cnt=cnt0:ctr.nsteps
                             %H(i,j)=H(ip,jp);
                             %Hn(i,j)=Hn(ip,jp);
                             Hn(i,j)=2*Hn(ip,jp) - Hn(ip+1,jp+1);
-                            fprintf('\n ip,ip')
+                            %fprintf('\n ip,ip')
 
                             break;
                         end
