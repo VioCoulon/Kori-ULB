@@ -7,7 +7,7 @@ ExpName='CalvingMIP-Exp4-Kori.nc';
 if exist(ExpName,'file')==2
     delete(ExpName);
 end
-load Exp4_5_toto.mat
+load Exp4_5_gl_toto.mat
 
 X=-800e3:5e3:800e3;
 Y=-800e3:5e3:800e3;
@@ -23,13 +23,13 @@ Time100=0:100:1000;
 iii=0;
 for t = 0:100:1000
 
-    N='Exp4_5_';
+    N='Exp4_5_gl_';
     T=sprintf('%03d', t);
     NT=strcat(N,T);
     if t<1000
         load(NT)
     else
-        load Exp4_5_toto.mat
+        load Exp4_5_gl_toto.mat
     end
     iii=iii+1;
 

@@ -45,10 +45,10 @@ function LSF=LSFfunction_daniel(LSF,ctr,u,v,node,nodes,VM,MASK,glMASK,X,Y,LSFo)
     % TEST ON CALVING FRONT APPROACHING GL.
     %M = zeros(ctr.imax,ctr.jmax);
 
-    %M1 = circshift(MASK,[2 2]);
-    %M2 = circshift(MASK,[2 -2]);
-    %M3 = circshift(MASK,[-2 2]);
-    %M4 = circshift(MASK,[-2 -2]);
+    M1 = circshift(MASK,[3 3]);
+    M2 = circshift(MASK,[3 -3]);
+    M3 = circshift(MASK,[-3 3]);
+    M4 = circshift(MASK,[-3 -3]);
 
     %M5 = circshift(MASK,[0 2]);
     %M6 = circshift(MASK,[2 0]);
@@ -60,13 +60,13 @@ function LSF=LSFfunction_daniel(LSF,ctr,u,v,node,nodes,VM,MASK,glMASK,X,Y,LSFo)
     %a = (MASK==1)|(M1==1)|(M2==1)|(M3==1)|(M4==1)...
     %             |(M5==1)|(M6==1)|(M7==1)|(M8==1);
 
-    %a = (MASK==1)|(M1==1)|(M2==1)|(M3==1)|(M4==1);
-    %M(a) = 1;
+    a = (MASK==1)|(M1==1)|(M2==1)|(M3==1)|(M4==1);
+    M(a) = 1;
 
 
     % Daniel: calving front cannot retreat further than the GL by definition.
     %LSF(MASK==1) = R0(MASK==1);
-    %LSF(M==1) = R0(M==1);
+    LSF(M==1) = R0(M==1);
 
     % Calving front cannot advance more than initial position.
     LSF(LSFo<0)=LSFo(LSFo<0);

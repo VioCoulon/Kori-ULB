@@ -60,9 +60,6 @@ ctr.snapshot=100; % Daniel:100. Jim_: nothing.
 KoriModel('ThuleIn','Thule_p-t',ctr); 
 
 % 2. Adjustment to imposition of Calving Front
-%ctr.Calve_Mass=1; % Not needed in Vio's version.
-%ctr.CalveGround=0; % Not needed in Vio's version.
-%ctr.CalveCirc=1; % Not needed in Vio's version.
 ctr.WV=0;
 ctr.dt=1;  
 ctr.calving=2;    % Direct, constant imposition of change in front positon.
@@ -79,7 +76,6 @@ ctr.nsteps=100;
 ctr.timeslice=1;
 %ctr.LSFReset=40;
 ctr.snapshot=10; % Jim: 10; Daniel: 100
-%ctr.CalveCirc=1;
 %KoriModel('Thule-Exp3','Exp3_5_Hdaniel',ctr); 
 
 

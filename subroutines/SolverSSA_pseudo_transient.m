@@ -15,7 +15,7 @@ function [u,v,k,err]=SolverSSA_pseudo_transient(nodeu,nodev, ...
     rel   = 0.2;      % Relaxation between two consecutive solutions. 0.3
     %alpha = 1.0e-6;   % Pseudo-time step length. 1.0e-6. Critical to ensure convergence! Not increase too much.
     iter  = 200;       % Max number of iterations 500, 100. 50 also works.
-    tol   = 1.0e-2;   % Tolerance to accept new solution. 1.0e-2, 1.0e-3 works. 1.0e-4 is better. 1.0e-2 is problematic.
+    tol   = 2.0e-3;   % Tolerance to accept new solution. 1.0e-2, 1.0e-3 works. 1.0e-4 is better. 1.0e-2 is problematic.
     % Definitions for boundary conditions.
     A = 0.25*ctr.delta*par.rho*par.g*(1.-par.rho/par.rhow)*H.^2./eta;
 
@@ -25,11 +25,7 @@ function [u,v,k,err]=SolverSSA_pseudo_transient(nodeu,nodev, ...
     n_dim = 4.1; % Dimension factor in 2D.
     alpha = D .* (ctr.delta)^2 ./ ( (1.0+eta_b) * n_dim );
 
-    %a = max(alpha,[],"all");
-    %a
-    %alpha(alpha>1.0e-6) = 1.0e-6;
     
-
     % BOUNDARIES: j=1 and j=jmax.
     a = 2:ctr.imax;
     % BOUNDARIES: i=1 and i=imax.

@@ -4,7 +4,6 @@ clear; close all;
 
 %% Initial ice sheet creation
 
-     
 %CalvingMIP-Algorithim 1
 ctr.delta=5e3;
 ctr.imax=322; 
@@ -31,13 +30,14 @@ ctr.MMELT=300;
 ctr.t=500;
 
 %KoriModel('Exp1_5','Exp2_5',ctr);
+%KoriModel('Exp1_5','Exp2_5',ctr);
 
-KoriModel('Exp1_5_pseudo-transient','Exp2_5_pseudo-transient_H-frank_calv_H-lin',ctr);
+%KoriModel('Exp1_5_pseudo-transient','Exp2_5_pseudo-transient_H-frank_calv_H-lin',ctr);
 %KoriModel('Exp2_5_pseudo-transient_H-frank_retrear','Exp2_5_pseudo-transient_H-frank_advance',ctr);
 
 % Full retreate/advance.
 %KoriModel('Exp1_5_visceff1e10_limityes','Exp2_5_visceff1e10_limityes_ij',ctr);
-%KoriModel('Exp1_5_visceff1e10_limityes','Exp2_5_test',ctr);
+KoriModel('Exp1_5_visceff1e10_limityes','Exp2_5_test',ctr);
 
 % Just for re-advance starting from a fully retrated calving front.
 %KoriModel('Exp2_5_visceff1e10_limityes_retreated','Exp2_5_visceff1e10_limityes_ij',ctr);

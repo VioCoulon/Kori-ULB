@@ -81,32 +81,26 @@ ctr.snapshot=10;
 % 4. Calving MIP experiment 4 forcing.
 ctr.SSA=1;
 ctr.calving=7;
-ctr.nsteps=500; 
+ctr.nsteps=1000; 
 ctr.timeslice=1;
-ctr.LSFReset=20; %100, 250, 1000
-ctr.snapshot=50;
+ctr.LSFReset=50; %100, 250, 1000
+ctr.snapshot=1000;
 ctr.dt=1.0;  % Jim 0.05, Daniel: 1.0
 ctr.CR_AMP=750;
-%KoriModel('Exp3_5_p-t','Exp4_5_p-t',ctr); 
+
+KoriModel('Exp3_5_p-t','Exp4_5_gl3',ctr); 
+
 %KoriModel('Exp3_5_p-t','Exp4_5_p-t_retreat',ctr); 
 
 
 % START FROM RETREATED POSITION.
 % Load the original LSF field (Exp3) to force limits in the readvance.
-load('Exp3_5_p-t_009','LSF')
-LSFo=LSF;
-save('Exp4_5_p-t_retreat','LSFo','-append');
-KoriModel('Exp4_5_p-t_retreat','Exp4_5_p-t_advanced',ctr); 
+%load('Exp3_5_p-t_009','LSF')
+%LSFo=LSF;
+%save('Exp4_5_p-t_retreat','LSFo','-append');
+%KoriModel('Exp4_5_p-t_retreat','Exp4_5_p-t_advanced',ctr); 
 
 
-% Make sure to start from the LSF retreated position.
-%load('Exp4_5_CR0_retreated_499','LSF')
-%save('Exp4_5_CR0_retreated','LSF','-append');
-
-% Run Kori.
-%KoriModel('Exp4_5_CR0_retreated','Exp4_5_thicknessdaniel_advanced',ctr); 
-
-%KoriModel('Exp4_5_LSF_gl_2_retreated','Exp4_5_LSF_gl_2_advanced',ctr); 
 end
 
 function [B]=BedGeom(x,y,R,Bc,Bl,Ba)
