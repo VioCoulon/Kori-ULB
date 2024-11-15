@@ -88,7 +88,7 @@ ctr.snapshot=1000;
 ctr.dt=1.0;  % Jim 0.05, Daniel: 1.0
 ctr.CR_AMP=750;
 
-KoriModel('Exp3_5_p-t','Exp4_5_gl3',ctr); 
+KoriModel('Exp3_5_p-t','Exp4_5_gl3_visc1e7',ctr); 
 
 %KoriModel('Exp3_5_p-t','Exp4_5_p-t_retreat',ctr); 
 

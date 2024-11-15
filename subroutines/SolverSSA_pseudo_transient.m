@@ -2,27 +2,29 @@ function [u,v,k,err]=SolverSSA_pseudo_transient(nodeu,nodev, ...
             s0,MASKmx,MASKmy,bMASK,H,eta,...
             u,v,betax,betay,usia,vsia,udx,udy,taudx,taudy,MASK,Asf,cnt,ctr,par)
 
-% Kori-ULB
-% Solving the SSA equation (both pure and hybrid SSA) applying the so-called
-% "Pseudo-transient" method. This is a matrix-free approach that allows
-% for extremely fast computation without strong memory requirements.
-% Velocity solution for two two-dimensional ice shelf velocity field
-% with kinematic boundary conditions.
-% u-field on u-grid, viscosity on h-grid
+    % Kori-ULB
+    % Solving the SSA equation (both pure and hybrid SSA) applying the so-called
+    % "Pseudo-transient" method. This is a matrix-free approach that allows
+    % for extremely fast computations without large memory requirements.
+    % Velocity solution for the two-dimensional ice shelf velocity field
+    % with kinematic boundary conditions.
+    % u-field on u-grid, viscosity on h-grid
 
         
     % Pseudo-time iteration parameters.
-    rel   = 0.2;      % Relaxation between two consecutive solutions. 0.3
-    %alpha = 1.0e-6;   % Pseudo-time step length. 1.0e-6. Critical to ensure convergence! Not increase too much.
+    rel   = 0.2;       % Relaxation between two consecutive solutions. 0.3  
     iter  = 200;       % Max number of iterations 500, 100. 50 also works.
-    tol   = 2.0e-3;   % Tolerance to accept new solution. 1.0e-2, 1.0e-3 works. 1.0e-4 is better. 1.0e-2 is problematic.
+    tol   = 1.0e-3;    % Tolerance to accept new solution. 2.0e-3 works. 1.0e-4 is better. 1.0e-2 is problematic.
+    
     % Definitions for boundary conditions.
     A = 0.25*ctr.delta*par.rho*par.g*(1.-par.rho/par.rhow)*H.^2./eta;
 
-    % Try good guess. Remember that in Kori eta = eta.*H.
+    % Remember that in Kori eta = eta.*H.
     D = par.rho * H ./ ( 4.0 * eta * par.secperyear );
-    eta_b = 0.5; % Ice bluk viscosity
-    n_dim = 4.1; % Dimension factor in 2D.
+    eta_b = 0.5;   % Ice bulk viscosity.
+    n_dim = 4.1;   % Dimension factor in 2D (Räss et al., 2022).
+
+    % Pseudo-time step length. 1.0e-6. Critical to ensure convergence!
     alpha = D .* (ctr.delta)^2 ./ ( (1.0+eta_b) * n_dim );
 
     
@@ -63,17 +65,17 @@ function [u,v,k,err]=SolverSSA_pseudo_transient(nodeu,nodev, ...
         v6=circshift(v,[1 -1]); % (i-1,j+1)
         v7=circshift(v,[1 1]); % (i-1,j-1)
 
-        du1 = u1 + u5; % u(i+1,j) + u(i+1,j-1);
-        du2 = u + u3;  % u(i,j) + u(i,j-1);
-        du3 = u4 + u7; % u(i-1,j) + u(i-1,j-1);
-        du4 = u2 + u;  % u(i,j+1) + u(i,j);
-        du5 = u6 + u4; % u(i-1,j+1) + u(i-1,j);
+        du1 = u1 + u5;   % u(i+1,j) + u(i+1,j-1);
+        du2 = u + u3;    % u(i,j) + u(i,j-1);
+        du3 = u4 + u7;   % u(i-1,j) + u(i-1,j-1);
+        du4 = u2 + u;    % u(i,j+1) + u(i,j);
+        du5 = u6 + u4;   % u(i-1,j+1) + u(i-1,j);
 
-        dv1 = v1 + v; % v(i+1,j) + v(i,j);
-        dv2 = v5 + v3;  % v(i+1,j-1) + v(i,j-1);
-        dv3 = v + v4; % v(i,j) + v(i-1,j);
-        dv4 = v3 + v7;  % v(i,j-1) + v(i-1,j-1);
-        dv5 = v2 + v6; % v(i,j+1) + v(i-1,j+1);
+        dv1 = v1 + v;    % v(i+1,j) + v(i,j);
+        dv2 = v5 + v3;   % v(i+1,j-1) + v(i,j-1);
+        dv3 = v + v4;    % v(i,j) + v(i-1,j);
+        dv4 = v3 + v7;   % v(i,j-1) + v(i-1,j-1);
+        dv5 = v2 + v6;   % v(i,j+1) + v(i-1,j+1);
 
         phi = eta .* ( du2 - du3 + dv3 - dv4 );
         d3 = u - u3;
@@ -92,7 +94,7 @@ function [u,v,k,err]=SolverSSA_pseudo_transient(nodeu,nodev, ...
         fy_2 = 0.5 * ( eta2 .* ( dv5 - dv3 + du4 - du5 ) - phi );
 
 
-        % We need to calculate beta herein to update it with the new velocity field.
+        % We need to update beta here with the new velocity field.
         if ctr.uSSAexist==1 || cnt>1
             ussa=vec2h(u,v);    %VL: ussa on h-grid
         else

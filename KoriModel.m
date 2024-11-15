@@ -540,45 +540,15 @@ for cnt=cnt0:ctr.nsteps
         if cnt==1
             su=zeros(ctr.imax*ctr.jmax*2,1);
 
-            % Daniel test.
-            %ux=zeros(ctr.imax,ctr.jmax);
-            %uy=zeros(ctr.imax,ctr.jmax);
-
-            %uxssa=zeros(ctr.imax,ctr.jmax);
-            %uyssa=zeros(ctr.imax,ctr.jmax);
-            %%%
-
-            % Daniel pseudo-transient method.
-            %ux=0.1*ones(ctr.imax,ctr.jmax);
-            %uy=0.1*ones(ctr.imax,ctr.jmax);
-
-            %uxssa=0.1*ones(ctr.imax,ctr.jmax);
-            %uyssa=0.1*ones(ctr.imax,ctr.jmax);
-
-            %ux=5*ones(ctr.imax,ctr.jmax);
-            %uy=5*ones(ctr.imax,ctr.jmax);
-
-            %uxssa=5*ones(ctr.imax,ctr.jmax);
-            %uyssa=5*ones(ctr.imax,ctr.jmax);
-            %
-
             if ctr.uSSAexist==1
                 su(nodeu)=uxssa;
                 su(nodev)=uyssa;
             else
-                % Daniel test.
-                %ux=zeros(ctr.imax,ctr.jmax);
-                %uy=zeros(ctr.imax,ctr.jmax);
                 uxssa=zeros(ctr.imax,ctr.jmax);
                 uyssa=zeros(ctr.imax,ctr.jmax);
             end
         end
 
-        % Daniel test.
-        %u_old  = u;
-        %ux_old = ux;
-        %uy_old = uy;
-        %%%
         [uxssa,uyssa,beta2,eta,dudx,dudy,dvdx,dvdy,su,ubx,uby,ux,uy, ...
             damage,NumStabVel,k,err]= ...
             SSAvelocity(ctr,par,su,Hmx,Hmy,gradmx,gradmy,signx,signy, ...
@@ -597,16 +567,7 @@ for cnt=cnt0:ctr.nsteps
         ux=uxsia;
         uy=uysia;
 
-        % Daniel.
-        %u_old  = u;
-        %ux_old = ux;
-        %uy_old = uy;
     end
-    % Daniel test.
-    %alpha=0.3;
-    %ux = ux_old * alpha + (1.0 - alpha) * ux;
-    %uy = uy_old * alpha + (1.0 - alpha) * uy;
-    %%%
 
     u=vec2h(ux,uy);
     ub=vec2h(ubx,uby);
