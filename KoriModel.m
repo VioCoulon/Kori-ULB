@@ -663,8 +663,9 @@ for cnt=cnt0:ctr.nsteps
         %Hn=SparseSolverIceThickness_daniel(Massb,H, ...
         %    dtdx,uxsch,uysch,ctr);
         
-        %Hn=SolverIceThickness_optimised(Massb,H, ...
-        %    uxsch,uysch,MASK,d,B,SLR,par,ctr);
+        % H=SolverIceThickness_optimised(Mb,H,u,v,MASK,d,B,SLR,par,ctr)
+        %Hn=SolverIceThickness_optimised(Massb,H,uxsch,uysch,MASK,d,B,SLR,par,ctr);
+        %H=Hn;
 
         if ctr.NumCheck==1
             NumStab(cnt,6:8)=[relresH,iterH,flagH];
@@ -1133,8 +1134,8 @@ for cnt=cnt0:ctr.nsteps
         PlotMainFigure(ctr,par,x,y,sn,S0,H,u,B,MASK,glMASK,LSF);
     end
 
-    fprintf('\n err = %2.4f \n ', err);
-    err
+    %fprintf('\n err = %2.4f \n ', err);
+    %err
     
 %------------------------------------
 % Save intermediate output

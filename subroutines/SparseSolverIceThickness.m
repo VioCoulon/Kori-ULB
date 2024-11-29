@@ -323,5 +323,3 @@ function [H,flag,relres,iter]=SparseSolverIceThickness(node,nodes,Mb, ...
     H(node>0)=s(node(node>0));
 
 end
-
-

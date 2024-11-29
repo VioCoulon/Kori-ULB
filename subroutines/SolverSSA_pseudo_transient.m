@@ -1,6 +1,6 @@
-function [u,v,k,err]=SolverSSA_pseudo_transient(nodeu,nodev, ...
-            s0,MASKmx,MASKmy,bMASK,H,eta,...
-            u,v,betax,betay,usia,vsia,udx,udy,taudx,taudy,MASK,Asf,cnt,ctr,par)
+function [u,v,eta,dudx,dvdy,dudy,dvdx,k,err]=SolverSSA_pseudo_transient(nodeu,nodev, ...
+            s0,MASKmx,MASKmy,bMASK,H,...
+            u,v,usia,vsia,udx,udy,taudx,taudy,MASK,glMASK,Asf,cnt,A,shelftune,ctr,par)
 
     % Kori-ULB
     % Solving the SSA equation (both pure and hybrid SSA) applying the so-called
@@ -12,12 +12,15 @@ function [u,v,k,err]=SolverSSA_pseudo_transient(nodeu,nodev, ...
 
         
     % Pseudo-time iteration parameters.
-    rel   = 0.2;       % Relaxation between two consecutive solutions. 0.3  
-    iter  = 200;       % Max number of iterations 500, 100. 50 also works.
-    tol   = 1.0e-3;    % Tolerance to accept new solution. 2.0e-3 works. 1.0e-4 is better. 1.0e-2 is problematic.
+    rel   = 0.0;       % Relaxation between two consecutive solutions. 0.2  
+    iter  = 500;       % Max number of iterations 200, 500, 100. 50 also works.
+    tol   = 1.0e-2;    % Tolerance to accept new solution. 2.0e-3 works. 1.0e-4 is better. 1.0e-2 is problematic.
+
+    % Compute velocity from current velocity field.
+    [eta,dudx,dvdy,dudy,dvdx]=EffVisc(A,u,v,H,par,MASK,glMASK,shelftune,ctr);
     
     % Definitions for boundary conditions.
-    A = 0.25*ctr.delta*par.rho*par.g*(1.-par.rho/par.rhow)*H.^2./eta;
+    B = 0.25*ctr.delta*par.rho*par.g*(1.-par.rho/par.rhow)*H.^2./eta;
 
     % Remember that in Kori eta = eta.*H.
     D = par.rho * H ./ ( 4.0 * eta * par.secperyear );
@@ -42,8 +45,19 @@ function [u,v,k,err]=SolverSSA_pseudo_transient(nodeu,nodev, ...
     k = 0;
     while k < iter && err > tol
 
-        u_old = u;
-        v_old = v;
+        % Save iteration.
+        u_old   = u;
+        v_old   = v;
+        eta_old = eta;
+
+        % Definitions for boundary conditions.
+        B = 0.25*ctr.delta*par.rho*par.g*(1.-par.rho/par.rhow)*H.^2./eta;
+
+        % Remember that in Kori eta = eta.*H.
+        D = par.rho * H ./ ( 4.0 * eta * par.secperyear );
+
+        % Pseudo-time step length. 1.0e-6. Critical to ensure convergence!
+        alpha = D .* (ctr.delta)^2 ./ ( (1.0+eta_b) * n_dim );
 
         % Vectorial form.
         eta1=circshift(eta,[-1 0]); % (i+1,j)
@@ -116,10 +130,6 @@ function [u,v,k,err]=SolverSSA_pseudo_transient(nodeu,nodev, ...
         beta2(MASK==0)=0;
         betax=0.5*(beta2+circshift(beta2,[0 -1]));
         betay=0.5*(beta2+circshift(beta2,[-1 0]));
-        %beta2=min(beta2,1e8);
-        %beta2(MASK==0)=0;
-        %betax=beta2;
-        %betay=beta2;
 
         % Evaluate stress balance.
         stress_x = dx_inv_2 * ( fx_1 + fx_2 ) - betax .* u + taudx;
@@ -136,8 +146,8 @@ function [u,v,k,err]=SolverSSA_pseudo_transient(nodeu,nodev, ...
 
         % BOUNDARIES: j=1 and j=jmax.
         % x-component.
-        u(a,1)        = u(a,2) - 0.5 * ( - v_y(a,2) + A(a,2) );
-        u(a,ctr.jmax) = u(a,ctr.jmax-1) + 0.5 * ( - v_y(a,ctr.jmax-1) + A(a,ctr.jmax-1) );
+        u(a,1)        = u(a,2) - 0.5 * ( - v_y(a,2) + B(a,2) );
+        u(a,ctr.jmax) = u(a,ctr.jmax-1) + 0.5 * ( - v_y(a,ctr.jmax-1) + B(a,ctr.jmax-1) );
 
         % y-component.
         v(a,1)        = v(a,2) + u_y(a,2);
@@ -146,8 +156,8 @@ function [u,v,k,err]=SolverSSA_pseudo_transient(nodeu,nodev, ...
 
         % BOUNDARIES: i=1 and i=imax.
         % y-component.
-        v(1,b)        = v(2,b) - 0.5 * ( - u_x(2,b) + A(2,b) );
-        v(ctr.imax,b) = v(ctr.imax-1,b) + 0.5 * ( - u_x(ctr.imax-1,b) + A(ctr.imax-1,b) );
+        v(1,b)        = v(2,b) - 0.5 * ( - u_x(2,b) + B(2,b) );
+        v(ctr.imax,b) = v(ctr.imax-1,b) + 0.5 * ( - u_x(ctr.imax-1,b) + B(ctr.imax-1,b) );
 
         % x-component.
         u(1,b)        = u(2,b) + v_x(2,b);
@@ -175,6 +185,10 @@ function [u,v,k,err]=SolverSSA_pseudo_transient(nodeu,nodev, ...
             u(ctr.imax,:) = u(ctr.imax-1,:);
         end
 
+        % Corner skipped in vectorial form.
+        u(1,1) = u(1,2);
+        v(1,1) = v(1,2); % (2,1)??
+
 
         % At j=1:    du/dx = (-3*f[i+0]+4*f[i+1]-1*f[i+2])/(2*h) 
         % At j=jmax: du/dx = (1*f[i-2]-4*f[i-1]+3*f[i+0])/(2*h)
@@ -201,18 +215,20 @@ function [u,v,k,err]=SolverSSA_pseudo_transient(nodeu,nodev, ...
         %u(1,b)         = - ( 4.0 * u(2,b) - u(3,b) + 2.0 * v_x(2,b) ) / 3.0;
         %u(ctr.imax,b) = ( 4.0 * u(ctr.imax-1,b) - u(ctr.imax-2,b) + 2.0 * v_x(ctr.imax-1,b) ) / 3.0;
 
+        % Compute velocity from new velocity field.
+        [eta,dudx,dvdy,dudy,dvdx]=EffVisc(A,u,v,H,par,MASK,glMASK,shelftune,ctr);
 
+        
         % Update solution. Relaxation to avoid spurious results.
-        u = rel * u_old + (1.0 - rel) * u;
-        v = rel * v_old + (1.0 - rel) * v;
+        u   = rel * u_old + (1.0 - rel) * u;
+        v   = rel * v_old + (1.0 - rel) * v;
+        %eta = rel * eta_old + (1.0 - rel) * eta;
 
         % Update current error.
         dif = sqrt((u-u_old).^2 + (v-v_old).^2)./sqrt(u.^2 + v.^2);
         err = norm(dif,2);
 
-        % Use difference for the step alpha.
-        %dif_norm = dif / max(dif);
-        %alpha = alpha_min * (1.0 - dif_norm) + alpha_max * dif_norm;
+        
 
         k = k + 1;
     end

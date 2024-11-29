@@ -6,28 +6,28 @@ function H=SolverIceThickness_optimised(Mb,H,u,v,MASK,d,B,SLR,par,ctr)
     % Daniel's explicit calculation of ice thickness. Factor 0.75.
     dt_CFL = 0.5 * ctr.delta ./ ( abs(u) + abs(v) );
     dt_CFL = min(dt_CFL);
-    %dt_CFL
+
 
     if ctr.dt > dt_CFL
-        fprintf('\n Set timestep too short for optimization ');
-        fprintf('\n  Current dt = %12.2f\n\n', ctr.dt);
-        fprintf('\n  dt_CFL = %12.2f\n\n', dt_CFL);
+        fprintf('\n Set timestep too short for optimization.');
+        fprintf('\n Current dt   = %12.2f\n\n', ctr.dt);
+        fprintf('\n dt_CFL limit = %12.2f\n\n', dt_CFL);
     end
 
     %dt = min(ctr.dt,dt_CFL);
-    %dtdx=ctr.dt/ctr.delta;
+    dtdx=ctr.dt/ctr.delta;
 
-    dtdx=ctr.dt/(2.*ctr.delta*ctr.delta);
-    dtdx2=ctr.dt/(2.*ctr.delta);
+    %dtdx=ctr.dt/(ctr.delta*ctr.delta);
+    %dtdx2=ctr.dt/(2.*ctr.delta);
 
-    %R0 = Mb*ctr.dt;
+    R0 = Mb*ctr.dt;
     % This cannot be according to CalvMIP Exp 1!
     %R0(MASK==0)=0.0;
     %R0=zeros(ctr.imax,ctr.jmax);
 
     % Staggered definitions.
-    %H1=circshift(H,[-1 0]); % (i+1,j)
-    %H2=circshift(H,[0 -1]); % (i,j+1)
+    H1=circshift(H,[-1 0]); % (i+1,j)
+    H2=circshift(H,[0 -1]); % (i,j+1)
     %H3=circshift(H,[0 1]); % (i,j-1)
     %H4=circshift(H,[1 0]); % (i-1,j)
 
@@ -123,29 +123,29 @@ function H=SolverIceThickness_optimised(Mb,H,u,v,MASK,d,B,SLR,par,ctr)
 
 
 
-    d1=circshift(d,[0 1]); % d(i,j-1)
-    d2=circshift(d,[1 0]); % d(i-1,j)
-    d3=circshift(d,[1 1]); % d(i-1,j-1)
-
-    dMASK=zeros(ctr.imax,ctr.jmax); %dMASK (floating=0, grounded=1)
-    dMASK(MASK==1 | MASK==2)=1;
-
-    um1=circshift(u,[0 1]); % u(i,j-1)
-    vm1=circshift(v,[1 0]); % v(i-1,j)
-
-    dipx=dtdx*(d+d2);
-    dimx=dtdx*(d1+d3);
-    dipy=dtdx*(d+d1);
-    dimy=dtdx*(d2+d3);
-
-    MASKfac1=dMASK+(1-dMASK)*(1-par.rho/par.rhow);
-    MASKfac2=B.*dMASK+SLR.*(1-dMASK);
-
-    V0=2*(d+d1+d2+d3).*MASKfac1*dtdx+dtdx2*(u-um1+v-vm1); % i,j
-    V1=-dipx.*circshift(MASKfac1,[0 -1])+dtdx2*u; % i,j+1
-    V2=-dimx.*circshift(MASKfac1,[0 1])-dtdx2*um1; % i,j-1
-    V3=-dipy.*circshift(MASKfac1,[-1 0])+dtdx2*v; % i+1,j
-    V4=-dimy.*circshift(MASKfac1,[1 0])-dtdx2*vm1; % i-1,j
+%     d1=circshift(d,[0 1]); % d(i,j-1)
+%     d2=circshift(d,[1 0]); % d(i-1,j)
+%     d3=circshift(d,[1 1]); % d(i-1,j-1)
+% 
+%     dMASK=zeros(ctr.imax,ctr.jmax); %dMASK (floating=0, grounded=1)
+%     dMASK(MASK==1 | MASK==2)=1;
+% 
+%     um1=circshift(u,[0 1]); % u(i,j-1)
+%     vm1=circshift(v,[1 0]); % v(i-1,j)
+% 
+%     dipx=dtdx*(d+d2);
+%     dimx=dtdx*(d1+d3);
+%     dipy=dtdx*(d+d1);
+%     dimy=dtdx*(d2+d3);
+% 
+%     MASKfac1=dMASK+(1-dMASK)*(1-par.rho/par.rhow);
+%     MASKfac2=B.*dMASK+SLR.*(1-dMASK);
+% 
+%     V0=2*(d+d1+d2+d3).*MASKfac1*dtdx+dtdx2*(u-um1+v-vm1); % i,j
+%     V1=-dipx.*circshift(MASKfac1,[0 -1])+dtdx2*u; % i,j+1
+%     V2=-dimx.*circshift(MASKfac1,[0 1])-dtdx2*um1; % i,j-1
+%     V3=-dipy.*circshift(MASKfac1,[-1 0])+dtdx2*v; % i+1,j
+%     V4=-dimy.*circshift(MASKfac1,[1 0])-dtdx2*vm1; % i-1,j
 
     %V0(MASK==0)=0; % note that for shelf=1, MASK=glMASK in the call
     %V1(MASK==0)=0;
@@ -153,35 +153,35 @@ function H=SolverIceThickness_optimised(Mb,H,u,v,MASK,d,B,SLR,par,ctr)
     %V3(MASK==0)=0;
     %V4(MASK==0)=0;
 
-    MASKb=zeros(ctr.imax,ctr.jmax);
-    MASKb(1,:)=1;
-    MASKb(ctr.imax,:)=1;
-    MASKb(:,1)=1;
-    MASKb(:,ctr.jmax)=1;
-    V1(MASKb==1)=0;
-    V2(MASKb==1)=0;
-    V3(MASKb==1)=0;
-    V4(MASKb==1)=0;
-
-    H1 = circshift(H,[0 -1]);
-    H2 = circshift(H,[0 1]);
-    H3 = circshift(H,[-1 0]);
-    H4 = circshift(H,[1 0]);
-
-    M1 = circshift(MASKfac2,[0 -1]);
-    M2 = circshift(MASKfac2,[0 1]);
-    M3 = circshift(MASKfac2,[-1 0]);
-    M4 = circshift(MASKfac2,[1 0]);
-
-    % Grounded.
-    H_new = Mb*ctr.dt + H - H.*V0 - H1.*V1 - H2.*V2 - H3.*V3 - H4.*V4 - ...
-            MASKfac2.*(d+d1+d2+d3)*2*dtdx + M1.*dipx + ...
-            M2.*dimx + M3.*dipy+ M4.*dimy;
-
-    % Reversed sign?
-    H_new = Mb*ctr.dt + H - H.*V0 - H1.*V1 - H2.*V2 - H3.*V3 - H4.*V4 + ...
-                MASKfac2.*(d+d1+d2+d3)*2*dtdx - M1.*dipx - ...
-                M2.*dimx - M3.*dipy - M4.*dimy;
+%     MASKb=zeros(ctr.imax,ctr.jmax);
+%     MASKb(1,:)=1;
+%     MASKb(ctr.imax,:)=1;
+%     MASKb(:,1)=1;
+%     MASKb(:,ctr.jmax)=1;
+%     V1(MASKb==1)=0;
+%     V2(MASKb==1)=0;
+%     V3(MASKb==1)=0;
+%     V4(MASKb==1)=0;
+% 
+%     H1 = circshift(H,[0 -1]);
+%     H2 = circshift(H,[0 1]);
+%     H3 = circshift(H,[-1 0]);
+%     H4 = circshift(H,[1 0]);
+% 
+%     M1 = circshift(MASKfac2,[0 -1]);
+%     M2 = circshift(MASKfac2,[0 1]);
+%     M3 = circshift(MASKfac2,[-1 0]);
+%     M4 = circshift(MASKfac2,[1 0]);
+% 
+%     % Grounded.
+%     H_new = Mb*ctr.dt + H - H.*V0 - H1.*V1 - H2.*V2 - H3.*V3 - H4.*V4 - ...
+%             MASKfac2.*(d+d1+d2+d3)*2*dtdx + M1.*dipx + ...
+%             M2.*dimx + M3.*dipy+ M4.*dimy;
+% 
+%     % Reversed sign?
+%     H_new = Mb*ctr.dt + H - H.*V0 - H1.*V1 - H2.*V2 - H3.*V3 - H4.*V4 + ...
+%                 MASKfac2.*(d+d1+d2+d3)*2*dtdx - M1.*dipx - ...
+%                 M2.*dimx - M3.*dipy - M4.*dimy;
 
     % Floating regions.
     %H_new(MASK==0) = Mb(MASK==0)*ctr.dt + H(MASK==0) ...
@@ -231,22 +231,45 @@ function H=SolverIceThickness_optimised(Mb,H,u,v,MASK,d,B,SLR,par,ctr)
     
 
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+    % Set velocities at the bordes to zero?
     % Use fluxes instead.
-    %Hx_stag = 0.5 * ( H + H2 ); % (i,j+1)
-    %Hy_stag = 0.5 * ( H + H1 );
+    Hx_stag = 0.5 * ( H + H2 ); % (i,j+1)
+    Hy_stag = 0.5 * ( H + H1 ); % (i+1,j)
 
-    %u = 0.5 * ( d + d2 );
-    %v = 0.5 * ( d + d1 );
+    q_x = u .* Hx_stag;
+    q_y = v .* Hy_stag;
 
-    %q_x = u .* Hx_stag;
-    %q_y = v .* Hy_stag;
+    qx_grad = q_x - circshift(q_x, [0 1]); % (i,j-1)
+    qy_grad = q_y - circshift(q_y, [1 0]);
 
-    %qx_grad = q_x - circshift(q_x,[0 1]); % (i,j-1)
-    %qy_grad = q_y - circshift(q_y,[1 0]);
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    % Dffusive correction? IT GIVES ALL ZEROS FOR PURELY SSA.
+    %d1=circshift(d,[0 1]); % d(i,j-1)
+    %d2=circshift(d,[1 0]); % d(i-1,j)   
+    %d3=circshift(d,[1 1]); % d(i-1,j-1)
 
+    %dMASK=zeros(ctr.imax,ctr.jmax); %dMASK (floating=0, grounded=1)
+    %dMASK(MASK==1 | MASK==2)=1;
+
+    %dipx = 0.5 * dtdx*(d+d2);
+    %dimx = 0.5 * dtdx*(d1+d3);
+    %dipy = 0.5 * dtdx*(d+d1);
+    %dimy = 0.5 * dtdx*(d2+d3);
+    %MASKfac1=dMASK+(1-dMASK)*(1-par.rho/par.rhow);
+    %MASKfac2 = B .* dMASK + SLR .* (1-dMASK);
+
+    %D = - MASKfac2.*(d+d1+d2+d3) * dtdx + ...
+    %    circshift(MASKfac2,[0 -1]) .* dipx + ...
+    %    circshift(MASKfac2,[0 1]) .* dimx + ...
+    %    circshift(MASKfac2,[-1 0]) .* dipy + ...
+    %    circshift(MASKfac2,[1 0]) .* dimy
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+    
 
     % New ice thickness.
-    %H_new = H - dtdx * ( qx_grad + qy_grad ) + R0;
+    H_new = H - dtdx * ( qx_grad + qy_grad ) + R0;
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
@@ -366,17 +389,86 @@ function H=SolverIceThickness_optimised(Mb,H,u,v,MASK,d,B,SLR,par,ctr)
     %H_new = H + dtdx * ( u_stag .* H_x + v_stag .* H_y ) + R0;
 
     
-    % Boundary conditions CalvingMIP.ç
+    % Boundary conditions CalvingMIP.
     % CHECK BOUNDARY CONDITIONS
-    H_new(1,:) = H_new(2,:);
-    H_new(:,1) = H_new(:,2);
-    H_new(ctr.imax,:) = H_new(ctr.imax-1,:);
-    H_new(:,ctr.jmax) = H_new(:,ctr.jmax-1);
+    %H_new(1,:) = H_new(2,:);
+    %H_new(:,1) = H_new(:,2);
+    %H_new(ctr.imax,:) = H_new(ctr.imax-1,:);
+    %H_new(:,ctr.jmax) = H_new(:,ctr.jmax-1);
 
     %H_new(1,:) = H(1,:) + R0(1,:);
     %H_new(:,1) = H(:,1) + R0(:,1);
     %H_new(ctr.imax,:) = H(ctr.imax,:) + R0(ctr.imax,:);
     %H_new(:,ctr.jmax) = H(:,ctr.jmax) + R0(:,ctr.jmax);
+
+    %H_new(1,:) = H(1,:);
+    %H_new(:,1) = H(:,1);
+    %H_new(ctr.imax,:) = H(ctr.imax,:);
+    %H_new(:,ctr.jmax) = H(:,ctr.jmax);
+
+
+    %M=zeros(ctr.imax,ctr.jmax);
+    %M(1,:)=1;
+    %M(ctr.imax,:)=1;
+    %M(:,1)=1;
+    %M(:,ctr.jmax)=1;
+
+    qx = u .* H;
+    qy = v .* H;
+
+    a = 2:ctr.imax;
+    b = 2:ctr.jmax;
+
+    qy_y = qy - circshift(qy,[1 0]); % (i-1,j)
+    qx_x = qx - circshift(qx,[0 1]); % (i,j-1)
+
+    H_new(a,1) = H(a,2) - dtdx * ...
+                            ( qx(a,3) - qx(a,2) + ...
+                              qy_y(a,2) ) + R0(a,1);
+
+    H_new(a,ctr.jmax) = H(a,ctr.jmax-1) - dtdx * ...
+                            ( qx(a,ctr.jmax-1) - qx(a,ctr.jmax-2) + ...
+                              qy_y(a,ctr.jmax-1) ) + R0(a,ctr.jmax);
+
+
+    H_new(1,b) = H(2,b) - dtdx * ...
+                            ( qx_x(2,b) + ...
+                              qy(3,b) - qy(2,b) ) + R0(1,b);
+  
+    H_new(ctr.imax,b) = H(ctr.imax-1,b) - dtdx * ...
+                            ( qx_x(ctr.imax-1,b) + ...
+                              qy(ctr.imax-1,b) - qy(ctr.imax-2,b) ) + R0(ctr.imax,b);
+
+
+%     for i=2:ctr.imax
+%         
+%         H_new(i,1) = H(i,2) - dtdx * ...
+%                             ( qx(i,3) - qx(i,2) + ...
+%                               qy(i,2) - qy(i-1,2) ) + R0(i,1);
+% 
+% 
+%         H_new(i,ctr.jmax) = H(i,ctr.jmax-1) - dtdx * ...
+%                                 ( qx(i,ctr.jmax-1) - qx(i,ctr.jmax-2) + ...
+%                                   qy(i,ctr.jmax-1) - qy(i-1,ctr.jmax-1) ) + R0(i,ctr.jmax);
+%     end
+% 
+% 
+%     for j=2:ctr.jmax
+%         
+%         H_new(1,j) = H(2,j) - dtdx * ...
+%                             ( qx(2,j) - qx(2,j-1) + ...
+%                               qy(3,j) - qy(2,j) ) + R0(1,j);
+% 
+% 
+%         H_new(ctr.imax,j) = H(ctr.imax-1,j) - dtdx * ...
+%                                 ( qx(ctr.imax-1,j) - qx(ctr.imax-1,j-1) + ...
+%                                   qy(ctr.imax-1,j) - qy(ctr.imax-2,j) ) + R0(ctr.imax,j); 
+%     end
+
+    % Corner is skipped in the loop.
+    H_new(1,1) = H_new(1,2);
+
+
 
     % CHECK BOUNDARY CONDITIONS
     % EISMINT.
@@ -390,7 +482,7 @@ function H=SolverIceThickness_optimised(Mb,H,u,v,MASK,d,B,SLR,par,ctr)
     H = H_new * ( 1.0 - rel ) + rel * H;
 
     % Avoid spurious results.
-    H(H>3.0e3)=3.0e3;
+    %H(H>3.0e3)=3.0e3;
     
     % Boundary conditions (identical to Frank's).
     if ctr.mismip>=1

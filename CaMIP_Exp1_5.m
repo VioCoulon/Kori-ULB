@@ -2,10 +2,10 @@ function CaMIP_Exp1_5
     
     clear; close all;
     
-    %% Initial ice sheet creation. 
-    ctr.delta=5e3;
-    ctr.imax=322;
-    ctr.jmax=322;
+    %% Initial ice sheet creation.
+    ctr.delta=5e3; % 5e3, 20e3
+    ctr.imax=322; % 322, 82
+    ctr.jmax=322; % 322, 32
     
     
     Li=(ctr.imax-1)*ctr.delta;
@@ -41,21 +41,25 @@ function CaMIP_Exp1_5
     save('ThuleIn5','B','H','Mb','Ts','LSF');
     
     % 1 - Initial spin up
-    ctr.dt=5;   % Jim: 1. Daniel: 5
-    ctr.nsteps=2000; % Jim: 15000, Daniel: 8000 is enough
+    ctr.dt=1;   % Jim: 1. Daniel: 5
+    ctr.nsteps=8000; % Jim: 15000, Daniel: 8000 is enough
     %KoriModel('ThuleIn5','Thule5_visceff1e10_limitno_daniel',ctr);
     ctr.timeslice=1;
-    ctr.snapshot=100; % 800 output every 10 years.
-    KoriModel('ThuleIn5','Thule5_H',ctr);
+    ctr.snapshot=20; % 800 output every 10 years.
+    ctr.ItSolv=0; % makes a difference
+    ctr.upstream=0; % makes a big difference: 0 more precise
+    %KoriModel('ThuleIn5','Thule5_u-Frank_H-daniel',ctr);
+    KoriModel('ThuleIn5','Thule5_upstream-0',ctr);
     
     % 2 - Adjustment to imposition of Calving Front
     ctr.calving=2;   % Direct, constant imposition of change in front positon.
     ctr.WV=0;        % ctr.WV=0 will fix calving front position to be unmoving.
-    ctr.dt=5;   % 1
+    ctr.dt=1;   % 1
     ctr.LSFReset=30;
-    ctr.nsteps=2000; %Jim: 10000, Daniel: 4000 is enough
-    %save('Thule5_pseudo-transient','LSF','-append'); % save('Thule5','LSF','-append'); % Make sure to save the LSF that comes from the initial spinup. 
-    %KoriModel('Thule5_pseudo-transient','Thule-Circ5_pseudo-transient',ctr);
+    ctr.nsteps=4000; %Jim: 10000, Daniel: 4000 is enough
+    ctr.snapshot=50;
+    %save('Thule5_u-Frank_H-daniel','LSF','-append'); % save('Thule5','LSF','-append'); % Make sure to save the LSF that comes from the initial spinup. 
+    %KoriModel('Thule5_u-Frank_H-daniel','Thule-Circ5_pseudo-transient',ctr);
     
     % Old Jim's code.
     % %CalvingMIP-Algorithim 1
