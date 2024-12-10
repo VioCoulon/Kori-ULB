@@ -8,7 +8,7 @@ if exist(ExpName,'file')==2
     delete(ExpName);
 end
 %load Exp2_5_toto.mat
-load Exp2_5_visceff1e10_limityes_ij_toto.mat
+load Exp2_5_visceff6e9_toto.mat
 
 
 X=-800e3:5e3:800e3;
@@ -25,13 +25,13 @@ Time100=0:100:1000;
 iii=0;
 for t = 0:100:1000
 
-    N='Exp2_5_visceff1e10_limityes_ij_';
+    N='Exp2_5_visceff6e9_';
     T=sprintf('%03d', t);
     NT=strcat(N,T);
     if t<1000
         load(NT)
     else
-        load Exp2_5_visceff1e10_limityes_ij_tot.mat
+        load Exp2_5_visceff6e9_toto.mat
     end
     iii=iii+1;
 
@@ -83,17 +83,17 @@ P = readtable('Circle_Profiles.csv');
      if t<1000
          load(NT)
      else
-         load Exp2_5_visceff1e10_limityes_ij_toto.mat
+         load Exp2_5_visceff6e9_toto.mat
      end
 
 
-    N='Exp2_5_visceff1e10_limityes_ij_';
+    N='Exp2_5_visceff6e9_';
     T=sprintf('%03d', t);
     NT=strcat(N,T);
     if t<1000
         load(NT)
     else
-        load Exp2_5_visceff1e10_limityes_ij_toto.mat
+        load Exp2_5_visceff6e9_toto.mat
     end
     iii=iii+1;
 

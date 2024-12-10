@@ -37,7 +37,9 @@ ctr.t=500;
 
 % Full retreate/advance.
 %KoriModel('Exp1_5_visceff1e10_limityes','Exp2_5_visceff1e10_limityes_ij',ctr);
-KoriModel('Exp1_5_visceff1e10_limityes','Exp2_5_test',ctr);
+%KoriModel('Exp1_5_visceff1e10_limityes','Exp2_5_test',ctr);
+
+KoriModel('Exp1_5_visceff8e9','Exp2_5_visceff8e9',ctr);
 
 % Just for re-advance starting from a fully retrated calving front.
 %KoriModel('Exp2_5_visceff1e10_limityes_retreated','Exp2_5_visceff1e10_limityes_ij',ctr);

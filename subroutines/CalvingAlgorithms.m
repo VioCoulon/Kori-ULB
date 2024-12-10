@@ -111,10 +111,10 @@ if ctr.calving>=1 % LSF function calving. Generate a calving rate, CR
         CR=MAGV-Wv;
 
         % Second half of the experiment 4 the ice front is alowed to freely advance, with no calving imposed.
-        if cnt>500
-           %CR=0.0;
-            CR=zeros(size(LSF));
-        end
+        %if cnt>500
+        %   %CR=0.0;
+        %    CR=zeros(size(LSF));
+        %end
 
     end
 

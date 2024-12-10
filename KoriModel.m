@@ -752,7 +752,7 @@ for cnt=cnt0:ctr.nsteps
 
     end
     
-    if cnt>1000000
+    if cnt>0 %1000000
         
         % Current velocity difference from previous iteration.
         %delta_u=abs(u-u_old)./u_old;
@@ -1133,8 +1133,8 @@ for cnt=cnt0:ctr.nsteps
         PlotMainFigure(ctr,par,x,y,sn,S0,H,u,B,MASK,glMASK,LSF);
     end
 
-    fprintf('\n err = %2.4f \n ', err);
-    err
+    %fprintf('\n err = %2.4f \n ', err);
+    %err
     
 %------------------------------------
 % Save intermediate output
