@@ -107,6 +107,8 @@ if ctr.calving>=1 % LSF function calving. Generate a calving rate, CR
         %Wv=-ctr.CR_AMP*sind((cnt+500)*360/1000);
         
         Wv=-ctr.CR_AMP*sind(cnt*360/1000);
+
+        %Wv=-ctr.CR_AMP*sind(cnt*360/100);
         MAGV=sqrt(ux.^2+uy.^2);
         CR=MAGV-Wv;
 

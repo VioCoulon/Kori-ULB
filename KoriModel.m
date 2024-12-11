@@ -680,9 +680,9 @@ for cnt=cnt0:ctr.nsteps
     % Ensure continuity if for such points.
     if ~isempty(row)
 
-        printf('Advancing.')
+        fprintf('... Advancing ...\n');
 
-        [H, Hn] = IceShelfContinuity(ctr, row, col, H, Hn, glMASK)
+        [H, Hn] = IceShelfContinuity(ctr, row, col, H, Hn, glMASK);
 
     end
        

@@ -11,7 +11,7 @@ ctr.jmax=322;
 
 
 ctr.m=3;
-ctr.dt=1.0; % Jim: 0.1. Daniel: 1.0
+ctr.dt=10.0; % Jim: 0.1. Daniel: 1.0
 ctr.shelf=1;
 ctr.shelftune=1;
 ctr.Asin=zeros(ctr.imax,ctr.jmax)+1e-7; % Same as Hilmars set up.
@@ -21,7 +21,7 @@ ctr.SSA=1;
 
 
 ctr.calving=7;       % Jim: 5 CalveMip Periodic forcing, but it is 7 in Vio's version.
-ctr.nsteps=1000;    % Daniel 500 (jsut for re-advance), 1000; Jim: 10000
+ctr.nsteps=100;    % Daniel 500 (jsut for re-advance), 1000; Jim: 10000
 ctr.timeslice=1;
 ctr.LSFReset=1000;
 ctr.snapshot=10; % Jim: 1000
