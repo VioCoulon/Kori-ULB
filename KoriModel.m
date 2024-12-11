@@ -192,7 +192,7 @@ slicecount=0;
     CMB,FMB,flw,p,px,py,pxy,nodeu,nodev,nodes,node,VM,Tof,Sof, ...
     TFf,Tsf,Mbf,Prf,Evpf,runofff,Melt,damage,ThinComp,shelftune,Melt_mean, ... 
     Bmelt_mean,Ts_mean,Mb_mean,To_mean,So_mean,TF_mean,CR_mean,FMR_mean, ...
-    fluxmx_mean,fluxmy_mean]=InitMatrices(ctr,par,default,fc);
+    fluxmx_mean,fluxmy_mean,glMASK_old]=InitMatrices(ctr,par,default,fc);
 
 %----------------------------------------------------------------------
 % Read inputdata
@@ -313,12 +313,9 @@ if exist('LSFo','var')==1
 else
     LSFo=LSF;
 end
-%LSFo
-glMASK_old=zeros(ctr.imax,ctr.jmax);
-%k=0;
-%err=0;
-%Hunf=H;
-%Hold=H;
+
+%glMASK_old=zeros(ctr.imax,ctr.jmax);
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %                                                 %
