@@ -107,13 +107,6 @@ function [H,flag,relres,iter]=SparseSolverIceThickness(node,nodes,Mb, ...
         V2=-dimx.*circshift(MASKfac1,[0 1])-dtdx2*um1; % i,j-1
         V3=-dipy.*circshift(MASKfac1,[-1 0])+dtdx2*v; % i+1,j
         V4=-dimy.*circshift(MASKfac1,[1 0])-dtdx2*vm1; % i-1,j
-
-        % DAniel.
-        %V0=dtdx2*(u-um1+v-vm1); % i,j
-        %V1=dtdx2*u; % i,j+1
-        %V2=-dtdx2*um1; % i,j-1
-        %V3=dtdx2*v; % i+1,j
-        %V4=-dtdx2*vm1; % i-1,j
     end
 
     R0=Mb*ctr.dt+H-H*(1-par.omega).*V0-circshift(H,[0 -1])*(1-par.omega) ...
@@ -123,10 +116,6 @@ function [H,flag,relres,iter]=SparseSolverIceThickness(node,nodes,Mb, ...
         circshift(MASKfac2,[0 1]).*dimx+circshift(MASKfac2,[-1 0]).*dipy+ ...
         circshift(MASKfac2,[1 0]).*dimy;
 
-    % Daniel.
-    %R0=Mb*ctr.dt+H-H*(1-par.omega).*V0-circshift(H,[0 -1])*(1-par.omega) ...
-    %        .*V1-circshift(H,[0 1])*(1-par.omega).*V2-circshift(H,[-1 0])* ...
-    %        (1-par.omega).*V3-circshift(H,[1 0])*(1-par.omega).*V4;
 
     if ctr.upstream==1
         R0=R0-circshift(H,[0 2])*(1-par.omega).*V5-circshift(H,[2 0])* ...

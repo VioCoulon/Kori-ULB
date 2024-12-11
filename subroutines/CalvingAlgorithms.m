@@ -107,7 +107,7 @@ if ctr.calving>=1 % LSF function calving. Generate a calving rate, CR
         %Wv=-ctr.CR_AMP*sind((cnt+500)*360/1000);
         
         Wv=-ctr.CR_AMP*sind(cnt*360/1000);
-        MAGV=sqrt(ux.^2+uy.^2); % Daniel: this was already calculated above?
+        MAGV=sqrt(ux.^2+uy.^2);
         CR=MAGV-Wv;
 
         % Second half of the experiment 4 the ice front is alowed to freely advance, with no calving imposed.
@@ -145,15 +145,7 @@ if ctr.calving>=1 % LSF function calving. Generate a calving rate, CR
     % Diagnostic calculation of calving rate as a surface balance term over
     % the entire grid cell.
     CMB=CR.*Hshelf/ctr.delta;
-    % Frank.
     CMB(glMASK~=5)=0;
-
-    % Daniel. Allow for a one grid cell of calving front between GL and open ocean.
-    %MASK1=circshift(glMASK,[0 -1]); % glMASK(i,j+1)
-    %MASK2=circshift(glMASK,[0 1]); % glMASK(i,j-1)
-    %MASK3=circshift(glMASK,[-1 0]); % glMASK(i+1,j)
-    %MASK4=circshift(glMASK,[1 0]); % glMASK(i-1,j)
-    %CMB((glMASK==1) & (glMASK==2) & (glMASK==3) & (glMASK==4) & (glMASK==6) & ((MASK1==2) | (MASK2==2) | (MASK3==2) | (MASK4==2)) )=0;
 
 
     if  ctr.shelf==1 && ctr.FrontalMelt==1 % Add front melt to calve rate. Just uses vertical melt in calving front cell.....may need to improve this in future
@@ -167,14 +159,8 @@ if ctr.calving>=1 % LSF function calving. Generate a calving rate, CR
     wy=uyh+CRy;
 
     % Original.
-    %LSF=LSFfunction(LSF,ctr,wx,wy,node,nodes,VM,MASK,LSFo); %Advect calving front position
+    LSF=LSFfunction(LSF,ctr,wx,wy,node,nodes,VM,MASK,LSFo); %Advect calving front position
     
-    % Daniel.
-    LSF=LSFfunction(LSF,ctr,wx,wy,node,nodes,VM,MASK,glMASK,X,Y,LSFo);
-    
-    % Daniel function.
-    % IT WORKS VERY NICELY!
-    %LSF=LSFfunction_daniel(LSF,ctr,wx,wy,node,nodes,VM,MASK,glMASK,X,Y,LSFo);
 
     if ctr.LimitFront==1 % Impose maximum calving front extent from observed front position
         LSF(MASKo==0)=-1;
@@ -185,9 +171,6 @@ if ctr.calving>=1 % LSF function calving. Generate a calving rate, CR
         LSF(LSF<-1)=-1;
         LSF(LSF>1)=1;
 
-        % Daniel.
-        %LSF(LSF<0)=-1;
-        %LSF(LSF>0)=1;
     end
 
 end

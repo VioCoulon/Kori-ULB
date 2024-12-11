@@ -1,4 +1,4 @@
-function LSF=LSFfunction(LSF,ctr,u,v,node,nodes,VM,MASK,glMASK,X,Y,LSFo)
+function LSF=LSFfunction(LSF,ctr,u,v,node,nodes,VM,MASK,LSFo)
 
 % Kori-ULB
 % Calculate the Level Set Function (LSF) for following the calving front.
@@ -145,18 +145,14 @@ function LSF=LSFfunction(LSF,ctr,u,v,node,nodes,VM,MASK,glMASK,X,Y,LSFo)
 
     LSF(node>0)=s(node(node>0));
 
-    % Daniel: calving front cannot retreat further than the GL by definition.
-    %LSF(MASK==1) = R0(MASK==1);
-
-
-    % Daniel test.
+    % Avoid numericlaissues if calving front coincides with GL.
+    % Allow for a couple of grid cells of calving front between GL and open ocean.
     M1 = circshift(MASK,[3 3]);
     M2 = circshift(MASK,[3 -3]);
     M3 = circshift(MASK,[-3 3]);
     M4 = circshift(MASK,[-3 -3]);
 
     a = (MASK==1)|(M1==1)|(M2==1)|(M3==1)|(M4==1);
-    %a = MASK==1;
     M(a) = 1;
 
 
@@ -164,58 +160,9 @@ function LSF=LSFfunction(LSF,ctr,u,v,node,nodes,VM,MASK,glMASK,X,Y,LSFo)
     %LSF(MASK==1) = R0(MASK==1);
     LSF(M==1) = R0(M==1);
 
-    % Calving front cannot advance more than initial position.
+    % Calving front cannot advance more than initial position (Jim CalvingMIP).
     %LSF_new=zeros(ctr.imax,ctr.jmax);
     LSF(LSFo<0)=LSFo(LSFo<0);
-
-    
-    % Leave one grid cell of calving front. IT DOES NOT WORK.
-    %LSF((glMASK==1)&(glMASK==2)&(glMASK==3)) = R0((glMASK==1)&(glMASK==2)&(glMASK==3));
-    
-    % Calving front will not advance further than original position.
-    %LSF(LSFo<0) = LSFo(LSFo<0);
-
-    % Ensure calving maintains circular symmetry,
-    %dist     = sqrt((X-800.0).^2 + (Y-800.0).^2);
-    %dist_min = min(dist(glMASK==5));
-    %delta = 100.0;
-    
-    %LSF((dist>dist_min+delta)|(dist<dist_min-delta)) = R0((dist>dist_min+delta)|(dist<dist_min-delta));
-    %LSF(dist>dist_min+delta) = R0(dist>dist_min+delta);
-
-    %MASK1=circshift(MASK,[0 -1]); % glMASK(i,j+1)
-    %MASK2=circshift(MASK,[0 1]); % glMASK(i,j-1)
-    %MASK3=circshift(MASK,[-1 0]); % glMASK(i+1,j)
-    %MASK4=circshift(MASK,[1 0]); % glMASK(i-1,j)
-    %LSF(MASK==1 & ( (MASK1==1 & MASK3==1)|(MASK1==1 & MASK4==1)|(MASK1==1 & MASK4==1)|(MASK2==1 & MASK3==1)|(MASK2==1 & MASK4==1) ) ) = R0(MASK==1 & ( (MASK1==1 & MASK3==1)|(MASK1==1 & MASK4==1)|(MASK1==1 & MASK4==1)|(MASK2==1 & MASK3==1)|(MASK2==1 & MASK4==1) ) );
-    %LSF(MASK==1 & MASK1==1 & MASK2==1 & MASK3==1 & MASK4==1 ) = R0(MASK==1 & MASK1==1 & MASK2==1 & MASK3==1 & MASK4==1 );
-    %LSF(glMASK==1) = imgaussfilt(LSF(glMASK==1),1);
-
-
-    % Daniel's explicit calculation of LSF.
-    %dtdx=ctr.dt/ctr.delta;
-
-    %LSF_now = LSF;
-
-    %for i=1:ctr.imax
-    %    for j=1:ctr.jmax  
-    %        if u(i,j) > 0.0
-    %            LSF_x = LSF(i,j) - LSF(i,j-1);
-    %        end
-    %        if u(i,j) < 0.0
-    %            LSF_x = LSF(i,j-1) - LSF(i,j);
-    %        end
-    %        if v(i,j) > 0.0
-    %            LSF_y = LSF(i,j) - LSF(i-1,j);
-    %        end
-    %        if v(i,j) < 0.0
-    %            LSF_y = LSF(i-1,j) - LSF(i,j);
-    %        end
-
-    %    LSF_now(i,j) = LSF(i,j) + dtdx * ( u(i,j)*LSF_x(i,j) + v(i,j)*LSF_y(i,j) );
-
-    %    end 
-    %end
 
 end
 

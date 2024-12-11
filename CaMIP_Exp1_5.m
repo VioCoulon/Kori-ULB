@@ -46,8 +46,8 @@ function CaMIP_Exp1_5
     ctr.nsteps=4000; % Jim: 15000, Daniel: 8000 is enough
     %KoriModel('ThuleIn5','Thule5_visceff1e10_limitno_daniel',ctr);
     ctr.timeslice=1;
-    ctr.snapshot=10; % 800 output every 10 years.
-    %KoriModel('ThuleIn5','Thule5_visceff8e9',ctr);
+    ctr.snapshot=1000; % 800 output every 10 years.
+    KoriModel('ThuleIn5','Thule5_visceff8e9',ctr);
     
     % 2 - Adjustment to imposition of Calving Front
     ctr.calving=2;   % Direct, constant imposition of change in front positon.
@@ -57,7 +57,7 @@ function CaMIP_Exp1_5
     ctr.nsteps=2000; %Jim: 10000, Daniel: 4000 is enough
     save('Thule5_visceff8e9','LSF','-append'); % save('Thule5','LSF','-append'); % Make sure to save the LSF that comes from the initial spinup. 
     %KoriModel('Thule5_visceff6e9','Thule-Circ5_visceff6e9',ctr);
-    KoriModel('Thule5_visceff8e9','Exp1_5_visceff8e9',ctr);
+    %KoriModel('Thule5_visceff8e9','Exp1_5_visceff8e9',ctr);
     
     % Old Jim's code.
     % %CalvingMIP-Algorithim 1
