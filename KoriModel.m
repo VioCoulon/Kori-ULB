@@ -680,8 +680,6 @@ for cnt=cnt0:ctr.nsteps
     % Ensure continuity if for such points.
     if ~isempty(row)
 
-        fprintf('... Advancing ...\n');
-
         [H, Hn] = IceShelfContinuity(ctr, row, col, H, Hn, glMASK);
 
     end
@@ -828,8 +826,6 @@ for cnt=cnt0:ctr.nsteps
         PlotMainFigure(ctr,par,x,y,sn,S0,H,u,B,MASK,glMASK,LSF);
     end
 
-    %fprintf('\n err = %2.4f \n ', err);
-    %err
     
 %------------------------------------
 % Save intermediate output
