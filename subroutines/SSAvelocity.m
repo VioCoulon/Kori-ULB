@@ -60,7 +60,7 @@ function [uxssa,uyssa,beta2,eta,dudx,dudy,dvdx,dvdy,su,ubx,uby,ux,uy, ...
 
     % PSEUDO-TRANSIENT METHOD.
     
-    cnt_init = 8000;
+    cnt_init = 250;
 
     % First, implicit initialization to avoid zeros.
     % IS THIS PICARD ITERATION THEN PROPERLY SET WITH THE PSEUDO TRANSIENT??

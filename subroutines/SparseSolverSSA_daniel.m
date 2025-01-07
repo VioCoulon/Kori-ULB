@@ -53,8 +53,8 @@ function [u,v,s,flag,relres,iter]=SparseSolverSSA_daniel(nodeu,nodev,s0, ...
     % Frank.
     dmudx=(eta1-eta)/ctr.delta;
     dmudy=0.25*(eta2+eta3-eta4-eta5)/ctr.delta;
-    dmudx=min(limit,max(dmudx,-limit));
-    dmudy=min(limit,max(dmudy,-limit));
+    %dmudx=min(limit,max(dmudx,-limit));
+    %dmudy=min(limit,max(dmudy,-limit));
     
 
     % Daniel.
@@ -398,8 +398,8 @@ function [u,v,s,flag,relres,iter]=SparseSolverSSA_daniel(nodeu,nodev,s0, ...
     % Frank.
     dmudy=(eta1-eta)/ctr.delta;
     dmudx=0.25*(eta2+eta3-eta4-eta5)/ctr.delta;
-    dmudx=min(limit,max(dmudx,-limit));
-    dmudy=min(limit,max(dmudy,-limit));
+    %dmudx=min(limit,max(dmudx,-limit));
+    %dmudy=min(limit,max(dmudy,-limit));
 
     % Daniel.
     %dmudy=(eta1-eta)/ctr.delta;

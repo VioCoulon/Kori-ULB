@@ -3,9 +3,9 @@ function CaMIP_Exp1_5
     clear; close all;
     
     %% Initial ice sheet creation.
-    ctr.delta=5e3; % 5e3, 20e3
-    ctr.imax=322; % 322, 82
-    ctr.jmax=322; % 322, 32
+    ctr.delta=40e3; % 5e3, 20e3
+    ctr.imax=41; % 322, 82
+    ctr.jmax=41; % 322, 32
     
     
     Li=(ctr.imax-1)*ctr.delta;
@@ -45,7 +45,7 @@ function CaMIP_Exp1_5
     ctr.nsteps=8000; % Jim: 15000, Daniel: 8000 is enough
     %KoriModel('ThuleIn5','Thule5_visceff1e10_limitno_daniel',ctr);
     ctr.timeslice=1;
-    ctr.snapshot=20; % 800 output every 10 years.
+    ctr.snapshot=50; % 800 output every 10 years.
     ctr.ItSolv=0; % makes a difference
     ctr.upstream=0; % makes a big difference: 0 more precise
     %KoriModel('ThuleIn5','Thule5_u-Frank_H-daniel',ctr);

@@ -12,23 +12,39 @@ function [u,v,eta,dudx,dvdy,dudy,dvdx,k,err]=SolverSSA_pseudo_transient(nodeu,no
 
         
     % Pseudo-time iteration parameters.
-    rel   = 0.0;       % Relaxation between two consecutive solutions. 0.2  
-    iter  = 500;       % Max number of iterations 200, 500, 100. 50 also works.
-    tol   = 1.0e-2;    % Tolerance to accept new solution. 2.0e-3 works. 1.0e-4 is better. 1.0e-2 is problematic.
-
-    % Compute velocity from current velocity field.
-    [eta,dudx,dvdy,dudy,dvdx]=EffVisc(A,u,v,H,par,MASK,glMASK,shelftune,ctr);
-    
-    % Definitions for boundary conditions.
-    B = 0.25*ctr.delta*par.rho*par.g*(1.-par.rho/par.rhow)*H.^2./eta;
+    rel   = 0.25;       % Relaxation between two consecutive solutions. 0.2  
+    iter  = 100;       % Max number of iterations 200, 500, 100. 50 also works.
+    tol   = 1.0e-4;    % Tolerance to accept new solution. 2.0e-3 works. 1.0e-4 is better. 1.0e-2 is problematic.
 
     % Remember that in Kori eta = eta.*H.
-    D = par.rho * H ./ ( 4.0 * eta * par.secperyear );
     eta_b = 0.5;   % Ice bulk viscosity.
     n_dim = 4.1;   % Dimension factor in 2D (Räss et al., 2022).
+    gamma = (ctr.delta)^2 / ( (1.0+eta_b) * n_dim );
 
-    % Pseudo-time step length. 1.0e-6. Critical to ensure convergence!
-    alpha = D .* (ctr.delta)^2 ./ ( (1.0+eta_b) * n_dim );
+
+    % We need to update beta here with the new velocity field.
+    %if ctr.uSSAexist==1 || cnt>1
+    %    ussa=vec2h(u,v);    %VL: ussa on h-grid
+    %else
+    %    ussa=zeros(ctr.imax,ctr.jmax)+0.1;
+    %end
+    %ussa=max(ussa,1e-3);
+    %if par.ShelfPinning==1 && ctr.stdBexist==1 && ctr.inverse==0 
+    %    fg=max(0,1-(HB-B)./stdB); % subgrid pinning points in ice shelf
+    %else
+    %    fg=1;
+    %end
+    %if ctr.u0>1e10
+    %    beta2=fg.*(ussa.^(1/ctr.m-1)).*Asf.^(-1/ctr.m);
+    %else
+    %    beta2=fg.*(ussa.^(1/ctr.m-1)).*((ussa+ctr.u0).* ...
+    %        Asf/ctr.u0).^(-1/ctr.m);
+    %end
+    %beta2=min(beta2,1e8);
+    %beta2(MASK==0)=0;
+    %betax=0.5*(beta2+circshift(beta2,[0 -1]));
+    %betay=0.5*(beta2+circshift(beta2,[-1 0]));
+
 
     
     % BOUNDARIES: j=1 and j=jmax.
@@ -48,16 +64,28 @@ function [u,v,eta,dudx,dvdy,dudy,dvdx,k,err]=SolverSSA_pseudo_transient(nodeu,no
         % Save iteration.
         u_old   = u;
         v_old   = v;
-        eta_old = eta;
+        %eta_old = eta;
+
+        % Compute velocity from current velocity field.
+        [eta,dudx,dvdy,dudy,dvdx]=EffVisc(A,u,v,H,par,MASK,glMASK,shelftune,ctr);
 
         % Definitions for boundary conditions.
         B = 0.25*ctr.delta*par.rho*par.g*(1.-par.rho/par.rhow)*H.^2./eta;
 
         % Remember that in Kori eta = eta.*H.
         D = par.rho * H ./ ( 4.0 * eta * par.secperyear );
+        %D = par.rho * H ./ ( 4.0 * eta );
 
         % Pseudo-time step length. 1.0e-6. Critical to ensure convergence!
-        alpha = D .* (ctr.delta)^2 ./ ( (1.0+eta_b) * n_dim );
+        %alpha = D .* (ctr.delta)^2 / ( (1.0+eta_b) * n_dim );
+        alpha = gamma * D;
+
+        
+        %alpha_min = min(alpha , [], "all");
+        %alpha_max = max(alpha , [], "all");
+        %fprintf('\n alpha_min = %12.2f\n\n', alpha_min);
+        %fprintf('\n alpha_max = %12.2f\n\n', alpha_max);
+
 
         % Vectorial form.
         eta1=circshift(eta,[-1 0]); % (i+1,j)
@@ -135,8 +163,19 @@ function [u,v,eta,dudx,dvdy,dudy,dvdx,k,err]=SolverSSA_pseudo_transient(nodeu,no
         stress_x = dx_inv_2 * ( fx_1 + fx_2 ) - betax .* u + taudx;
         stress_y = dx_inv_2 * ( fy_1 + fy_2 ) - betay .* v + taudy;
 
+
+        %update_x = alpha .* stress_x;
+        %update_x(1,:)
+
+        %update_y = alpha .* stress_y;
+        %update_y(:,1)
+        %fprintf('\n update_x = %12.2f\n\n', update_x);
+
         u = u_old + alpha .* stress_x;    
         v = v_old + alpha .* stress_y;
+
+        %u = u_old - alpha .* stress_x;    
+        %v = v_old - alpha .* stress_y;
 
         % BOUNDARY CONDITIONS IN VECTORIAL FORM.
         v_y = v - circshift(v,[1 0]); % (i-1,j)
@@ -162,6 +201,11 @@ function [u,v,eta,dudx,dvdy,dudy,dvdx,k,err]=SolverSSA_pseudo_transient(nodeu,no
         % x-component.
         u(1,b)        = u(2,b) + v_x(2,b);
         u(ctr.imax,b) = u(ctr.imax-1,b) - v_x(ctr.imax-1,b);
+
+
+
+
+
 
 
         % Symmetry axis mismip quarter of a circle. Good!
@@ -215,8 +259,8 @@ function [u,v,eta,dudx,dvdy,dudy,dvdx,k,err]=SolverSSA_pseudo_transient(nodeu,no
         %u(1,b)         = - ( 4.0 * u(2,b) - u(3,b) + 2.0 * v_x(2,b) ) / 3.0;
         %u(ctr.imax,b) = ( 4.0 * u(ctr.imax-1,b) - u(ctr.imax-2,b) + 2.0 * v_x(ctr.imax-1,b) ) / 3.0;
 
-        % Compute velocity from new velocity field.
-        [eta,dudx,dvdy,dudy,dvdx]=EffVisc(A,u,v,H,par,MASK,glMASK,shelftune,ctr);
+        % Update viscosity from new velocity field.
+        %[eta,dudx,dvdy,dudy,dvdx]=EffVisc(A,u,v,H,par,MASK,glMASK,shelftune,ctr);
 
         
         % Update solution. Relaxation to avoid spurious results.
