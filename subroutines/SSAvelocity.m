@@ -103,7 +103,7 @@ function [uxssa,uyssa,beta2,eta,dudx,dudy,dvdx,dvdy,su,ubx,uby,ux,uy, ...
         
         % PSEUDO-TRANSIENT METHOD.
         % First, implicit initialization to avoid zeros.
-        if cnt < 10000 % 0.1*ctr.nsteps, 20, 40, 200
+        if cnt < 1000000 % 0.1*ctr.nsteps, 20, 40, 200
             k=0.0;
             err=0.0;
             [uxs1,uys1,su,flagU,relresU,iterU]=SparseSolverSSA_daniel(nodeu,nodev, ...
