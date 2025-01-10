@@ -432,6 +432,28 @@ for cnt=cnt0:ctr.nsteps
     end
 
 %------------------------------------------------------
+% Stochastic boundary conditions.
+% For now, applied to SMB and To (sub-shelf melt).
+%------------------------------------------------------
+    if cnt == 1
+        sigma_Mb = 0.3;   % [m/yr]
+        tau_Mb   = 1.0;   % [yr]
+
+        sigma_oce = 0.5;  % [K]
+        tau_oce   = 1.0;  % [yr]
+
+
+        noise_Mb = StochasticNoise(ctr, sigma_Mb, tau_Mb);
+        noise_To = StochasticNoise(ctr, sigma_oce, tau_oce);
+    else
+        Mb = Mb + noise_Mb(cnt);
+        To = To + noise_To(cnt);
+    end
+
+
+
+
+%------------------------------------------------------
 % Geometry on staggered grids and grounding-line MASK
 % Optionally define shelf mask and ice shelf numbering
 %------------------------------------------------------
