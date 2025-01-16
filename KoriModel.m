@@ -435,20 +435,32 @@ for cnt=cnt0:ctr.nsteps
 % Stochastic boundary conditions.
 % For now, applied to SMB and To (sub-shelf melt).
 %------------------------------------------------------
-    if cnt == 1
-        sigma_Mb = 0.3;   % [m/yr]
-        tau_Mb   = 1.0;   % [yr]
-
-        sigma_oce = 0.5;  % [K]
-        tau_oce   = 1.0;  % [yr]
-
-
-        noise_Mb = StochasticNoise(ctr, sigma_Mb, tau_Mb);
-        noise_To = StochasticNoise(ctr, sigma_oce, tau_oce);
+    stochastic = false;
+    if stochastic == true
+        if cnt == 1
+            sigma_Mb = 0.3;   % [m/yr]
+            tau_Mb   = 1.0;   % [yr]
+    
+            sigma_oce = 0.5;  % [K]
+            tau_oce   = 10.0;  % [yr]
+    
+            % Select variable over which to apply noise.
+            noise_Mb = StochasticNoise(ctr, sigma_Mb, tau_Mb);
+            noise_To = StochasticNoise(ctr, sigma_oce, tau_oce);
+            %fprintf('\n noise_Mb = ', noise_Mb);
+            %noise_Mb
+            %fprintf('\n noise_To = ', noise_To);
+            %noise_To
+        else
+            Mb = Mb + noise_Mb(cnt);
+            %To = To + noise_To(cnt);
+       
+        end
     else
-        Mb = Mb + noise_Mb(cnt);
-        To = To + noise_To(cnt);
+        noise_Mb = 0;
+        noise_To = 0;
     end
+    
 
 
 
@@ -579,7 +591,7 @@ for cnt=cnt0:ctr.nsteps
             Mb,Melt,dtdx,dtdx2,VM,damage,ThinComp,shelftune);
 
         %fprintf('\n k = %1.0f \n ', k);
-        k
+        %k
 
         if ctr.NumCheck==1
             NumStab(cnt,1:5)=NumStabVel;
@@ -637,6 +649,12 @@ for cnt=cnt0:ctr.nsteps
 		[To,So,TF]=OCEANdepthOfInt(fc,ctr,par,Tof,Sof,TFf,H, ...
             HB,B,MASK,glMASK,ShelfN,numsh);
 	end
+
+    % Ocean temperatures (To) should be updated with noise here! 
+    %if cnt > 1
+    %    noise_To = max(-0.5, noise_To);
+    %    To = To + noise_To(cnt);
+    %end
 
     if ctr.meltfunc>=1 && ctr.glMASKexist==1 && ctr.inverse==0
         Tf=par.lambda1*So+par.lambda2+par.lambda3*HB; % Ocean freezing point
@@ -907,7 +925,7 @@ To=To0; % reset output To
 So=So0; % reset output So
 
 save(outfile,'H','B','Ho','Bo','MASK','MASKo','As','G', ...
-    'Ts','Mb');
+    'Ts','Mb','glMASK','noise_Mb','noise_Mb');
 if ctr.Tcalc>=1
     save(outfile,'tmp','Bmelt','-append');
 end
