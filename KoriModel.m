@@ -690,8 +690,10 @@ end
         end
     end
     if ctr.inverse>=1
-        InvVol(cnt,1)=sum(abs(sn(MASK==1)-sn0(MASK==1)));
-        InvVol(cnt,2)=sum(sn(MASK==1)-sn0(MASK==1));
+        % calculates misfit for ice grid cells (and only within drainage
+        % basin if ctr.basin=1)
+        InvVol(cnt,1)=sum(abs(sn(MASK==1 & bMASK==0)-sn0(MASK==1 & bMASK==0)));
+        InvVol(cnt,2)=sum(sn(MASK==1 & bMASK==0)-sn0(MASK==1 & bMASK==0));
         if ctr.shelf==1
             InvVol(cnt,3)=mean(H(shMASK==1)-Ho(shMASK==1),'omitnan');
         end
@@ -798,7 +800,7 @@ end
 %------------------------------------
 
     if ctr.runmode<2 && rem(cnt-1,plotst)==0
-        PlotMainFigure(ctr,par,x,y,sn,S0,H,u,B,MASK,glMASK,LSF);
+        PlotMainFigure(ctr,par,x,y,sn,S0,H,u,B,MASK,glMASK,LSF,MASKo);
     end
     
 %------------------------------------

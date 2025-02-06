@@ -1,4 +1,4 @@
-function PlotMainFigure(ctr,par,x,y,sn,S0,H,u,B,MASK,glMASK,LSF)
+function PlotMainFigure(ctr,par,x,y,sn,S0,H,u,B,MASK,glMASK,LSF,MASKo)
 
 % Kori-ULB
 % Plot of the main figure during the model run with changes in ice
@@ -43,6 +43,9 @@ function PlotMainFigure(ctr,par,x,y,sn,S0,H,u,B,MASK,glMASK,LSF)
         contour(x,y,MASK,1,'LineColor','k','LineWidth',0.5);
         if ctr.calving>=1
             contour(x,y,LSF,[0 0],'LineColor','b','LineWidth',0.5);
+        end
+        if ctr.inverse>=1
+            contour(x,y,MASKo,2,'LineColor','r','LineWidth',0.5);
         end
         hold off;
     end
