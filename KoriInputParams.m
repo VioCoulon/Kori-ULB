@@ -190,8 +190,8 @@ par.stdDevRegul=3.5; % standard deviation of the Gaussian filter for the regular
 if basin==1
     par.stdDevRegul=par.stdDevRegul+1;
 end
-par.invmin=1.e-10; % values valid for m=2; scaled with 150kPa for other m
-par.invmax=1.e-3;
+par.invmin=1.e-11; % values valid for m=2; scaled with 150kPa for other m
+par.invmax=1.e-2;
 par.invmaxncor=1.e-5;
 par.AsFroz=1e-11;
 par.AsScale=1e5^(2-m);

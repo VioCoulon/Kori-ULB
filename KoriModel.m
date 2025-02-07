@@ -197,7 +197,7 @@ slicecount=0;
     CMB,FMB,flw,p,px,py,pxy,nodeu,nodev,nodes,node,VM,Tof,Sof, ...
     TFf,Meltf,Tsf,Mbf,Prf,Evpf,runofff,Melt,damage,shelftune,Melt_mean, ... 
     Bmelt_mean,Ts_mean,Mb_mean,To_mean,So_mean,TF_mean,CR_mean,FMR_mean, ...
-    fluxmx_mean,fluxmy_mean,Smelt_mean,runoff_mean,rain_mean,acc_mean]=InitMatrices(ctr,par,default,fc);
+    fluxmx_mean,fluxmy_mean,Smelt_mean,runoff_mean,rain_mean,acc_mean,glMASK_old]=InitMatrices(ctr,par,default,fc);
 
 %----------------------------------------------------------------------
 % Read inputdata
@@ -657,6 +657,22 @@ for cnt=cnt0:ctr.nsteps
         dHdt(cnt)=mean(abs(Hn(:)-H(:)))/ctr.dt; % ice-sheet imbalance
     end
 
+%---------------------------------------------------------
+% Ensure continuity of ice shelves during calving
+% front advance/retreate.
+% (Daniel)
+%---------------------------------------------------------
+
+% Grid point indices that have now become calving front and used to be open sea.
+[row, col] = find( (glMASK==5) & (glMASK_old==6) );
+
+% Ensure continuity if for such points.
+if ~isempty(row)
+
+    [H, Hn] = IceShelfContinuity(ctr, row, col, H, Hn, glMASK);
+
+end
+
 %----------------------
 % Bedrock adjustment
 %----------------------
@@ -686,8 +702,10 @@ for cnt=cnt0:ctr.nsteps
         end
     end
     if ctr.inverse>=1
-        InvVol(cnt,1)=sum(abs(sn(MASK==1)-sn0(MASK==1)));
-        InvVol(cnt,2)=sum(sn(MASK==1)-sn0(MASK==1));
+        % calculates misfit for ice grid cells (and only within drainage
+        % basin if ctr.basin=1)
+        InvVol(cnt,1)=sum(abs(sn(MASK==1 & bMASK==0)-sn0(MASK==1 & bMASK==0)));
+        InvVol(cnt,2)=sum(sn(MASK==1 & bMASK==0)-sn0(MASK==1 & bMASK==0));
         if ctr.shelf==1
             InvVol(cnt,3)=mean(H(shMASK==1)-Ho(shMASK==1),'omitnan');
         end
@@ -796,7 +814,7 @@ for cnt=cnt0:ctr.nsteps
 %------------------------------------
 
     if ctr.runmode<2 && rem(cnt-1,plotst)==0
-        PlotMainFigure(ctr,par,x,y,sn,S0,H,u,B,MASK,glMASK,LSF);
+        PlotMainFigure(ctr,par,x,y,sn,S0,H,u,B,MASK,glMASK,LSF,MASKo);
     end
     
 %------------------------------------
@@ -817,6 +835,9 @@ for cnt=cnt0:ctr.nsteps
             end
         end
     end
+
+    % Update glMASK to keep track of moving calving front (Daniel)
+    glMASK_old = glMASK;
         
 %------------------------------------
 % End of time loop
