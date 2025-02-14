@@ -188,7 +188,7 @@ par.SLref=0; % reference sea level
 
 par.stdDevRegul=3.5; % standard deviation of the Gaussian filter for the regularization in grid cells (3.5)
 if basin==1
-    par.stdDevRegul=par.stdDevRegul+1;
+    par.stdDevRegul=par.stdDevRegul+2;
 end
 par.invmin=1.e-11; % values valid for m=2; scaled with 150kPa for other m
 par.invmax=1.e-2;
