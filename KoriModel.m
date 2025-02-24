@@ -645,20 +645,15 @@ for cnt=cnt0:ctr.nsteps
         dHdt(cnt)=mean(abs(Hn(:)-H(:)))/ctr.dt; % ice-sheet imbalance
     end
 
-%---------------------------------------------------------
 % Ensure continuity of ice shelves during calving
 % front advance/retreate.
-% (Daniel)
-%---------------------------------------------------------
-
 % Grid point indices that have now become calving front and used to be open sea.
-[row, col] = find( (glMASK==5) & (glMASK_old==6) );
-
-% Ensure continuity if for such points.
-if ~isempty(row)
-
-    [H, Hn] = IceShelfContinuity(ctr, row, col, H, Hn, glMASK);
-
+if ctr.glMASKexist==1
+    [row, col] = find( (glMASK==5) & (glMASK_old==6) );
+    % Ensure continuity if for such points.
+    if ~isempty(row)
+        [H, Hn] = IceShelfContinuity(ctr, row, col, H, Hn, glMASK);
+    end
 end
 
 %----------------------
