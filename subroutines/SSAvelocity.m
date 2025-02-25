@@ -57,9 +57,18 @@ function [uxssa,uyssa,beta2,eta,dudx,dudy,dvdx,dvdy,su,ubx,uby,ux,uy, ...
     end
 
     for ll=1:par.visciter % iteration over effective viscosity
+        
+        if ll > 1
+            rel = 0.1;
+            eta = eta * rel + ( 1.0 - rel ) * eta_old;
+        end
+        
         [eta,dudx,dvdy,dudy,dvdx]=EffVisc(A,uxssa,uyssa,H,par,MASK, ...
             glMASK,shelftune,ctr);
-
+        
+        eta_old = eta;
+        
+            
         % Jablasco damage.
         if ctr.damage==1 && cnt>1
             if ll==1
@@ -100,10 +109,47 @@ function [uxssa,uyssa,beta2,eta,dudx,dudy,dvdx,dvdy,su,ubx,uby,ux,uy, ...
             damage=zeros(ctr.imax,ctr.jmax);
         end
         eta=eta.*scale_eta;
+
+
+%         [uxs1,uys1,su,flagU,relresU,iterU]=SparseSolverSSA_daniel(nodeu,nodev, ...
+%             su,MASKmx,MASKmy,bMASK, ...
+%             H,eta,betax,betay,uxssa,uyssa,uxsia,uysia,udx,udy,taudx, ...
+%             taudy,ctr,par);
+% 
+%         uxssa=uxs1;
+%         uyssa=uys1;
+%         %---------iterative beta---------
+%         if cnt<=ctr.BetaIter
+%             ussa=vec2h(uxssa,uyssa); %VL: ussa on h-grid
+%             if ctr.u0>1e10
+%                 beta2=fg.*(ussa.^(1/ctr.m-1)).*Asf.^(-1/ctr.m);
+%             else
+%                 beta2=fg.*(ussa.^(1/ctr.m-1)).*((ussa+ctr.u0).*Asf ...
+%                     /ctr.u0).^(-1/ctr.m);
+%             end
+%             beta2=min(beta2,1e8);
+%             beta2(MASK==0)=0;
+%             betax=0.5*(beta2+circshift(beta2,[0 -1]));
+%             betay=0.5*(beta2+circshift(beta2,[-1 0]));
+%             if ctr.mismip>=1
+%                 betax(:,1)=betax(:,2); % symmetric divide
+%                 betax(1,:)=betax(3,:); % symmetry axis
+%                 betax(ctr.imax,:)=betax(ctr.imax-2,:); % periodic BC
+%                 betax(:,ctr.jmax)=0; % ocean
+%                 betay(:,1)=betay(:,3); % symmetric divide
+%                 betay(1,:)=betay(2,:); % symmetry axis
+%                 betay(ctr.imax,:)=betay(ctr.imax-1,:); % periodic BC
+%                 if ctr.mismip==2 % Thule setup
+%                     betax(ctr.imax,:)=0;
+%                     betay(ctr.imax,:)=0;
+%                 end
+%             end
+%         end
+        %--------------------------------
         
-        % PSEUDO-TRANSIENT METHOD.
+        % PSEUDO-TRANSIENT METHOD. INSIDE THE PICARD LOOP???? Check Rass paper!
         % First, implicit initialization to avoid zeros.
-        if cnt < 1000000 % 0.1*ctr.nsteps, 20, 40, 200
+        if cnt < 10 % 0.1*ctr.nsteps, 20, 40, 200
             k=0.0;
             err=0.0;
             [uxs1,uys1,su,flagU,relresU,iterU]=SparseSolverSSA_daniel(nodeu,nodev, ...
@@ -143,18 +189,11 @@ function [uxssa,uyssa,beta2,eta,dudx,dudy,dvdx,dvdy,su,ubx,uby,ux,uy, ...
                 %--------------------------------
         % Pseudo-transient solver.
         else
-            [uxs1,uys1,k,err]=SolverSSA_pseudo_transient(nodeu,nodev, ...
-                 su,MASKmx,MASKmy,bMASK,H,eta,uxssa,uyssa,...
-                   uxsia,uysia,betax,betay,udx,udy,taudx,taudy,MASK,Asf,cnt,ctr,par);
+            [uxs1,uys1,k,err]=SolverSSA_pseudo_transient(H,HB,B,stdB,eta,uxssa,uyssa,...
+                   uxsia,uysia,betax,betay,udx,udy,taudx,taudy,MASK,glMASK,Asf,cnt,ctr,par);
 
         end
 
-
-        % Pseudo-transient method.
-        %[uxs1,uys1,betax,betay]=SparseSolverSSA_daniel_2(nodeu,nodev, ...
-        %        su,MASKmx,MASKmy,bMASK,H,eta,uxssa,uyssa,...
-        %            uxsia,uysia,udx,udy,taudx,taudy,MASK,Asf,cnt,ctr,par);
-        
 
         duxs=sqrt((uxs1-uxssa).^2+(uys1-uyssa).^2);
         duxs(isnan(duxs))=0;

@@ -23,7 +23,7 @@ function [db]=BasalDamageAlgorithms(ctr,par,dudx,dvdy,dudy,dvdx,eta,H,HAF)
 	    end
 	    if ctr.bsldamage==3
 		alpha=lambda2./lambda1;
-                db=(par.rho/(par.rhow-par.rho))*(((2+alpha).*tau1./(par.rho*par.g))-max(HAF,0);
+                db=(par.rho/(par.rhow-par.rho))*(((2+alpha).*tau1./(par.rho*par.g))-max(HAF,0));
             end
 	end
     end

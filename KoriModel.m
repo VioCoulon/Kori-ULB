@@ -436,12 +436,21 @@ for cnt=cnt0:ctr.nsteps
 % For now, applied to SMB and To (sub-shelf melt).
 %------------------------------------------------------
     stochastic = false;
+
     if stochastic == true
         if cnt == 1
-            sigma_Mb = 0.3;   % [m/yr]
-            tau_Mb   = 1.0;   % [yr]
+            
+            % SMB anomalies (Christian et al., 2022).
+            sigma_Mb = 0.3;   %     [m/yr]
+            tau_Mb   = 1.0;   % 1.0 [yr]
     
-            sigma_oce = 0.5;  % [K]
+            % Ocean synthetic temperatures.
+            % Check the paper Schmidtkoet al. (2014) to check the range of 
+            % ocean temperature anomalies that are permissible.
+            % From Christianson et al. (2018), amplitude in ocean temperatures 
+            % anomalies is around -2ºC to +1ºC. Vertically averaged: -0.5ºC to +0.75ºC.
+            % Sigma_oce = 2.0.
+            sigma_oce = 4.0;  % 2.0, 3.0, 4.0 [K]
             tau_oce   = 10.0;  % [yr]
     
             % Select variable over which to apply noise.
@@ -453,7 +462,6 @@ for cnt=cnt0:ctr.nsteps
             %noise_To
         else
             Mb = Mb + noise_Mb(cnt);
-            %To = To + noise_To(cnt);
        
         end
     else
@@ -461,7 +469,6 @@ for cnt=cnt0:ctr.nsteps
         noise_To = 0;
     end
     
-
 
 
 
@@ -651,10 +658,12 @@ for cnt=cnt0:ctr.nsteps
 	end
 
     % Ocean temperatures (To) should be updated with noise here! 
-    %if cnt > 1
-    %    noise_To = max(-0.5, noise_To);
-    %    To = To + noise_To(cnt);
-    %end
+    if stochastic == true
+        if cnt > 1
+            %noise_To = max(-0.5, noise_To);
+            To = To + noise_To(cnt);
+        end
+    end
 
     if ctr.meltfunc>=1 && ctr.glMASKexist==1 && ctr.inverse==0
         Tf=par.lambda1*So+par.lambda2+par.lambda3*HB; % Ocean freezing point
@@ -724,18 +733,22 @@ for cnt=cnt0:ctr.nsteps
 %---------------------------------------------------------
 % Ensure continuity of ice shelves during calving 
 % front advance/retreate.
-% STILL UNDER DEVELOPMENT!
+% Daniel: STILL UNDER DEVELOPMENT!
 %---------------------------------------------------------
 
-    % Grid point indices that have now become calving front and used to be open sea.
-    [row, col] = find( (glMASK==5) & (glMASK_old==6) );
+    if ctr.glMASKexist==1
+        % Grid point indices that have now become calving front and used to be open sea.
+        [row, col] = find( (glMASK==5) & (glMASK_old==6) );
 
-    % Ensure continuity if for such points.
-    if ~isempty(row)
+        % Ensure continuity if for such points.
+        if ~isempty(row)
 
-        [H, Hn] = IceShelfContinuity(ctr, row, col, H, Hn, glMASK);
+            [H, Hn] = IceShelfContinuity(ctr, row, col, H, Hn, glMASK);
 
+        end
     end
+
+    
        
     
 
@@ -925,7 +938,7 @@ To=To0; % reset output To
 So=So0; % reset output So
 
 save(outfile,'H','B','Ho','Bo','MASK','MASKo','As','G', ...
-    'Ts','Mb','glMASK','noise_Mb','noise_Mb');
+    'Ts','Mb','glMASK','noise_Mb','noise_To');
 if ctr.Tcalc>=1
     save(outfile,'tmp','Bmelt','-append');
 end

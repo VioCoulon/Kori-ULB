@@ -13,6 +13,8 @@ function noise = stochastic_noise(ctr, sigma, tau)
         N = ctr.nsteps + 1;
     end
 
+    %N=20000;
+
     % Frequency resolution and maximum frequency.
     df = 1.0 / (ctr.dt * N);
     f0 = 0.5 / ctr.dt;
