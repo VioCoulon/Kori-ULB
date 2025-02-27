@@ -48,7 +48,8 @@ par.secperyear=31556926;
 % 2d variables to be saved when timeslice=1
 par.varlist={'MASK','H','d','B','ux','uy','fluxmx_mean', ...
              'fluxmy_mean','Tb','glMASK','Melt_mean','FMR_mean', ...
-             'CR_mean','Mb_mean','Bmelt_mean','ubx','uby','beta2','eta','LSF','Bmelt','Melt'};
+             'CR_mean','Mb_mean','Bmelt_mean','ubx','uby','beta2', ...
+             'eta','LSF','Bmelt','Melt','To','Mb'};
 
 
 %-----------------------------------
@@ -82,7 +83,7 @@ par.rho=917.; % ice density
 par.rhow=1027.; % sea water density
 par.rhom=3370.; % mantle density
 par.n=3; % flow law exponent
-par.visciter=5; % Maximum number of iterations on the nonlinear part of the SSA equation (50)
+par.visciter=50; % Maximum number of iterations on the nonlinear part of the SSA equation (50)
 par.visctol=5e-1; % Tolerance for calculation of the nonlinear part of the SSA equation (0.5)
 par.veliter=50;  % Maximum number of iterations for the iterative SSA velocity solver (50)
 par.veltol=1e-4;  % Tolerance for the iterative SSA velocity solver (1e-3 works, 1e-4)

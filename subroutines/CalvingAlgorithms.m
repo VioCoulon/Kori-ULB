@@ -136,7 +136,7 @@ if ctr.calving>=1 % LSF function calving. Generate a calving rate, CR
             | MASKo==3 & circshift(MASKo,[0 -1])==0 | MASKo==3 & circshift(MASKo,[0 1])==0));
     end
 
-    if ctr.calving==4 || ctr.calving==6 || ctr.LimitFront==1
+    if ctr.calving==4 || ctr.calving==6 % || ctr.LimitFront==1 % Vio's update
         % advect calving front CR value in the open ocean
         [CRadvec]=AdvecCR(CR,H,glMASK,MASK,ux,uy,ctr,par);
         CR=CRadvec;
