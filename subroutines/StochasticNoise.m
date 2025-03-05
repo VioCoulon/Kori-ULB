@@ -1,4 +1,4 @@
-function noise = stochastic_noise(ctr, sigma, tau)
+function noise = stochastic_noise(ctr, sigma, tau, seed)
     % Stochastic noise function.
     % Parameters:
     % dt   - Time step.
@@ -32,7 +32,8 @@ function noise = stochastic_noise(ctr, sigma, tau)
     P = sqrt(P_0 ./ (1.0 + r^2 - 2.0 * r * cos(2.0 * pi * ctr.dt * f1)));
 
     % Seed random number generator.
-    rng(1);
+    rng(seed); % rng(1)
+    %rng('shuffle'); % Different seed for each run
 
     % Create array with random phase.
     phase_all = 1i * 2.0 * pi * rand(1, N);

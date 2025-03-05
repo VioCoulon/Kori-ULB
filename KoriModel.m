@@ -435,7 +435,7 @@ for cnt=cnt0:ctr.nsteps
 % Stochastic boundary conditions.
 % For now, applied to SMB and To (sub-shelf melt).
 %------------------------------------------------------
-    stochastic = false;
+    stochastic = true;
 
     if stochastic == true
         if cnt == 1
@@ -450,12 +450,13 @@ for cnt=cnt0:ctr.nsteps
             % From Christianson et al. (2018), amplitude in ocean temperatures 
             % anomalies is around -2ºC to +1ºC. Vertically averaged: -0.5ºC to +0.75ºC.
             % Sigma_oce = 2.0.
-            sigma_oce = 4.0;  % 1.0, 2.0, 4.0 [K]
+            sigma_oce = 1.0;  % 0.5, 1.0, 2.0, 4.0 [K]
             tau_oce   = 10.0;  % [yr]
     
             % Select variable over which to apply noise.
-            noise_Mb = StochasticNoise(ctr, sigma_Mb, tau_Mb);
-            noise_To = StochasticNoise(ctr, sigma_oce, tau_oce);
+            seed = 7;     % Default: 2. 7, 100
+            noise_Mb = StochasticNoise(ctr, sigma_Mb, tau_Mb, seed);
+            noise_To = StochasticNoise(ctr, sigma_oce, tau_oce, seed);
             %fprintf('\n noise_Mb = ', noise_Mb);
             %noise_Mb
             %fprintf('\n noise_To = ', noise_To);
