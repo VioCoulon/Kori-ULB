@@ -1,10 +1,24 @@
-function noise = stochastic_noise(ctr, sigma, tau, seed)
-    % Stochastic noise function.
+function noise = stochastic_noise(ctr, var)
+    
+    % Stochastic noise function. (ctr, sigma, tau, seed)
     % Parameters:
     % dt   - Time step.
     % sigma - Standard deviation of noise.
     % tau  - Persistence time.
     % N    - Number of points.
+
+    if var == 'To'
+        tau   = ctr.tau_To;
+        sigma = ctr.sigma_To;
+
+    elseif var == 'Mb'
+        tau   = ctr.tau_Mb;
+        sigma = ctr.sigma_Mb;
+
+    else
+        fprintf('\n Variable to apply stochastic noise not recognised. \n');
+    end
+
 
     % For odd number of time steps, make it even by increasing 1.
     if mod(ctr.nsteps,2) == 0
@@ -32,7 +46,7 @@ function noise = stochastic_noise(ctr, sigma, tau, seed)
     P = sqrt(P_0 ./ (1.0 + r^2 - 2.0 * r * cos(2.0 * pi * ctr.dt * f1)));
 
     % Seed random number generator.
-    rng(seed); % rng(1)
+    rng(ctr.seed); % rng(1)
     %rng('shuffle'); % Different seed for each run
 
     % Create array with random phase.

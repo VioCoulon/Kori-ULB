@@ -435,14 +435,14 @@ for cnt=cnt0:ctr.nsteps
 % Stochastic boundary conditions.
 % For now, applied to SMB and To (sub-shelf melt).
 %------------------------------------------------------
-    stochastic = true;
+    %stochastic = true;
 
-    if stochastic == true
+    if ctr.stochastic == 1
         if cnt == 1
             
             % SMB anomalies (Christian et al., 2022).
-            sigma_Mb = 0.3;   %     [m/yr]
-            tau_Mb   = 1.0;   % 1.0 [yr]
+            %sigma_smb = 0.3;   %     [m/yr]
+            %tau_smb   = 1.0;   % 1.0 [yr]
     
             % Ocean synthetic temperatures.
             % Check the paper Schmidtkoet al. (2014) to check the range of 
@@ -450,17 +450,22 @@ for cnt=cnt0:ctr.nsteps
             % From Christianson et al. (2018), amplitude in ocean temperatures 
             % anomalies is around -2ºC to +1ºC. Vertically averaged: -0.5ºC to +0.75ºC.
             % Sigma_oce = 2.0.
-            sigma_oce = 1.0;  % 0.5, 1.0, 2.0, 4.0 [K]
-            tau_oce   = 10.0;  % [yr]
+            %sigma_oce = 1.0;  % 0.5, 1.0, 2.0, 4.0 [K]
+            %tau_oce   = 10.0;  % [yr]
     
             % Select variable over which to apply noise.
-            seed = 7;     % Default: 2. 7, 100
-            noise_Mb = StochasticNoise(ctr, sigma_Mb, tau_Mb, seed);
-            noise_To = StochasticNoise(ctr, sigma_oce, tau_oce, seed);
+            %seed = 7;     % Default: 2. 7, 100
+            
+            %noise_Mb = StochasticNoise(ctr, sigma_smb, tau_Mb, seed);
+            %noise_To = StochasticNoise(ctr, sigma_oce, tau_oce, seed);
             %fprintf('\n noise_Mb = ', noise_Mb);
             %noise_Mb
             %fprintf('\n noise_To = ', noise_To);
             %noise_To
+
+            noise_Mb = StochasticNoise(ctr, 'Mb');
+            noise_To = StochasticNoise(ctr, 'To');
+
         else
             Mb = Mb + noise_Mb(cnt);
        
@@ -659,7 +664,7 @@ for cnt=cnt0:ctr.nsteps
 	end
 
     % Ocean temperatures (To) should be updated with noise here! 
-    if stochastic == true
+    if ctr.stochastic == 1
         if cnt > 1
             %noise_To = max(-0.5, noise_To);
             To = To + noise_To(cnt);
@@ -870,8 +875,8 @@ for cnt=cnt0:ctr.nsteps
     if ctr.timeslice==1 
         if cnt==1 || (ctr.snapshot_list==1 && fc.snap_year(slicecount)==time(cnt)) || (ctr.snapshot_list==0 && rem(cnt-1,plotst)==0)
             slicecount=slicecount+1;
-            fname=strcat(outfile,'_',num2str(slicecount-1,'%03i'));
-            save(fname,par.varlist{1,1});
+            fname=strcat(outfile,'_',num2str(slicecount-1,'%04i'));
+            save(fname,par.varlist{1,1}); % compressed and chunked format.'-v7.3')
             for i=2:length(par.varlist)
                 save(fname,par.varlist{1,i},'-append');
             end

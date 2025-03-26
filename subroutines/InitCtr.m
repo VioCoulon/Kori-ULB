@@ -28,6 +28,14 @@ function [ctr,fc]=InitCtr(ctr,fc,default)
     ctr.BedAdj(any(ismember(fields(ctr),'BedAdj'))==0)=0;
     ctr.m(any(ismember(fields(ctr),'m'))==0)=default.m; % default linear sliding
     ctr.p(any(ismember(fields(ctr),'p'))==0)=0;
+    
+    ctr.stochastics(any(ismember(fields(ctr),'stochastic'))==0)=0;
+    ctr.sigma_To(any(ismember(fields(ctr),'sigma_To'))==0)=0; % Amplitude stochastic noise.
+    ctr.sigma_Mb(any(ismember(fields(ctr),'sigma_Mb'))==0)=0;
+    ctr.tau_To(any(ismember(fields(ctr),'tau_To'))==0)=0; % Decorrelation time stochastic noise.
+    ctr.tau_Mb(any(ismember(fields(ctr),'tau_Mb'))==0)=0;
+    ctr.seed(any(ismember(fields(ctr),'seed'))==0)=0;
+
     ctr.kmax(any(ismember(fields(ctr),'kmax'))==0)=default.kmax; % default number of z-levels    
     ctr.subwaterflow(any(ismember(fields(ctr),'subwaterflow'))==0)=0;
     ctr.SlidAdjust(any(ismember(fields(ctr),'SlidAdjust'))==0)=0;
