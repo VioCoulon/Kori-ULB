@@ -46,28 +46,7 @@ cd $path
 ##########################################################################
 # OPTION 2.
 # Submit several jobs by looping through each file in the directory.
-#for exe in ./*; do
-    # Check if the file is executable
-#    if [[ -x "$exe" && ! -d "$exe" ]]; then
 
-        # Create a directory with the same name as the executable if it doesn't exist
-        # Extract the filename without the path
-#        exe_name=$(basename "$exe")
-#        echo "Creating directory $path_out/$exe_name"
-#        mkdir -p "$path_out/$exe_name"
-
-        # Submit the executable as a job with srun
-#        echo "Submitting job for $exe"
-
-        #srun ./"$exe" 2>&1 > "$path_out/$exe_name/output.log" 
-#        sbatch --export=EXECUTABLE="$exe" "$SBATCH_SCRIPT"
-#    fi
-#done
-##########################################################################
-
-
-
-##########################################################################
 find . -type f -executable | while read -r exe; do
     # Extract the filename without the path
     exe_name=$(basename "$exe")
@@ -77,11 +56,6 @@ find . -type f -executable | while read -r exe; do
 
     # Get the absolute path of the executable (including name).
     exe_abs_path=$(realpath "$exe")
-
-
-    #echo "exe_name       : $exe_name"
-    #echo "exe_dir        : $exe_dir"
-    #echo "exe_abs_path   : $exe_abs_path"
 
     # Extract the directory where the executable is located
     exe_path=$(dirname "$exe_abs_path")
