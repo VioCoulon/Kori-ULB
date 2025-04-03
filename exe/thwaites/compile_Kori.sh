@@ -6,20 +6,26 @@ path_kori_subroutines=$path_kori/subroutines
 
 # Experiment name.
 #exp=sigma_oce050
-exp=HR
+#exp=HR
+exp=sigma_oce300
 
+# LOCAL PATHS.
 path_exe=$path_kori/exe/thwaites
 #path_param=$path_exe/nic5/$exp          # Stochastic ensemble.
-path_param=$path_exe/nic5/deter/HR     # Deterministic.
 
-# Cluster paths.
+#path_param=$path_exe/nic5/stoch/HR/$exp      # Stochastic.
+path_param=$path_exe/nic5/stoch/$exp      # Stochastic.
+
+
+# CLUSTER PATHS.
 # Lemaitre.
 #path_cluster=/globalscratch/ulb/glaciol/dmoreno/Kori-ULB/exe/sigma_oce1
 
 # Nic5.
 cluster=nic5
-#path_sigma=/scratch/ulb/glaciol/dmoreno/Kori-ULB/exe/sigma_oce200
-path_cluster=/scratch/ulb/glaciol/dmoreno/Kori-ULB/exe/deter/$exp
+#path_cluster=/scratch/ulb/glaciol/dmoreno/Kori-ULB/exe/deter/$exp
+path_cluster=/scratch/ulb/glaciol/dmoreno/Kori-ULB/exe/stoch/$exp
+
 
 # Enter path with matlab scripts to be compiled.
 cd $path_exe
@@ -36,23 +42,14 @@ cd $path_exe
 
 
 # OPTION 2.
-# Loop over each file in the directory
+# Loop over each file in the directory.
 file=RunASE_nic5.m
 exe_name=RunASE_nic5
 
-# Define the remote server
+# Define the remote server.
 REMOTE_HOST="nic5"
 
-# Define the vectors of names
-#MAIN_FOLDERS=("seed100" "seed2" "seed7")   # Main folders,  "seed100" "seed2" "seed7"
-#SUBFOLDERS=("gamma01e5"  "gamma02e5" 
-#            "gamma03e5"  "gamma04e5"  
-#            "gamma05e5"  "gamma06e5"  
-#            "gamma07e5"  "gamma08e5"  
-#            "gamma09e5"  "gamma10e5")  # Subfolders
-
-
-# Create an array with subfolder names
+# Create an array with subfolder names.
 SUBFOLDERS=($(find $path_param -mindepth 1 -maxdepth 1 -type d -printf "%f\n" | sort))
 
 printf "%s\n" "${SUBFOLDERS[@]}"
@@ -65,7 +62,7 @@ mcc -m "$file" -a "$path_kori/KoriModel.m" -a "$path_kori_subroutines" -o "$exe_
 
 
 
-# Collect all directories that need to be created
+# Collect all directories that need to be created.
 REMOTE_DIRS=()
 FILES_TO_COPY=()
 

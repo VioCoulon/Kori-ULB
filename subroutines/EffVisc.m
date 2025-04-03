@@ -53,7 +53,10 @@ function [eta,dudx,dvdy,dudy,dvdx]=EffVisc(A,uxssa,uyssa,H,par,MASK, ...
     eta=0.5*H.*A.^(-1./par.n).*EffStr.^((1-par.n)/(2*par.n));
     eta(MASK==0)=eta(MASK==0)./shelftune(MASK==0);  %VL: 2D shelftune
 
-    % Jablasco regularizitaion implementation.
+    
+    % Daniel: new grain size model.
+    % Based on Austin and Evans (2007); Ranganathan et al. (2021).
+    % Jablasco regularization implementation.
     % Bassis et al., (2021) regularization
     if ctr.bassis_reg==1
         % Glen flow law

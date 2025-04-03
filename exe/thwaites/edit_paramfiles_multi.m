@@ -27,10 +27,10 @@ ctr.meltfac    = 1;          % Factor multiplying sub-shelf melt.
 ctr.LimitFront = 1;          % Calving front limit by initial location.
 
 ctr.timeslice = 1;
-ctr.snapshot  = 1500;          % 50, 1500 (dt=0.1 yr).
+ctr.snapshot  = 50;          % Normal: 50. HR: 1500 (dt=0.1 yr).
 
-ctr.stochastic = 0;
-ctr.sigma_To   = 0.5;
+ctr.stochastic = 1;
+ctr.sigma_To   = 0.5;    % 0.5, 1.0, 2.0, 4.0
 ctr.sigma_Mb   = 0.3;
 ctr.tau_Mb     = 1.0;
 ctr.tau_To     = 10.0;
@@ -40,26 +40,33 @@ ctr.seed       = 100;
 
 % Define different values for ctr.gammaT.
 % values_1 = [1e-5, 2e-5, 3e-5, 4e-5, 5e-5, 6e-5, 7e-5, 8e-5, 9e-5, 10e-5];  % Gamma
-values_1 = [0.0, 0.25, 0.5, 1.0, 2.0, 4.0, 8.0];
-values_2 = [1500];
+
+%values_1 = [0.0, 0.125, 0.25, 0.5, 1.0, 2.0, 4.0, 8.0];
+values_1 = [0.125, 0.25, 0.5, 1.0, 2.0, 4.0, 8.0];
+values_2 = [0, 2, 5, 7, 9];
+
+
+%values_2 = [1500];
 
 % Create empty dictionary to populate it with exp names.
 script_names = cell(length(values_1), length(values_2));
 
 
-% Deterministic.
-exp_1 = 'HR';
+% Experiment name.
+exp_1 = 'sigma_oce050';
 
+% Variables.
 var_1   = 'meltfac';      % gamma
-var_2   = 'snapshot';
+var_2   = 'seed';     % snapshot
 
-% Full paths.
+% FULL PATHS.
 % Nic5.
-exe_path_local = '/home/daniel/models/Kori-ULB/exe/thwaites/nic5/deter/';
+exe_path_local = '/home/daniel/models/Kori-ULB/exe/thwaites/nic5/stoch/';
 parent_path    = '/scratch/ulb/glaciol/dmoreno/Kori-ULB/';
 rel_in         = 'ice_data/eta1e7/ground_melt_0/';
 %rel_out        = 'output/thwaites/stoch/';                             % Stoch.
-rel_out        = 'output/thwaites/deter/';                              % Deter. 
+%rel_out        = 'output/thwaites/deter/';                              % Deter. 
+rel_out        = 'output/thwaites/stoch/';                             % Stoch.
 
 % Local.
 %parent_path = '/home/daniel/models/Kori-ULB/';
@@ -83,14 +90,17 @@ for i = 1:length(values_1)
         %end
 
         % Melt fac.
-        value_now = 1e2*values_1(i);
+        value_now = 1e3*values_1(i);
 
-        if value_now<1e2
-            num_1 = sprintf('0%.0f0', value_now);
-        elseif value_now == 0.0
-            num_1 = sprintf('00%.0f000', value_now);
+        if value_now<1e3
+            num_1 = sprintf('0%.0f', value_now);
         else
-            num_1 = sprintf('%.0f0', value_now);
+            num_1 = sprintf('%.0f', value_now);
+        end
+
+        if value_now == 0.0
+            %num_1 = sprintf('00%.0f000', value_now);
+            num_1 = '0000'
         end
 
         %num_1
@@ -105,8 +115,8 @@ for i = 1:length(values_1)
 end
 
 % Read the original file
-original_file = 'RunASE_nic5.m'; 
-file_contents = fileread(original_file);
+%original_file = 'RunASE_nic5.m'; 
+%file_contents = fileread(original_file);
 
 
 % Loop through each gammaT value and save a new file
@@ -124,14 +134,18 @@ for i = 1:length(values_1)
         full_mat = [folder_name, '/params.mat']
 
         % Update control values.
-        ctr.meltfac  = values_1(i);
-        ctr.snapshot = values_2(j);
+        ctr.meltfac = values_1(i);
+        ctr.seed    = values_2(j);
+        %ctr.snapshot = values_2(j);
+
+
 
         % We update the name of the file in accordance with the value of gammaT.
         % Avoid sign "-" in the file name as it does not compile.
         % Appropirate numering to ensure order when listing in Linux.
         
-        value_2 = ctr.snapshot;
+        %value_2 = ctr.snapshot;
+        value_2 = ctr.seed;
 
         % Gamma.
         %ctr.gammaT   = values_1(i);
@@ -143,14 +157,17 @@ for i = 1:length(values_1)
         %end
 
         % Melt fac.
-        value_now = 1e2*values_1(i);
+        value_now = 1e3*values_1(i);
 
-        if value_now<1e2
-            num_1 = sprintf('0%.0f0', value_now);
-        elseif value_now == 0.0
-            num_1 = sprintf('00%.0f000', value_now);
+        if value_now<1e3
+            num_1 = sprintf('0%.0f', value_now);
         else
-            num_1 = sprintf('%.0f0', value_now);
+            num_1 = sprintf('%.0f', value_now);
+        end
+
+        if value_now == 0.0
+            %num_1 = sprintf('00%.0f000', value_now);
+            num_1 = '0000'
         end
 
 
