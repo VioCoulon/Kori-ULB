@@ -1,5 +1,5 @@
 function [eta,dudx,dvdy,dudy,dvdx,d_grain,EffStr]=EffVisc(A,uxssa,uyssa,H,par,MASK, ...
-    glMASK,shelftune,zeta,tmp,ctr)
+    glMASK,shelftune,zeta,tmp,betax,betay,zeta,ctr)
 
 % Kori-ULB
 % Effective viscosity of the SSA solution. On the borders of the domain, a
@@ -49,9 +49,42 @@ function [eta,dudx,dvdy,dudy,dvdx,d_grain,EffStr]=EffVisc(A,uxssa,uyssa,H,par,MA
         end
     end
     EffStr=dudx.^2+dvdy.^2+dudx.*dvdy+0.25*(dudy+dvdx).^2;
+
+
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    % Daniel: DIVA velocity implementation based on Lipscomb et al. (2019).
+    % Differences in vertical dimension.
+    if ctr.diva == 1
+        
+        dz = zeros([ctr.kmax, 1]);
+        dz(2:ctr.kmax) = diff(zeta);
+        dz(1) = dz(2);
+
+        taux = betax .* uxssa;
+        tauy = betay .* uyssa;
+        for k = 1:ctr.kmax
+
+            dudz = taux .* ( H - zeta(k) * H ) / ( eta(:,:,k) .* H );
+            dvdz = tauy .* ( H - zeta(k) * H ) / ( eta(:,:,k) .* H );
+
+        end
+
+        % Strain rates with vertical derivatives.
+        EffStr_diva = dudx.^2 + dvdy.^2 + dudx.*dvdy + 0.25*(dudy+dvdx).^2 + ...
+                        0.25 * (dudz.^2 + dvdz.^2);
+
+        % 2D strain rates fromvertically average of 3D DIVA strain rates.
+        EffStr = mean(EffStr_diva, 3);
+
+       
+    end
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
     EffStr=max(EffStr,1e-12);
     eta=0.5*H.*A.^(-1./par.n).*EffStr.^((1-par.n)/(2*par.n));
     eta(MASK==0)=eta(MASK==0)./shelftune(MASK==0);  %VL: 2D shelftune
+
 
     
     % Daniel: new grain size model.

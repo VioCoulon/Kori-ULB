@@ -28,6 +28,8 @@ function [uxssa,uyssa,beta2,eta,dudx,dudy,dvdx,dvdy,su,ubx,uby,ux,uy, ...
         beta2=fg.*(ussa.^(1/ctr.m-1)).*((ussa+ctr.u0).* ...
             Asf/ctr.u0).^(-1/ctr.m);
     end
+
+
     beta2=min(beta2,1e8);
     beta2(MASK==0)=0;
     betax=0.5*(beta2+circshift(beta2,[0 -1]));
@@ -58,16 +60,43 @@ function [uxssa,uyssa,beta2,eta,dudx,dudy,dvdx,dvdy,su,ubx,uby,ux,uy, ...
 
     for ll=1:par.visciter % iteration over effective viscosity
         
-        if ll > 1
-            rel = 0.1;
-            eta = eta * rel + ( 1.0 - rel ) * eta_old;
-        end
+        % Try some relaxation to help pseudo-transient method.
+        %if ll > 1
+        %    rel = 0.1;
+        %    eta = eta * rel + ( 1.0 - rel ) * eta_old;
+        %end
         
         [eta,dudx,dvdy,dudy,dvdx,d_grain,EffStr]=EffVisc(A,uxssa,uyssa,H,par,MASK, ...
-            glMASK,shelftune,zeta,tmp,ctr);
+            glMASK,shelftune,zeta,tmp,betax,betay,zeta,ctr);
         
         eta_old = eta;
-        
+
+
+        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+        % Daniel: DIVA velocity implementation based on Lipscomb et al. (2019).
+        if ctr.diva == 1    
+            % Integration factor.
+            [F1, F2] = Fint(ctr, eta_diva, H, zeta);
+            
+            % Effective beta from purely SSA beta (calculated from SSA solution).
+            beta_eff = beta2 ./ ( 1.0 + beta2 * F2 ); 
+
+            % Eq. 32, Lipscomb et al. (2019).
+            uxb = uxssa ./ ( 1.0 + beta2 .* F_2 );
+            uyb = uyssa ./ ( 1.0 + beta2 .* F_2 );
+
+            % Full DIVA 3D velocity field from integration.
+            dz_H = zeros([ctr.imax, ctr.jmax, ctr.kmax]);
+            for k = 1:ctr.kmax
+
+                % Eq. 29, Lipscomb et al. (2019).
+                uxdiva(:,:,k) = uxb .* ( 1.0 + beta2 .* F_1(:,:,k) );
+                uydiva(:,:,k) = uyb .* ( 1.0 + beta2 .* F_1(:,:,k) );
+            end
+        end
+        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
             
         % Jablasco damage.
         if ctr.damage==1 && cnt>1
