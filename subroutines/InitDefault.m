@@ -35,6 +35,7 @@ function default=InitDefault
     default.Hcrit=200; % PD16
     default.taulim=0.7e5;
     default.tauice=0.7e5;
+    default.stochastic=0; % No stochastic forcing.
 
 end
 

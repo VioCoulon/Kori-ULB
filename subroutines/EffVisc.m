@@ -1,5 +1,5 @@
-function [eta,dudx,dvdy,dudy,dvdx]=EffVisc(A,uxssa,uyssa,H,par,MASK, ...
-    glMASK,shelftune,ctr)
+function [eta,dudx,dvdy,dudy,dvdx,d_grain,EffStr]=EffVisc(A,uxssa,uyssa,H,par,MASK, ...
+    glMASK,shelftune,zeta,tmp,ctr)
 
 % Kori-ULB
 % Effective viscosity of the SSA solution. On the borders of the domain, a
@@ -61,9 +61,23 @@ function [eta,dudx,dvdy,dudy,dvdx]=EffVisc(A,uxssa,uyssa,H,par,MASK, ...
     if ctr.bassis_reg==1
         % Glen flow law
         eta_glen=eta;
-        % Diffussion creep
-        d_grain=5e-3; % tunable parameter? Bassis found low effect.
-        eta_diff=H.*(A.^(-1/par.n))./(2*d_grain^2);
+        
+        dynamic_d_grain = true;
+        
+        % Grain size model (built upon Ranganathan et al., 2021).
+        if dynamic_d_grain == true
+            d_grain = GrainSize(H,tmp,EffStr,zeta,ctr,par);
+
+            %min(d_grain(:))
+            %max(d_grain(:))
+            
+        % Constant grain size.
+        else
+            % Diffussion creep
+            d_grain=5e-3; % tunable parameter? Bassis found low effect.
+        end
+
+        eta_diff=H.*(A.^(-1/par.n))./(2*d_grain.^2);
         % Plastic regime
         eta_plas = H.*(ctr.tauice)./(2*EffStr.^0.5);
         % minimum viscosity necessary for numerical convergence
