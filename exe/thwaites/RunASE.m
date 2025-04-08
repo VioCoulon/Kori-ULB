@@ -106,9 +106,9 @@ output = strcat(path, name_2);
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Forcing run
 ctr.inverse  = 0;
-%ctr.calving  = 2;          % ice shelves do not extend further than initially
-ctr.SSA        = 2;
-ctr.calving = 4;          % 5, to apply LSF function.
+%ctr.calving = 2;          % ice shelves do not extend further than initially
+ctr.SSA      = 2;
+ctr.calving  = 4;          % 5, to apply LSF function.
 ctr.dt       = 0.2;        % 0.02, 0.1, 0.05, 0.025
 ctr.nsteps   = 51;       % 5001, 20001
 ctr.meltfunc = 3;          % PICO

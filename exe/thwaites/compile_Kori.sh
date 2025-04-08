@@ -7,7 +7,7 @@ path_kori_subroutines=$path_kori/subroutines
 # Experiment name.
 #exp=sigma_oce050
 #exp=HR
-exp=sigma_oce100
+exp=sigma_oce025
 
 # LOCAL PATHS.
 path_exe=$path_kori/exe/thwaites
@@ -56,6 +56,7 @@ printf "%s\n" "${SUBFOLDERS[@]}"
 
 
 # Compile Kori only once.
+echo "Path_par  : $path_param"
 echo "Path_exe  : $path_exe"
 echo "Compiling : $file"
 mcc -m "$file" -a "$path_kori/KoriModel.m" -a "$path_kori_subroutines" -o "$exe_name"

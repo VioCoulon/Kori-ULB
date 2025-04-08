@@ -31,7 +31,7 @@ ctr.timeslice = 1;
 ctr.snapshot  = 50;          % Normal: 50. HR: 1500 (dt=0.1 yr).
 
 ctr.stochastic = 1;
-ctr.sigma_To   = 4.0;    % 0.5, 1.0, 2.0, 4.0
+ctr.sigma_To   = 0.25;    % 0.5, 1.0, 2.0, 4.0
 ctr.sigma_Mb   = 0.3;
 ctr.tau_Mb     = 1.0;
 ctr.tau_To     = 10.0;
@@ -42,8 +42,8 @@ ctr.seed       = 100;
 % Define different values for ctr.gammaT.
 % values_1 = [1e-5, 2e-5, 3e-5, 4e-5, 5e-5, 6e-5, 7e-5, 8e-5, 9e-5, 10e-5];  % Gamma
 
-%values_1 = [0.125, 0.25, 0.5, 1.0, 1.5, 2.0, 2.5, 3.0, 3.5, 4.0, 4.5, 5.0, 8.0];
-values_1 = [0.5, 1.5, 2.5, 3.0, 3.5, 4.5, 5];
+values_1 = [0.125, 0.25, 0.5, 1.0, 1.5, 2.0, 2.5, 3.0, 3.5, 4.0, 4.5, 5.0];
+%values_1 = [0.5, 1.5, 2.5, 3.0, 3.5, 4.5, 5];
 values_2 = [0, 2, 5, 7, 9];
 
 
@@ -54,7 +54,7 @@ script_names = cell(length(values_1), length(values_2));
 
 
 % Experiment name.
-exp_1 = 'sigma_oce400';
+exp_1 = 'sigma_oce025';
 
 % Variables.
 var_1   = 'meltfac';      % gamma
