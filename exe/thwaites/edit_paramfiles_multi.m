@@ -19,6 +19,7 @@ ctr.inverse    = 0;
 ctr.shelf      = 1;        % Ice shelves are considered.
 ctr.SSA        = 2;
 ctr.calving    = 4;          % 5, to apply LSF function.
+ctr.Tcalc      = 2;            % Calculate temperature field and thermomechanical coupling, , i.e. A = f (T)
 ctr.dt         = 0.05;        % 0.02, 0.1, 0.05, 0.025
 ctr.nsteps     = 15001;       % 20001
 ctr.meltfunc   = 3;          % PICO
@@ -30,7 +31,7 @@ ctr.timeslice = 1;
 ctr.snapshot  = 50;          % Normal: 50. HR: 1500 (dt=0.1 yr).
 
 ctr.stochastic = 1;
-ctr.sigma_To   = 1.0;    % 0.5, 1.0, 2.0, 4.0
+ctr.sigma_To   = 4.0;    % 0.5, 1.0, 2.0, 4.0
 ctr.sigma_Mb   = 0.3;
 ctr.tau_Mb     = 1.0;
 ctr.tau_To     = 10.0;
@@ -53,7 +54,7 @@ script_names = cell(length(values_1), length(values_2));
 
 
 % Experiment name.
-exp_1 = 'sigma_oce100';
+exp_1 = 'sigma_oce400';
 
 % Variables.
 var_1   = 'meltfac';      % gamma

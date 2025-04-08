@@ -58,25 +58,25 @@ function [eta,dudx,dvdy,dudy,dvdx,d_grain,EffStr]=EffVisc(A,uxssa,uyssa,H,par,MA
     % Based on Austin and Evans (2007); Ranganathan et al. (2021).
     % Jablasco regularization implementation.
     % Bassis et al., (2021) regularization
+    dynamic_d_grain = true;
+        
+    % Grain size model (built upon Ranganathan et al., 2021).
+    if dynamic_d_grain == true
+        d_grain = GrainSize(H,tmp,EffStr,zeta,ctr,par);
+
+        %min(d_grain(:))
+        %max(d_grain(:))
+        
+    % Constant grain size.
+    else
+        % Diffussion creep
+        d_grain=5e-3; % tunable parameter? Bassis found low effect.
+    end
+
+
     if ctr.bassis_reg==1
         % Glen flow law
         eta_glen=eta;
-        
-        dynamic_d_grain = true;
-        
-        % Grain size model (built upon Ranganathan et al., 2021).
-        if dynamic_d_grain == true
-            d_grain = GrainSize(H,tmp,EffStr,zeta,ctr,par);
-
-            %min(d_grain(:))
-            %max(d_grain(:))
-            
-        % Constant grain size.
-        else
-            % Diffussion creep
-            d_grain=5e-3; % tunable parameter? Bassis found low effect.
-        end
-
         eta_diff=H.*(A.^(-1/par.n))./(2*d_grain.^2);
         % Plastic regime
         eta_plas = H.*(ctr.tauice)./(2*EffStr.^0.5);

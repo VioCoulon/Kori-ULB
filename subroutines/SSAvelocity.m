@@ -58,10 +58,10 @@ function [uxssa,uyssa,beta2,eta,dudx,dudy,dvdx,dvdy,su,ubx,uby,ux,uy, ...
 
     for ll=1:par.visciter % iteration over effective viscosity
         
-        if ll > 1
-            rel = 0.1;
-            eta = eta * rel + ( 1.0 - rel ) * eta_old;
-        end
+        %if ll > 1
+        %    rel = 0.1;
+        %    eta = eta * rel + ( 1.0 - rel ) * eta_old;
+        %end
         
         [eta,dudx,dvdy,dudy,dvdx,d_grain,EffStr]=EffVisc(A,uxssa,uyssa,H,par,MASK, ...
             glMASK,shelftune,zeta,tmp,ctr);
