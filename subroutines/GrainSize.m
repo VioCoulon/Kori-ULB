@@ -111,8 +111,8 @@ function d_grain = GrainSize(H,T,EffStr,zeta,ctr,par)
                     (4.*mu.^2.*tau.*(1-theta).*EffStr_3D)).^(1/(1+p));
 
 
-    min(d_grain_3D(:))
-    max(d_grain_3D(:))
+    %min(d_grain_3D(:))
+    %max(d_grain_3D(:))
     
     % They express it in milimetres, but we need metres.
     %d_grain_3D =  d_grain_3D.*1e3;

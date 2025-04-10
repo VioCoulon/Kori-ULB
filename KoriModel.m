@@ -271,6 +271,14 @@ if ctr.Tcalc>=1
     [tmp,Tb,zeta,dzc,dzp,dzm]=InitTempParams(ctr,par,tmp,Ts,H);
 end
 
+%----------------------------------------
+% Initialize zeta for grain size model and
+% DIVA solver.
+%----------------------------------------
+% Unevenly-spaced vertical grid. Min?layer = 0.015 as in temp calculations. 
+zeta=CalculateZeta(ctr.kmax,0.015);
+
+
 %--------------------------------------
 % Initial Volume Above Floatation
 % Initialization of geoid calculation
@@ -596,12 +604,56 @@ for cnt=cnt0:ctr.nsteps
             end
         end
 
-        [uxssa,uyssa,beta2,eta,dudx,dudy,dvdx,dvdy,su,ubx,uby,ux,uy, ...
+        % Old Frank version.
+        %[uxssa,uyssa,beta2,eta,dudx,dudy,dvdx,dvdy,su,ubx,uby,ux,uy, ...
+        %    damage,NumStabVel,k,err,d_grain,EffStr]= ...
+        %    SSAvelocity(ctr,par,su,Hmx,Hmy,gradmx,gradmy,signx,signy, ...
+        %    uxssa,uyssa,H,HB,B,stdB,Asf,A,MASK,glMASK,HAF,HAFmx,HAFmy,cnt, ...
+        %    nodeu,nodev,MASKmx,MASKmy,bMASK,uxsia,uysia,udx,udy,node,nodes, ...
+        %    Mb,Melt,dtdx,dtdx2,VM,damage,ThinComp,shelftune,zeta,tmp);
+
+
+        % Daniel: DIVA implementation.
+        % First step build 3D velocity from 2D SSA.
+        diva = false;
+        if diva == true;            
+
+            % Obtain SSA solution in the first iteration.
+            if cnt == 1
+                [uxssa,uyssa,beta2,eta,dudx,dudy,dvdx,dvdy,su,ubx,uby,ux,uy, ...
+                    damage,NumStabVel,k,err,d_grain,EffStr]= ...
+                    SSAvelocity(ctr,par,su,Hmx,Hmy,gradmx,gradmy,signx,signy, ...
+                    uxssa,uyssa,H,HB,B,stdB,Asf,A,MASK,glMASK,HAF,HAFmx,HAFmy,cnt, ...
+                    nodeu,nodev,MASKmx,MASKmy,bMASK,uxsia,uysia,udx,udy,node,nodes, ...
+                    Mb,Melt,dtdx,dtdx2,VM,damage,ThinComp,shelftune,zeta,tmp);
+
+                % Build DIVA viscosity from SSA in the first iteration.
+                eta_diva = repmat(eta, [1, 1, ctr.kmax]);
+            
+            else
+                % Proceed with DIVA solver. 
+                % Names are consistent with SSA, i.e. uxssa = uxdiva and so forth.
+                % NOW WE NEED TO UPDATE BETA WITH BETA_EFF!!!
+                
+                [uxssa,uyssa,beta2,eta,dudx,dudy,dvdx,dvdy,su,ubx,uby,ux,uy, ...
+                        damage,NumStabVel,k,err,d_grain,EffStr,eta_diva,uxdiva,uydiva]= ...
+                        DIVAvelocity(ctr,par,su,Hmx,Hmy,gradmx,gradmy,signx,signy, ...
+                        uxssa,uyssa,H,HB,B,stdB,Asf,A,MASK,glMASK,HAF,HAFmx,HAFmy,cnt, ...
+                        nodeu,nodev,MASKmx,MASKmy,bMASK,uxsia,uysia,udx,udy,node,nodes, ...
+                        Mb,Melt,dtdx,dtdx2,VM,damage,ThinComp,shelftune,zeta,eta,eta_diva,tmp);
+
+            end
+
+
+        % SSA or hybrid.
+        else
+            [uxssa,uyssa,beta2,eta,dudx,dudy,dvdx,dvdy,su,ubx,uby,ux,uy, ...
             damage,NumStabVel,k,err,d_grain,EffStr]= ...
             SSAvelocity(ctr,par,su,Hmx,Hmy,gradmx,gradmy,signx,signy, ...
             uxssa,uyssa,H,HB,B,stdB,Asf,A,MASK,glMASK,HAF,HAFmx,HAFmy,cnt, ...
             nodeu,nodev,MASKmx,MASKmy,bMASK,uxsia,uysia,udx,udy,node,nodes, ...
             Mb,Melt,dtdx,dtdx2,VM,damage,ThinComp,shelftune,zeta,tmp);
+        end
 
         %fprintf('\n k = %1.0f \n ', k);
         %k

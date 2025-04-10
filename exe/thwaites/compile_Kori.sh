@@ -7,7 +7,7 @@ path_kori_subroutines=$path_kori/subroutines
 # Experiment name.
 #exp=sigma_oce050
 #exp=HR
-exp=sigma_oce100
+exp=sigma_oce400
 
 # LOCAL PATHS.
 path_exe=$path_kori/exe/thwaites

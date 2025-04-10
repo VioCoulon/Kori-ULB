@@ -183,12 +183,12 @@ function MismipTest
     % Test on Schoof and symmetry of ice sheet
     
     ctr.schoof=1;
-    ctr.imax=67;
-    ctr.jmax=67;
-    ctr.delta=50.e3;
+    ctr.imax=134; %67
+    ctr.jmax=134; % 67
+    ctr.delta=25.e3; % 50.0e3
     ctr.m=2;
-    ctr.nsteps=1001; % 1001
-    ctr.dt=10; % 10
+    ctr.nsteps=4001; % 2001, 1001
+    ctr.dt=5; % 10
     ctr.SSA=2;
     ctr.shelf=1;
     ctr.shelftune=ones(ctr.imax,ctr.jmax);
@@ -212,7 +212,7 @@ function MismipTest
 
     save('MismipIn','B','H','Mb','Ts','LSF');
 
-    KoriModel('MismipIn','mismip2_pt',ctr);
+    KoriModel('MismipIn','mismip2_ssa',ctr);
      
 end
 
@@ -304,9 +304,9 @@ function MismipPlus
 
 % Initial ice sheet creation
 
-ctr.delta=2e3;
-ctr.imax=23; % need number of cells + 2
-ctr.jmax=352; % need number of cells + 1
+ctr.delta=2e3; % 2.e3
+ctr.imax=32; % 23. need number of cells + 2
+ctr.jmax=352; % 352. need number of cells + 1
 ctr.m=3;
 ctr.dt=1;
 ctr.nsteps=5001;
@@ -487,7 +487,7 @@ ctr.nsteps=251;
 ctr.dt=0.2;
 
 if n==2
-    KoriModel('ASEint1','ASEint2',ctr);
+    KoriModel('ASEint1','ASEint2_diva',ctr);
 end
 
 % Forcing run
@@ -497,7 +497,7 @@ ctr.meltfunc=3;
 ctr.gammaT=1e-3;
 
 if n==3
-    KoriModel('ASEint2','ASErun1',ctr); % start from optimized run
+    KoriModel('ASEint2_diva','ASErun1_diva',ctr); % start from optimized run
 end
 
 
