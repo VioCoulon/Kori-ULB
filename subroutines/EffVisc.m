@@ -102,7 +102,8 @@ function [eta,dudx,dvdy,dudy,dvdx,d_grain,EffStr]=EffVisc(A,uxssa,uyssa,H,par,MA
         % Instead of calculating effective viscosity on the sea ice,
         % keep constant viscosity. Need to further check how to deal
         % with this. May be quoted
-        eta(glMASK==6)=1.0e7; % Default: 1.0e7. Daniel: 1.0e10. Final: 8.0e9. Pseudo-transient: 0.5e5 or comment line.
+        %eta(glMASK==6)=8.0e9; % Default: 1.0e7. Daniel: 1.0e10. Final: 8.0e9. Pseudo-transient: 0.5e5 or comment line.
+        eta(glMASK==6)=mean(eta(glMASK==5)); % Take average of calving front viscosity
     end
     
 end

@@ -138,7 +138,7 @@ function d_grain = GrainSize(H,T,EffStr,zeta,ctr,par)
     %d_grain = mean(d_grain_3D(:,:,1:5), 3);
 
 
-    % Take a certain level.
+    % Take a certain level. k = 11 is the base.
     d_grain = d_grain_3D(:,:,11);
 
     d_grain(d_grain<1.0e-5) = 1.0e-5;

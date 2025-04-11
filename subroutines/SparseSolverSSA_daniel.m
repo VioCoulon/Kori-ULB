@@ -12,7 +12,7 @@ function [u,v,s,flag,relres,iter]=SparseSolverSSA_daniel(nodeu,nodev,s0, ...
 % Subsequent interleaving of u and v velocities (Quiquet et al., 2018) to
 % improve stability and speed of the algorithm
 
-    limit=1.0e-5; % limit on effective viscosity gradients 1.0e-5. why??
+    limit=1e-3; % limit on effective viscosity gradients 1.0e-5. why??
 
     if ctr.SSAdiffus==2
         udx=zeros(ctr.imax,ctr.jmax);
@@ -53,8 +53,8 @@ function [u,v,s,flag,relres,iter]=SparseSolverSSA_daniel(nodeu,nodev,s0, ...
     % Frank.
     dmudx=(eta1-eta)/ctr.delta;
     dmudy=0.25*(eta2+eta3-eta4-eta5)/ctr.delta;
-    dmudx=min(limit,max(dmudx,-limit));
-    dmudy=min(limit,max(dmudy,-limit));
+    %dmudx=min(limit,max(dmudx,-limit));
+    %dmudy=min(limit,max(dmudy,-limit));
     
 
     % Daniel.
@@ -398,8 +398,8 @@ function [u,v,s,flag,relres,iter]=SparseSolverSSA_daniel(nodeu,nodev,s0, ...
     % Frank.
     dmudy=(eta1-eta)/ctr.delta;
     dmudx=0.25*(eta2+eta3-eta4-eta5)/ctr.delta;
-    dmudx=min(limit,max(dmudx,-limit));
-    dmudy=min(limit,max(dmudy,-limit));
+    %dmudx=min(limit,max(dmudx,-limit));
+    %dmudy=min(limit,max(dmudy,-limit));
 
     % Daniel.
     %dmudy=(eta1-eta)/ctr.delta;

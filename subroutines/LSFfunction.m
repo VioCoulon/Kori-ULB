@@ -153,7 +153,7 @@ function LSF=LSFfunction(LSF,ctr,u,v,node,nodes,VM,MASK,glMASK,X,Y,LSFo)
     %M4 = circshift(MASK,[-3 -3]);
 
     %a = (MASK==1)|(M1==1)|(M2==1)|(M3==1)|(M4==1);
-    %M(a) = 1;
+    %M(a) = 1;0.
 
 
     % Daniel: calving front cannot retreat further than the GL by definition.

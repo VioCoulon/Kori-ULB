@@ -11,7 +11,7 @@ function BasicTests(n)
     
     scenario_txt={'All tests','Mass conservation','EISMINT', ...
         'MISMIP circular','Circular quarter', ...
-        'MISMIP+','Antarctica init SIA','Antarctica Init Hybrid', ...
+        'MISMIP+','MISMIP-HOM','Antarctica init SIA','Antarctica Init Hybrid', ...
         'Antarctica Run','Aletsch glacier','Basin init SIA', ...
         'Basin init Hybrid','Basin Run'};
     if nargin<1
@@ -28,6 +28,7 @@ function BasicTests(n)
             MismipTest;
             Circular;
             MismipPlus;
+            MismipHOM;
             Antarctica(1);
             Antarctica(2);
             Antarctica(3);
@@ -46,18 +47,20 @@ function BasicTests(n)
         case 5
             MismipPlus;
         case 6
-            Antarctica(1);
+            MismipHOM;
         case 7
-            Antarctica(2);
+            Antarctica(1);
         case 8
-            Antarctica(3);
+            Antarctica(2);
         case 9
-            Aletsch;
+            Antarctica(3);
         case 10
-            RunASE(1);
+            Aletsch;
         case 11
-            RunASE(2);
+            RunASE(1);
         case 12
+            RunASE(2);
+        case 13
             RunASE(3);
         otherwise
             disp('wrong value')
@@ -183,9 +186,9 @@ function MismipTest
     % Test on Schoof and symmetry of ice sheet
     
     ctr.schoof=1;
-    ctr.imax=134; %67
-    ctr.jmax=134; % 67
-    ctr.delta=25.e3; % 50.0e3
+    ctr.imax=67; % 67, 134
+    ctr.jmax=67; % 67, 134
+    ctr.delta=50.e3; % 25.0e3, 50.0e3
     ctr.m=2;
     ctr.nsteps=4001; % 2001, 1001
     ctr.dt=5; % 10
@@ -502,4 +505,58 @@ end
 
 
 end
+
+
+
+function MismipHOM
+
+    % Pattyn et al. (2018). Experiment A.
+    % Parallel-sided slab of ice with a mean
+    % ice thickness H =1000 m lying on a sloping bed with a mean
+    % slope α = 0.5º.
+
+    %ctr.schoof=1;
+    ctr.imax      = 161; % 67, 134
+    ctr.jmax      = 161; % 67, 134
+    ctr.delta     = 1.0e3; % 25.0e3, 50.0e3
+    ctr.m         = 2;
+    ctr.nsteps    = 101; % 2001, 1001
+    ctr.dt        = 0.05; % 10
+    ctr.SSA       = 2; % Hybrid.
+    ctr.mismip=1;
+    %ctr.shelf     = 1;
+    %ctr.shelftune = ones(ctr.imax,ctr.jmax);
+    
+    Li=(ctr.imax-1)*ctr.delta/1e3;
+    Lj=(ctr.jmax-1)*ctr.delta/1e3;
+
+    %[X,Y] = meshgrid(0:ctr.delta/1e3:Li,0:ctr.delta/1e3:Lj);
+
+
+    L = 160.0e3;
+    [X,Y] = meshgrid(0:ctr.delta:L, 0:ctr.delta:L);
+    
+    omega = 2.0 * pi / L;
+    alpha = 0.5 * (2.0 * pi / 360.0);
+
+    zs = - X * tan(alpha);
+    B  = zs - 1e3 + 5e2 * sin(omega*X) .* sin(omega*Y);
+
+    %H = zs - B;
+
+    H=zeros(ctr.imax,ctr.jmax)+1.0e3;
+    Mb=zeros(ctr.imax,ctr.jmax)+0.3;
+    Ts=zeros(ctr.imax,ctr.jmax)-10.;
+    ctr.Asin=zeros(ctr.imax,ctr.jmax)+3.0e-9;
+
+    %myfig(B)
+
+    save('MismipHOM_In','B','H','Mb','Ts');
+
+    KoriModel('MismipHOM_In','MismipHOM',ctr); 
+
+
+
+end
+
 

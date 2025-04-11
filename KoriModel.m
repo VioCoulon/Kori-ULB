@@ -629,6 +629,8 @@ for cnt=cnt0:ctr.nsteps
 
                 % Build DIVA viscosity from SSA in the first iteration.
                 eta_diva = repmat(eta, [1, 1, ctr.kmax]);
+                uxb_diva = uxssa;
+                uyb_diva = uyssa;
             
             else
                 % Proceed with DIVA solver. 
@@ -636,11 +638,12 @@ for cnt=cnt0:ctr.nsteps
                 % NOW WE NEED TO UPDATE BETA WITH BETA_EFF!!!
                 
                 [uxssa,uyssa,beta2,eta,dudx,dudy,dvdx,dvdy,su,ubx,uby,ux,uy, ...
-                        damage,NumStabVel,k,err,d_grain,EffStr,eta_diva,uxdiva,uydiva]= ...
+                        damage,NumStabVel,k,err,d_grain,EffStr,eta_diva,uxdiva,uydiva,dudz,dvdz,uxb_diva,uyb_diva]= ...
                         DIVAvelocity(ctr,par,su,Hmx,Hmy,gradmx,gradmy,signx,signy, ...
                         uxssa,uyssa,H,HB,B,stdB,Asf,A,MASK,glMASK,HAF,HAFmx,HAFmy,cnt, ...
                         nodeu,nodev,MASKmx,MASKmy,bMASK,uxsia,uysia,udx,udy,node,nodes, ...
-                        Mb,Melt,dtdx,dtdx2,VM,damage,ThinComp,shelftune,zeta,eta,eta_diva,tmp);
+                        Mb,Melt,dtdx,dtdx2,VM,damage,ThinComp,shelftune,zeta,eta,eta_diva,tmp,uxb_diva,uyb_diva);
+
 
             end
 
@@ -655,8 +658,6 @@ for cnt=cnt0:ctr.nsteps
             Mb,Melt,dtdx,dtdx2,VM,damage,ThinComp,shelftune,zeta,tmp);
         end
 
-        %fprintf('\n k = %1.0f \n ', k);
-        %k
 
         if ctr.NumCheck==1
             NumStab(cnt,1:5)=NumStabVel;

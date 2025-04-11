@@ -62,17 +62,17 @@ function [uxssa,uyssa,beta2,eta,dudx,dudy,dvdx,dvdy,su,ubx,uby,ux,uy, ...
         
         % Try some relaxation to help pseudo-transient method.
         %if ll > 1
-        %    rel = 0.1;
-        %    eta = eta * rel + ( 1.0 - rel ) * eta_old;
+        %    eta_old=eta;
         %end
-
-        
         
         [eta,dudx,dvdy,dudy,dvdx,d_grain,EffStr]=EffVisc(A,uxssa,uyssa,H,par,MASK, ...
             glMASK,shelftune,zeta,tmp,ctr);
-        
-        %eta_old = eta;
 
+        %if ll > 1
+        %    rel = 0.5;
+        %    eta = eta * rel + ( 1.0 - rel ) * eta_old;
+        %end
+        
             
         % Jablasco damage.
         if ctr.damage==1 && cnt>1
