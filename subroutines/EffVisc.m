@@ -60,7 +60,14 @@ function [eta,dudx,dvdy,dudy,dvdx]=EffVisc(A,uxssa,uyssa,H,par,MASK, ...
         % Instead of calculating effective viscosity on the sea ice,
         % keep constant viscosity. Need to further check how to deal
         % with this. May be quoted
-        eta(glMASK==6)=1e7;
+        % if sum(any(glMASK==5))~=0
+        %     eta(glMASK==6)=mean(eta(glMASK==5)); % Take average of calving front viscosity
+        % elseif sum(any(glMASK==3))~=0
+        %     eta(glMASK==6)=mean(eta(glMASK==5)); % Take average of last grounded viscosity
+        % else
+        %     eta(glMASK==6)=5.0e9; % Default: 1.0e7. Daniel: 8.0e9
+        % end
+        eta(glMASK==6)=ctr.OceanVisc; % Default: 1.0e7. Daniel: 8.0e9
     end
     
 end

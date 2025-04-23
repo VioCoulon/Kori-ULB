@@ -1,9 +1,9 @@
 function [uxssa,uyssa,beta2,eta,dudx,dudy,dvdx,dvdy,su,ubx,uby,ux,uy, ...
-    damage,NumStabVel]= ...
+    damage,NumStabVel,dloc,dtr]= ...
     SSAvelocity(ctr,par,su,Hmx,Hmy,gradmx,gradmy,signx,signy, ...
     uxssa,uyssa,H,HB,B,stdB,Asf,A,MASK,glMASK,HAF,HAFmx,HAFmy,cnt, ...
     nodeu,nodev,MASKmx,MASKmy,bMASK,uxsia,uysia,udx,udy,node,nodes, ...
-    Mb,Melt,dtdx,dtdx2,VM,damage,shelftune)
+    Mb,Melt,dtdx,dtdx2,VM,damage,shelftune,ThinComp)
 
 % Kori-ULB
 % Iterative solution to the SSA velocity (both pure SSA and hybrid model
@@ -55,23 +55,72 @@ function [uxssa,uyssa,beta2,eta,dudx,dudy,dvdx,dvdy,su,ubx,uby,ux,uy, ...
         udx=zeros(ctr.imax,ctr.jmax);
         udy=zeros(ctr.imax,ctr.jmax);
     end
-    if ctr.damage==1 && cnt>1
-        dtr=TransportDamage(node,nodes,damage,Mb,Melt,H,glMASK,dtdx,dtdx2, ...
-            uxssa,uyssa,ctr,cnt,bMASK,VM,par);
-        damage=dtr;
-    end
+    % if ctr.damage==1 && cnt>1
+    %     dtr=TransportDamage(node,nodes,damage,Mb,Melt,H,glMASK,dtdx,dtdx2, ...
+    %         uxssa,uyssa,ctr,cnt,bMASK,VM,par);
+    %     damage=dtr;
+    % end
     for ll=1:par.visciter % iteration over effective viscosity
         [eta,dudx,dvdy,dudy,dvdx]=EffVisc(A,uxssa,uyssa,H,par,MASK, ...
             glMASK,shelftune,ctr);
         if ctr.damage==1 && cnt>1
             if ll==1
-                damage=NyeDamage(par,ctr,dudx,dvdy,dudy,dvdx,eta,H,HAF,MASK);
-                damage=min(par.damlim*H,max(damage,dtr));
+
+                % damage=NyeDamage(par,ctr,dudx,dvdy,dudy,dvdx,eta,H,HAF,MASK);
+                % damage=min(par.damlim*H,max(damage,dtr));
+                % scale_eta=(H-min(damage,H-eps))./(H+eps);
+
+                if ctr.TransportDamage==1
+                    % compute advected damage field from previous timestep (dtr)
+                    if ctr.ThinningDamage==1 
+                        % Thinning component (very sensitive)
+                        ThinComp = ThinningComponent(ctr,par,dudx,dvdy,dudy,dvdx,eta,H,damage);
+                        %ThinComp(MASK==1)=0.0; % added by Javi -- to check 
+                        %ThinComp(MASKlk==1)=0.0;
+                    else
+                        ThinComp = zeros(ctr.imax,ctr.jmax);
+                    end
+                    if (ctr.srfdamage==0 || ctr.bsldamage==0)
+                        if ctr.srfdamage==0
+                            dtr=TransportDamage(node,nodes,damage,0.0,Melt,ThinComp,H,glMASK,dtdx,dtdx2, ...
+                                uxssa,uyssa,ctr,cnt,bMASK,VM,par);
+                        elseif ctr.bsldamage==0
+                            dtr=TransportDamage(node,nodes,damage,Mb,0.0,0.0,H,glMASK,dtdx,dtdx2, ...
+                                uxssa,uyssa,ctr,cnt,bMASK,VM,par);
+                        end
+                    else
+                        dtr=TransportDamage(node,nodes,damage,Mb,Melt,ThinComp,H,glMASK,dtdx,dtdx2, ...
+                            uxssa,uyssa,ctr,cnt,bMASK,VM,par);
+                    end
+                else
+                    dtr=zeros(ctr.imax,ctr.jmax);
+                end
+                % compute surface damage
+                ds=SurfaceDamageAlgorithms(ctr,par,dudx,dvdy,dudy,dvdx,eta,H,MASK);
+                % compute basal damage (and Kachuck term, necessary for transport)
+                db=BasalDamageAlgorithms(ctr,par,dudx,dvdy,dudy,dvdx,eta,H,HAF);
+                % Avoid basal damage on grounded ice % Javi -- to check
+                % db(MASK==1)=0.0;
+                % Avoid damage on lakes
+                % db(MASKlk==1)=0.0; % Javi -- to check
+                % ds(MASKlk==1)=0.0;
+
+                % total local damage is sum of surface and basal damage
+                % vertically-integrated local damage is limited to dlim
+                dloc=max(0,min(db+ds,H.*par.dlim)); % local damage
+                % final damage field taken as the maximum of dloc and dtr
+                % allows for adverction of damage into regions that
+                % would not initiate damage
+                % total damage is limited to damlim
+                damage=min(H.*par.damlim,max(dloc,dtr)); 
+                % scaling of viscosity
                 scale_eta=(H-min(damage,H-eps))./(H+eps);
             end
         else
             scale_eta=1;
             damage=zeros(ctr.imax,ctr.jmax);
+            dtr=zeros(ctr.imax,ctr.jmax);
+            dloc=zeros(ctr.imax,ctr.jmax);
         end
         eta=eta.*scale_eta;
         

@@ -68,6 +68,13 @@ function [ctr,fc]=InitCtr(ctr,fc,default)
     ctr.ItSolv(any(ismember(fields(ctr),'ItSolv'))==0)=default.ItSolv;
     ctr.Asin(any(ismember(fields(ctr),'Asin'))==0)=default.Asin;
     ctr.taulim(any(ismember(fields(ctr),'taulim'))==0)=default.taulim;
+    ctr.TransportDamage(any(ismember(fields(ctr),'TransportDamage'))==0)=1;
+    ctr.ThinningDamage(any(ismember(fields(ctr),'ThinningDamage'))==0)=0;
+    ctr.srfdamage(any(ismember(fields(ctr),'srfdamage'))==0)=0;
+    ctr.bsldamage(any(ismember(fields(ctr),'bsldamage'))==0)=0;
+    ctr.tauice(any(ismember(fields(ctr),'tauice'))==0)=default.tauice;
+    ctr.OceanVisc(any(ismember(fields(ctr),'OceanVisc'))==0)=default.OceanVisc;
+    ctr.CrWidth(any(ismember(fields(ctr),'CrWidth'))==0)=default.CrWidth;
     if any(ismember(fields(ctr),'gammaT'))==0
         if ctr.meltfunc==1
             ctr.gammaT=default.gammaTlin;

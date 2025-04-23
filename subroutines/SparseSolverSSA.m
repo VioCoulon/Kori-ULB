@@ -262,6 +262,10 @@ function [u,v,s,flag,relres,iter]=SparseSolverSSA(nodeu,nodev,s0, ...
     H1=circshift(H,[-1 0]); % H(i+1,j)
 
     eta2=circshift(eta,[0 -1]); % eta(i,j+1)
+    if ctr.mismip==1 % Take last viscosity as equal to previous one
+        % Take last viscosity as equal to previous one
+        eta2(:,ctr.jmax)=eta2(:,ctr.jmax-1);
+    end
     eta3=circshift(eta,[-1 -1]); % eta(i+1,j+1)
     eta4=circshift(eta,[0 1]); % eta(i,j-1)
     eta5=circshift(eta,[-1 1]); % eta(i+1,j-1)

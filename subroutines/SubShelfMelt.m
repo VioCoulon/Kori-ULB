@@ -1,5 +1,5 @@
 function [Melt,butfac,H]=SubShelfMelt(ctr,fc,par,Tf,To,So,TF,butfac, ...
-    HB,glMASK,H,B,ShelfN,numsh,shMASK,MASK,MASKlk,uxssa,uyssa,arcocn, ...
+    HB,glMASK,H,B,ShelfN,numsh,shMASK,MASK,MASKlk,X,uxssa,uyssa,arcocn, ...
     MeltInv,cnt)
 
 % Kori-ULB
@@ -118,6 +118,10 @@ function [Melt,butfac,H]=SubShelfMelt(ctr,fc,par,Tf,To,So,TF,butfac, ...
             % run model with optimized sub-shelf melt
             Melt=MeltInv;
             Melt(MASK==1)=0;
+        case 12
+            % MISMIP+ calving function
+            Melt=zeros(ctr.imax,ctr.jmax)+100;
+            Melt(X<480)=0;
     end
     switch ctr.meltfunc
         case {1,2,21,22,23,24,3,4,5,9,91,92}
