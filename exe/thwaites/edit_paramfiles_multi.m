@@ -15,6 +15,7 @@ ctr.m        = 3;
 ctr.Asin     = zeros(ctr.imax,ctr.jmax)+3e-9;
 ctr.basin    = 1;    % Run the model for a specific basin.
 
+ctr.runmode    = 3;  % 1: graphics; 3: no graphics
 ctr.inverse    = 0;
 ctr.shelf      = 1;        % Ice shelves are considered.
 ctr.SSA        = 2;
@@ -34,7 +35,7 @@ ctr.stochastic = 1;
 ctr.sigma_To   = 0.25;    % 0.5, 1.0, 2.0, 4.0
 ctr.sigma_Mb   = 0.3;
 ctr.tau_Mb     = 1.0;
-ctr.tau_To     = 10.0;
+ctr.tau_To     = 70.0;   % 10 yr.
 ctr.seed       = 100;
 
 
@@ -62,12 +63,13 @@ var_2   = 'seed';     % snapshot
 
 % FULL PATHS.
 % Nic5.
-exe_path_local = '/home/daniel/models/Kori-ULB/exe/thwaites/nic5/stoch/';
+%exe_path_local = '/home/daniel/models/Kori-ULB/exe/thwaites/nic5/stoch/';
+exe_path_local = '/home/daniel/models/Kori-ULB/exe/thwaites/nic5/stoch/tau_To_70/';
 parent_path    = '/scratch/ulb/glaciol/dmoreno/Kori-ULB/';
 rel_in         = 'ice_data/eta1e7/ground_melt_0/';
-%rel_out        = 'output/thwaites/stoch/';                             % Stoch.
 %rel_out        = 'output/thwaites/deter/';                              % Deter. 
-rel_out        = 'output/thwaites/stoch/';                             % Stoch.
+%rel_out        = 'output/thwaites/stoch/';                             % Stoch.
+rel_out        = 'output/thwaites/stoch/tau_To_70/';                             % Stoch.
 
 % Local.
 %parent_path = '/home/daniel/models/Kori-ULB/';

@@ -13,8 +13,8 @@ exp=sigma_oce025
 path_exe=$path_kori/exe/thwaites
 #path_param=$path_exe/nic5/$exp          # Stochastic ensemble.
 
-#path_param=$path_exe/nic5/stoch/HR/$exp      # Stochastic.
-path_param=$path_exe/nic5/stoch/$exp      # Stochastic.
+#path_param=$path_exe/nic5/stoch/$exp      # Stochastic.
+path_param=$path_exe/nic5/stoch/tau_To_70/$exp      # Stochastic.
 
 
 # CLUSTER PATHS.
@@ -24,7 +24,8 @@ path_param=$path_exe/nic5/stoch/$exp      # Stochastic.
 # Nic5.
 cluster=nic5
 #path_cluster=/scratch/ulb/glaciol/dmoreno/Kori-ULB/exe/deter/$exp
-path_cluster=/scratch/ulb/glaciol/dmoreno/Kori-ULB/exe/stoch/$exp
+#path_cluster=/scratch/ulb/glaciol/dmoreno/Kori-ULB/exe/stoch/$exp
+path_cluster=/scratch/ulb/glaciol/dmoreno/Kori-ULB/exe/stoch/tau_To_70/
 
 
 # Enter path with matlab scripts to be compiled.
@@ -47,7 +48,8 @@ file=RunASE_nic5.m
 exe_name=RunASE_nic5
 
 # Define the remote server.
-REMOTE_HOST="nic5"
+#REMOTE_HOST="nic5"
+REMOTE_HOST=nic5
 
 # Create an array with subfolder names.
 SUBFOLDERS=($(find $path_param -mindepth 1 -maxdepth 1 -type d -printf "%f\n" | sort))
@@ -64,8 +66,8 @@ mcc -m "$file" -a "$path_kori/KoriModel.m" -a "$path_kori_subroutines" -o "$exe_
 
 
 # Collect all directories that need to be created.
-REMOTE_DIRS=()
-FILES_TO_COPY=()
+#REMOTE_DIRS=()
+#FILES_TO_COPY=()
 
 #for main in "${MAIN_FOLDERS[@]}"; do
 #    for sub in "${SUBFOLDERS[@]}"; do
@@ -91,38 +93,47 @@ FILES_TO_COPY=()
 for folder in "${SUBFOLDERS[@]}"; do
         
     # Define the source and destination paths
-    LOCAL_FILE="$path_param/$folder/params.mat"
-    REMOTE_DIR="$path_cluster/$folder"
+    #LOCAL_FILE="$path_param/$folder/params.mat"
+    #REMOTE_DIR="$path_cluster/$folder"
 
+    LOCAL_FILE="$path_param/$folder"
     echo "Local  : $LOCAL_FILE"
-    echo "Remote : $REMOTE_DIR"
+    #echo "Remote : $REMOTE_DIR"
+
+    # Try copying the exe to each folder to copy everythin at once.
+    cp "$exe_name" "$path_param/$folder/"
 
     # Check if the file exists before copying
-    if [[ -f "$LOCAL_FILE" ]]; then
-        REMOTE_DIRS+=("$REMOTE_DIR")
-        FILES_TO_COPY+=("$LOCAL_FILE|$REMOTE_DIR")
-    else
-        echo "WARNING: File $LOCAL_FILE does not exist, skipping..."
-    fi
+    #if [[ -f "$LOCAL_FILE" ]]; then
+    #    REMOTE_DIRS+=("$REMOTE_DIR")
+    #    FILES_TO_COPY+=("$LOCAL_FILE|$REMOTE_DIR")
+    #else
+    #    echo "WARNING: File $LOCAL_FILE does not exist, skipping..."
+    #fi
 done
 
 
 # Create all necessary directories in a single SSH connection
-if [[ ${#REMOTE_DIRS[@]} -gt 0 ]]; then
-    echo "Creating remote directories in a single SSH connection"
-    ssh $REMOTE_HOST "mkdir -p ${REMOTE_DIRS[*]}"
-fi
+#if [[ ${#REMOTE_DIRS[@]} -gt 0 ]]; then
+#    echo "Creating remote directories in a single SSH connection"
+#    ssh $REMOTE_HOST "mkdir -p ${REMOTE_DIRS[*]}"
+#fi
 
 # Copy all files using rsync
-for entry in "${FILES_TO_COPY[@]}"; do
-    IFS='|' read -r LOCAL_FILE REMOTE_DIR <<< "$entry"
+#for entry in "${FILES_TO_COPY[@]}"; do
+#    IFS='|' read -r LOCAL_FILE REMOTE_DIR <<< "$entry"
     
-    echo "Copying files to $REMOTE_DIR"
+#    echo "Copying files to $REMOTE_DIR"
     
-    rsync -avz --progress "$LOCAL_FILE" "$REMOTE_HOST:$REMOTE_DIR/"
-    rsync -avz --progress "$path_exe/$exe_name" "$REMOTE_HOST:$REMOTE_DIR/"
+#    rsync -avz --progress "$LOCAL_FILE" "$REMOTE_HOST:$REMOTE_DIR/"
+#    rsync -avz --progress "$path_exe/$exe_name" "$REMOTE_HOST:$REMOTE_DIR/"
     
-    echo "File copied successfully!"
-done
+#    echo "File copied successfully!"
+#done
+
+
+echo "Creating remote directories in a single SSH connection"
+ssh $REMOTE_HOST "mkdir -p $path_cluster"
+rsync -avz --progress "$path_param" "$REMOTE_HOST:$path_cluster/"
 
 echo "All files copied!"

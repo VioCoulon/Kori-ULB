@@ -3,11 +3,11 @@ function RunASE
 % Script to run ASE at 2 km resolution.
 % Kori-ULB v0.9
 
-clear;
-close all;
+%clear;
+%close all;
 
-addpath /home/daniel/models/Kori-ULB/subroutines/;
-addpath /home/daniel/models/Kori-ULB/;
+%addpath /home/daniel/models/Kori-ULB/subroutines/;
+%addpath /home/daniel/models/Kori-ULB/;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % First SIA inversion (As)

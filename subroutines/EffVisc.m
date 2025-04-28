@@ -58,7 +58,7 @@ function [eta,dudx,dvdy,dudy,dvdx,d_grain,EffStr]=EffVisc(A,uxssa,uyssa,H,par,MA
     % Based on Austin and Evans (2007); Ranganathan et al. (2021).
     % Jablasco regularization implementation.
     % Bassis et al., (2021) regularization
-    dynamic_d_grain = true;
+    dynamic_d_grain = false;
         
     % Grain size model (built upon Ranganathan et al., 2021).
     if dynamic_d_grain == true
