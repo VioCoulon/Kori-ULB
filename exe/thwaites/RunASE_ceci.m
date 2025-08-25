@@ -28,7 +28,11 @@ ctr.runmode  = 3;  % 1: graphics; 3: no graphics
 %KoriModelAll('ASE2km','INITA_NON',ctr);
 %KoriModel('ASE2km','INITA_NON',ctr);
 
-path = '/globalscratch/ulb/glaciol/dmoreno/Kori-ULB/ice_data/eta1e7/ground_melt_1/';
+% Lemaitre4.
+%path = '/globalscratch/ulb/glaciol/dmoreno/Kori-ULB/ice_data/eta1e7/ground_melt_0/';
+
+% Lyra.
+path = '/globalsc/ulb/glaciol/dmoreno/Kori-ULB/ice_data/eta1e7/ground_melt_0/';
 
 name_1 = 'ASE2km';
 name_2 = 'INIT_SIA';
@@ -128,7 +132,7 @@ ctr.snapshot  = 50;
 %input     = strcat(path_1, init_name);
 %output    = strcat(path_2, out_name);
 
-
+% Load corresponding inputs from param file.
 load('params.mat');
 
 KoriModel(input, output, ctr);

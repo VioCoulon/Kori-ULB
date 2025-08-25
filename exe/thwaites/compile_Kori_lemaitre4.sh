@@ -17,14 +17,14 @@ exp=sigma_oce400
 path_exe=$path_kori/exe/thwaites
 #path_param=$path_exe/nic5/$exp          # Stochastic ensemble.
 
-path_param=$path_exe/$REMOTE_HOST/stoch/extra_runs/tau_To_70/$exp      # Stochastic.
+path_param=$path_exe/$REMOTE_HOST/stoch/smb_0/tau_To_001/$exp      # Stochastic.
 #path_param=$path_exe/$REMOTE_HOST/$exp      # Deter.
 
 
 # CLUSTER PATHS.
 # Lemaitre4.
-path_cluster=/globalscratch/ulb/glaciol/dmoreno/Kori-ULB/exe/stoch/extra_runs/tau_To_70
-path_exe_cluster=/globalscratch/ulb/glaciol/dmoreno/Kori-ULB/exe/precompiled
+path_cluster=/globalscratch/ulb/glaciol/dmoreno/Kori-ULB/exe/thwaites/stoch/smb_0/tau_To_140
+path_exe_cluster=/globalscratch/ulb/glaciol/dmoreno/Kori-ULB/exe/thwaites/precompiled
 #path_cluster=/globalscratch/ulb/glaciol/dmoreno/Kori-ULB/exe/deter/
 
 
@@ -63,20 +63,11 @@ echo "Compiling : $file"
 #mcc -m "$file" -a "$path_kori/KoriModel.m" -a "$path_kori_subroutines" -o "$exe_name"
 #rsync -avz --progress "$exe_name" "$REMOTE_HOST:$path_exe_cluster/"
 
+
 # Copy folder with param files.
+ssh $REMOTE_HOST "mkdir -p $path_cluster"
 rsync -avz --progress "$path_param" "$REMOTE_HOST:$path_cluster/"
 
-# Keep all the ensemble under the same directory.
-#for folder in "${SUBFOLDERS[@]}"; do
-        
-    # Define the source and destination paths
-#    LOCAL_FILE="$path_param/$folder"
-#    echo "Local  : $LOCAL_FILE"
-
-    # Try copying the exe to each folder to copy everything at once.
-    #cp "$exe_name" "$path_param/$folder/"
-
-#done
 
 
 echo "Copying executable to all directories in a single SSH connection"
@@ -94,20 +85,6 @@ for dir in "$path_cluster/$exp"/*/; do
 done
 EOF
 
-#for dir in "$path_cluster/$exp"/*/; do
-#    if [ -d "\$dir" ]; then
-#        echo "Exp  : $dir"
-#        cp "$path_exe_cluster/$exe_name" "\$dir"
-#    fi
-#done
-
-
-#find "$path_cluster/$exp" -type d | while read -r dir; do
-#    # Check if directory contains any subdirectories
-#    if [ -z "$(find "$dir" -mindepth 1 -type d 2>/dev/null)" ]; then
-#        cp "$path_exe_cluster/$exe_name" "$dir"
-#    fi
-#done
 
 
 # Original.
