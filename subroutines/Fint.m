@@ -1,4 +1,4 @@
-function [F1, F2] = Fint(ctr, eta_diva, H, zeta)
+function [F1x, F1y, F2, F2x, F2y] = Fint(ctr, eta_diva, H, zeta)
     
     % Preallocate arrays
     F1   = zeros([ctr.imax, ctr.jmax, ctr.kmax]);
@@ -49,7 +49,10 @@ function [F1, F2] = Fint(ctr, eta_diva, H, zeta)
     F1 = dz_H .* F1;
 
     % Stager since it is used to compute velocity and beta.
-    F2 = 0.5 * ( F2 + circshift(F2, [0 -1]) );    % (i,j+1)
-    F1 = 0.5 * ( F1 + circshift(F1, [-1 0 0]) );  % (i+1,j,k)
+    F2x = 0.5 * ( F2 + circshift(F2, [0 -1]) );    % (i,j+1)
+    F2y = 0.5 * ( F2 + circshift(F2, [-1 0]) );    % (i+1,j)
+
+    F1x = 0.5 * ( F1 + circshift(F1, [0 -1 0]) );  % (i,j+1,k)
+    F1y = 0.5 * ( F1 + circshift(F1, [-1 0 0]) );  % (i+1,j,k)
 
 end

@@ -1,9 +1,9 @@
 function [uxssa,uyssa,beta2,eta,dudx,dudy,dvdx,dvdy,su,ubx,uby,ux,uy, ...
-    damage,NumStabVel,k,err,d_grain,EffStr,eta_diva,uxdiva,uydiva,dudz,dvdz,uxb_diva,uyb_diva]= ...
+    damage,NumStabVel,k,err,d_grain,EffStr,eta_diva,uxdiva,uydiva,dudz,dvdz,ux_diva,uy_diva]= ...
     DIVAvelocity(ctr,par,su,Hmx,Hmy,gradmx,gradmy,signx,signy, ...
     uxssa,uyssa,H,HB,B,stdB,Asf,A,MASK,glMASK,HAF,HAFmx,HAFmy,cnt, ...
     nodeu,nodev,MASKmx,MASKmy,bMASK,uxsia,uysia,udx,udy,node,nodes, ...
-    Mb,Melt,dtdx,dtdx2,VM,damage,ThinComp,shelftune,zeta,eta,eta_diva,tmp,uxb_diva,uyb_diva)
+    Mb,Melt,dtdx,dtdx2,VM,damage,ThinComp,shelftune,zeta,eta,eta_diva,tmp,ux_diva,uy_diva)
 
 % Kori-ULB
 % Iterative solution to the DIVA velocity (both pure SSA and hybrid model)
@@ -66,18 +66,28 @@ function [uxssa,uyssa,beta2,eta,dudx,dudy,dvdx,dvdy,su,ubx,uby,ux,uy, ...
 
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         % Daniel: DIVA velocity implementation based on Lipscomb et al. (2019).
-        
         [eta,dudx,dvdy,dudy,dvdx,d_grain,EffStr,eta_diva,dudz,dvdz]=EffViscDIVA(A,uxssa,uyssa,H,par,MASK, ...
-                glMASK,shelftune,zeta,tmp,betax,betay,eta_diva,cnt,uxb_diva,uyb_diva,ctr);
+                glMASK,shelftune,zeta,tmp,betax,betay,eta_diva,cnt,ux_diva,uy_diva,ctr);
 
         % Integration factor.
-        [F1, F2] = Fint(ctr, eta_diva, H, zeta);
+        [F1x, F1y, F2, F2x, F2y] = Fint(ctr, eta_diva, H, zeta);
 
 
-        % Eq. 32, Lipscomb et al. (2019).
-        uxb_diva = uxssa ./ ( 1.0 + betax .* F2 );
-        uyb_diva = uyssa ./ ( 1.0 + betay .* F2 );
-        
+        % Depth-averaged mean velocity. Eq. 32, Lipscomb et al. (2019).
+        ux_diva = uxssa ./ ( 1.0 + betax .* F2x );
+        uy_diva = uyssa ./ ( 1.0 + betay .* F2y );
+
+        % Consider non-sliding regions (i.e., uxssa = uyssa = 0).
+        M = (uxssa == 0.0) & (uyssa == 0.0);
+        if ~isempty(M)
+
+            % Eq. 34 (Lipscomb et al., 2019).
+            % Tau is defined on the velocity grid (no staggering needed).
+            ux_diva(M) = taux(M) .* F2x(M);
+            uy_diva(M) = tauy(M) .* F2y(M);
+
+        end
+
 
         % Full DIVA 3D velocity field from integration.
         uxdiva = zeros([ctr.imax, ctr.jmax, ctr.kmax]);
@@ -85,8 +95,8 @@ function [uxssa,uyssa,beta2,eta,dudx,dudy,dvdx,dvdy,su,ubx,uby,ux,uy, ...
         for k = 1:ctr.kmax
 
             % Eq. 29, Lipscomb et al. (2019).
-            uxdiva(:,:,k) = uxb_diva .* ( 1.0 + betax .* F1(:,:,k) );
-            uydiva(:,:,k) = uyb_diva .* ( 1.0 + betay .* F1(:,:,k) );
+            uxdiva(:,:,k) = ux_diva .* ( 1.0 + betax .* F1x(:,:,k) );
+            uydiva(:,:,k) = uy_diva .* ( 1.0 + betay .* F1y(:,:,k) );
         end
 
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -111,7 +121,7 @@ function [uxssa,uyssa,beta2,eta,dudx,dudy,dvdx,dvdy,su,ubx,uby,ux,uy, ...
             %ussa=vec2h(uxssa,uyssa); %VL: ussa on h-grid
 
             % Ese basal velocity (instead of ssa sol) from DIVA to compute beta.
-            ussa=vec2h(uxb_diva,uyb_diva); %VL: ussa on h-grid
+            ussa=vec2h(ux_diva,uy_diva); %VL: ussa on h-grid
 
             if ctr.u0>1e10
                 beta2=fg.*(ussa.^(1/ctr.m-1)).*Asf.^(-1/ctr.m);
@@ -124,7 +134,7 @@ function [uxssa,uyssa,beta2,eta,dudx,dudy,dvdx,dvdy,su,ubx,uby,ux,uy, ...
 
             %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
             % UPDATE EFFECTIVE BETA IN DIVA!
-            % Effective beta from F2 correction.
+            % Effective beta from F2 correction (beta2 is on the h-grid).
             beta2 = beta2 ./ ( 1.0 + beta2 .* F2 ); 
 
             %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

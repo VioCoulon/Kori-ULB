@@ -1,5 +1,5 @@
 function [eta,dudx,dvdy,dudy,dvdx,d_grain,EffStr,eta_diva,dudz,dvdz]=EffViscDIVA(A,uxssa,uyssa,H,par,MASK, ...
-    glMASK,shelftune,zeta,tmp,betax,betay,eta_diva,cnt,uxb_diva,uyb_diva,ctr)
+    glMASK,shelftune,zeta,tmp,betax,betay,eta_diva,cnt,ux_diva,uy_diva,ctr)
 
 % Kori-ULB
 % Effective viscosity of the SSA solution. On the borders of the domain, a
@@ -57,11 +57,11 @@ function [eta,dudx,dvdy,dudy,dvdx,d_grain,EffStr,eta_diva,dudz,dvdz]=EffViscDIVA
     %taux = zeros([ctr.imax, ctr.jmax]);
     %tauy = zeros([ctr.imax, ctr.jmax]);
 
-    %size(uxb_diva)
+    %size(ux_diva)
     %taux = betax .* uxssa;
     %tauy = betay .* uyssa;
-    taux = betax .* uxb_diva;
-    tauy = betay .* uyb_diva;
+    taux = betax .* ux_diva;
+    tauy = betay .* uy_diva;
     
     %size(taux)
     % Stagger tau values to the ice thickness grid (eta) to divide by eta_diva.
