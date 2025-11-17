@@ -59,8 +59,10 @@ echo "Path_exe  : $path_exe"
 echo "Compiling : $file"
 
 # RECOMPILE IN CASE OF CHANGES IN THE CODE!
-mcc -m "$file" -a "$path_kori/KoriModel.m" -a "$path_kori_subroutines" -o "$exe_name"
-#rsync -avz --progress "$exe_name" "$REMOTE_HOST:$path_exe_cluster/"
+#mcc -m "$file" -a "$path_kori/KoriModel.m" -a "$path_kori_subroutines" -o "$exe_name"
+/usr/local/MATLAB/R2024b/bin/mcc -m "$file" -a "$path_kori/KoriModel.m" -a "$path_kori_subroutines" -o "$exe_name"
+
+rsync -avz --progress "$exe_name" "$REMOTE_HOST:$path_exe_cluster/"
 
 # Copy folder with param files.
 rsync -avz --progress "$path_param" "$REMOTE_HOST:$path_cluster/"

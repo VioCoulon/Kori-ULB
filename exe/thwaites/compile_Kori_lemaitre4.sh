@@ -8,22 +8,24 @@ path_kori_subroutines=$path_kori/subroutines
 # Define the remote server.
 REMOTE_HOST=lemaitre4
 
-# Experiment name.
-exp=sigma_oce400
+# EXPERIMENT NAME.
+exp=revert_t_m05_gammas
 #exp=deter
-#exp=tau_To_05    
+#exp=sigma_oce400  
+
 
 # LOCAL PATHS.
 path_exe=$path_kori/exe/thwaites
 #path_param=$path_exe/nic5/$exp          # Stochastic ensemble.
 
-path_param=$path_exe/$REMOTE_HOST/stoch/smb_0/tau_To_001/$exp      # Stochastic.
+path_param=$path_exe/$REMOTE_HOST/deter/$exp      # Stochastic.
+#path_param=$path_exe/$REMOTE_HOST/stoch/smb_0/tau_To_001/$exp      # Stochastic.
 #path_param=$path_exe/$REMOTE_HOST/$exp      # Deter.
 
 
 # CLUSTER PATHS.
 # Lemaitre4.
-path_cluster=/globalscratch/ulb/glaciol/dmoreno/Kori-ULB/exe/thwaites/stoch/smb_0/tau_To_140
+path_cluster=/globalscratch/ulb/glaciol/dmoreno/Kori-ULB/exe/thwaites/deter
 path_exe_cluster=/globalscratch/ulb/glaciol/dmoreno/Kori-ULB/exe/thwaites/precompiled
 #path_cluster=/globalscratch/ulb/glaciol/dmoreno/Kori-ULB/exe/deter/
 
@@ -60,8 +62,8 @@ echo "Path_exe  : $path_exe"
 echo "Compiling : $file"
 
 # RECOMPILE IN CASE OF CHANGES IN THE CODE!
-#mcc -m "$file" -a "$path_kori/KoriModel.m" -a "$path_kori_subroutines" -o "$exe_name"
-#rsync -avz --progress "$exe_name" "$REMOTE_HOST:$path_exe_cluster/"
+mcc -m "$file" -a "$path_kori/KoriModel.m" -a "$path_kori_subroutines" -o "$exe_name"
+rsync -avz --progress "$exe_name" "$REMOTE_HOST:$path_exe_cluster/"
 
 
 # Copy folder with param files.

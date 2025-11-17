@@ -109,15 +109,17 @@ ctr.inverse  = 0;
 %ctr.calving = 2;          % ice shelves do not extend further than initially
 ctr.SSA      = 2;
 ctr.calving  = 4;          % 5, to apply LSF function.
-ctr.dt       = 0.2;        % 0.02, 0.1, 0.05, 0.025
-ctr.nsteps   = 51;       % 5001, 20001
+ctr.dt       = 0.05;        % 0.02, 0.1, 0.05, 0.025
+ctr.nsteps   = 20001;       % 5001, 20001
 ctr.meltfunc = 3;          % PICO
-ctr.gammaT   = 2.0e-5;     % 2.5e4, 1.0e-4, 0.25e-4
-ctr.meltfac  = 1;          % Factor multiplying sub-shelf melt.
+ctr.gammaT   = 2.0e-5;     % 2.0e4, 1.0e-4, 0.25e-4
+ctr.meltfac  = 5;          % Factor multiplying sub-shelf melt.
 
 
 ctr.timeslice = 1;
 ctr.snapshot  = 50;
+
+ctr.tforcing = 20.0
 
 % Test stochastic forcing.
 %ctr.stochastic = 0;
@@ -132,7 +134,7 @@ ctr.runmode  = 1;
 %path_1      = [parent_path, 'Initialization/eta1e7/ground_melt_1/'];
 %path_2      = [parent_path, 'Deterministic/eta1e7/ground_melt_1/calv2/deter_gamma1e-2/'];
 parent_path = '/home/daniel/models/Kori-ULB/output/Thwaites/';
-path_1      = [parent_path, 'Initialization/eta1e7/ground_melt_1/'];
+path_1      = [parent_path, 'Initialization/eta1e7/ground_melt_0/'];
 path_2      = [parent_path, 'Deterministic/test/'];
 
 init_name = 'INIT_SSA_3';             % INIT_SSA_3
