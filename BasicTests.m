@@ -182,13 +182,15 @@ function MismipTest
     % TEST 2: Circular MISMIP ice sheet
     % Test on Schoof and symmetry of ice sheet
     
-    ctr.schoof=1;
-    ctr.imax=67;
-    ctr.jmax=67;
-    ctr.delta=50.e3;
+    ctr.schoof=0; % Test for subgrid 0. Otherwise 1.
+    ctr.subgridGL = 1;
+
+    ctr.imax=134;     % 67, 134
+    ctr.jmax=134;
+    ctr.delta=25.0e3;  % 50.0e3
     ctr.m=2;
-    ctr.nsteps=1001; % 1001
-    ctr.dt=10; % 10
+    ctr.nsteps=1501; % 1001
+    ctr.dt=10; % 10, 5
     ctr.SSA=2;
     ctr.shelf=1;
     ctr.shelftune=ones(ctr.imax,ctr.jmax);
@@ -197,7 +199,7 @@ function MismipTest
     Lj=(ctr.jmax-1)*ctr.delta/1e3;
     [X,Y] = meshgrid(0:ctr.delta/1e3:Li,0:ctr.delta/1e3:Lj);
     dist=sqrt((X-Lj/2.).^2.+(Y-Li/2.).^2.);
-    B=720-778.5*dist/750.;
+    B=720-778.5*dist/750.; % 778.5, 900.5
     H=zeros(ctr.imax,ctr.jmax);
     Mb=zeros(ctr.imax,ctr.jmax)+0.3;
     Ts=zeros(ctr.imax,ctr.jmax)-10.;
@@ -205,24 +207,69 @@ function MismipTest
     
     %Initial LSF mask (R2016b)
     LSF=ones(ctr.imax,ctr.jmax);
-    LSF(dist>1500)=-1;
+    LSF(dist>1500)=-1; % 1500
     H(LSF<0)=0;
     ctr.calving=2;
     ctr.WV=0;
 
     save('MismipIn','B','H','Mb','Ts','LSF');
 
-    KoriModel('MismipIn','mismip2_pt',ctr);
+    KoriModel('MismipIn','mismip2_25km_subgridGLa',ctr);
+    %KoriModel('MismipIn','mismip2a',ctr);
+
+    ctr.Ao=1e-17;
+    KoriModel('mismip2_25km_subgridGLa','mismip2_25km_subgridGLb',ctr);
+    ctr.Ao=0.5e-16; %1e-16
+    ctr.nsteps=ctr.nsteps*4-3; %*4
+    ctr.dt=ctr.dt/4; % 4
+    KoriModel('mismip2_25km_subgridGLb','mismip2_25km_subgridGLc',ctr);
+    %PlotFiguresMISMIP('mismip2_12km_subgridGL');
      
+end
+
+
+function PlotFiguresMISMIP(outputf)
+
+    load([outputf, 'a_toto']);
+    sealevel=0;
+    HB=B;
+    HAF=B-sealevel+H*par.rho/par.rhow;
+    HB(HAF<0)=sealevel-par.rho/par.rhow*H(HAF<0);
+
+    figure;
+    Li=(ctr.imax-1)*ctr.delta/1e3;
+    x=0:ctr.delta/1e3:Li;
+    yplot=Li/2;
+    iplot=round(yplot/ctr.delta*1e3)+1;
+    plot(x,H(iplot,:)+HB(iplot,:),'k'); hold on;
+    plot(x,HB(iplot,:),'k');
+    plot(x,B(iplot,:),'k');
+    grid on;
+
+    load([outputf, 'b']);
+    HB=B;
+    HAF=B-sealevel+H*par.rho/par.rhow;
+    HB(HAF<0)=sealevel-par.rho/par.rhow*H(HAF<0);
+    plot(x,H(iplot,:)+HB(iplot,:),'b');
+    plot(x,HB(iplot,:),'b');
+
+    load([outputf, 'c']);
+    HB=B;
+    HAF=B-sealevel+H*par.rho/par.rhow;
+    HB(HAF<0)=sealevel-par.rho/par.rhow*H(HAF<0);
+    plot(x,H(iplot,:)+HB(iplot,:),'r');
+    plot(x,HB(iplot,:),'r');
+
 end
 
 
 function Circular
 
     % Initial ice sheet creation
+    ctr.subgridGL = 1;
 
     ctr.delta=10e3;
-    ctr.imax=161; 
+    ctr.imax=161; % 161
     ctr.jmax=161;
 
     Li=(ctr.imax-1)*ctr.delta;
@@ -256,7 +303,7 @@ function Circular
     %---------------------------------------
 
     ctr.m=3;
-    ctr.dt=1;
+    ctr.dt=5; %1
     ctr.shelf=1;
     ctr.shelftune=1;
     ctr.SSA=1;
@@ -274,10 +321,18 @@ function Circular
     save('CircularIn','B','H','Mb','Ts','LSF','MASKo');
 
     %Iinitial spin up
-    ctr.nsteps=1001;
+    ctr.nsteps=2001;
     ctr.calving=2;
     ctr.WV=0;
     KoriModel('CircularIn','Circular1',ctr); 
+
+    ctr.Ao=1e-19;
+    KoriModel('Circular1','Circular2',ctr);
+    ctr.Ao=1e-18; %1e-16
+    ctr.nsteps=ctr.nsteps*4-3; %*4
+    ctr.dt=ctr.dt/4; % 4
+    KoriModel('Circular2','Circular3',ctr);
+    %PlotFiguresMISMIP('mismip2_12km_subgridGL');
 
 end
 
@@ -396,13 +451,14 @@ function Antarctica(n)
     ctr.Tinit=0;
     ctr.SSA=2;
     ctr.shelf=1;
-    ctr.schoof=1; % 1
+    ctr.schoof=0; % 1
+    ctr.subgridGL=1;
     ctr.dt=0.2; % 0.1
-    ctr.nsteps=201;
+    ctr.nsteps=501; % 201
     ctr.Tinv=20;
 
     if n==2
-        KoriModel('INIT25a','INIT25b',ctr);
+        KoriModel('INIT25a','INIT25b_schoof',ctr);
     end
 
     ctr.inverse=0;
@@ -412,7 +468,7 @@ function Antarctica(n)
     fc.DeltaT=zeros(ctr.nsteps,1)+10;
     
     if n==3
-        KoriModel('INIT25b','Run25a',ctr,fc);
+        KoriModel('INIT25b_schoof','Run25a_schoof',ctr,fc);
     end
     
 end

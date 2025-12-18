@@ -1,9 +1,9 @@
 function [uxssa,uyssa,beta2,eta,dudx,dudy,dvdx,dvdy,su,ubx,uby,ux,uy, ...
-    damage,NumStabVel,k,err,d_grain,EffStr]= ...
+    damage,NumStabVel]= ...
     SSAvelocity(ctr,par,su,Hmx,Hmy,gradmx,gradmy,signx,signy, ...
     uxssa,uyssa,H,HB,B,stdB,Asf,A,MASK,glMASK,HAF,HAFmx,HAFmy,cnt, ...
     nodeu,nodev,MASKmx,MASKmy,bMASK,uxsia,uysia,udx,udy,node,nodes, ...
-    Mb,Melt,dtdx,dtdx2,VM,damage,ThinComp,shelftune,zeta,tmp)
+    Mb,Melt,dtdx,dtdx2,VM,damage,ThinComp,shelftune,tmp,zeta, SLR)
 
 % Kori-ULB
 % Iterative solution to the SSA velocity (both pure SSA and hybrid model
@@ -33,6 +33,12 @@ function [uxssa,uyssa,beta2,eta,dudx,dudy,dvdx,dvdy,su,ubx,uby,ux,uy, ...
     betax=0.5*(beta2+circshift(beta2,[0 -1]));
     betay=0.5*(beta2+circshift(beta2,[-1 0]));
 
+    % Daniel: beta interpolation for partially floating points.
+    if ctr.subgridGL == 1
+        %[betax, betay] = SubGridGL(beta2, betax, betay, H, HAF, MASK, ctr);
+    end
+
+
     if ctr.mismip>=1
         betax(:,1)=betax(:,2); % symmetric divide
         betax(1,:)=betax(3,:); % symmetry axis
@@ -56,18 +62,13 @@ function [uxssa,uyssa,beta2,eta,dudx,dudy,dvdx,dvdy,su,ubx,uby,ux,uy, ...
         udy=zeros(ctr.imax,ctr.jmax);
     end
 
+
+
     for ll=1:par.visciter % iteration over effective viscosity
-        
-        %if ll > 1
-        %    rel = 0.1;
-        %    eta = eta * rel + ( 1.0 - rel ) * eta_old;
-        %end
-        
-        [eta,dudx,dvdy,dudy,dvdx,d_grain,EffStr]=EffVisc(A,uxssa,uyssa,H,par,MASK, ...
-            glMASK,shelftune,zeta,tmp,ctr);
-        
-        eta_old = eta;
-        
+
+        [eta,dudx,dvdy,dudy,dvdx]=EffVisc(A,uxssa,uyssa,H,par,MASK, ...
+                    glMASK,shelftune,zeta,tmp,ctr);
+
             
         % Jablasco damage.
         if ctr.damage==1 && cnt>1
@@ -110,89 +111,54 @@ function [uxssa,uyssa,beta2,eta,dudx,dudy,dvdx,dvdy,su,ubx,uby,ux,uy, ...
         end
         eta=eta.*scale_eta;
 
+        
 
-%         [uxs1,uys1,su,flagU,relresU,iterU]=SparseSolverSSA_daniel(nodeu,nodev, ...
-%             su,MASKmx,MASKmy,bMASK, ...
-%             H,eta,betax,betay,uxssa,uyssa,uxsia,uysia,udx,udy,taudx, ...
-%             taudy,ctr,par);
-% 
-%         uxssa=uxs1;
-%         uyssa=uys1;
-%         %---------iterative beta---------
-%         if cnt<=ctr.BetaIter
-%             ussa=vec2h(uxssa,uyssa); %VL: ussa on h-grid
-%             if ctr.u0>1e10
-%                 beta2=fg.*(ussa.^(1/ctr.m-1)).*Asf.^(-1/ctr.m);
-%             else
-%                 beta2=fg.*(ussa.^(1/ctr.m-1)).*((ussa+ctr.u0).*Asf ...
-%                     /ctr.u0).^(-1/ctr.m);
-%             end
-%             beta2=min(beta2,1e8);
-%             beta2(MASK==0)=0;
-%             betax=0.5*(beta2+circshift(beta2,[0 -1]));
-%             betay=0.5*(beta2+circshift(beta2,[-1 0]));
-%             if ctr.mismip>=1
-%                 betax(:,1)=betax(:,2); % symmetric divide
-%                 betax(1,:)=betax(3,:); % symmetry axis
-%                 betax(ctr.imax,:)=betax(ctr.imax-2,:); % periodic BC
-%                 betax(:,ctr.jmax)=0; % ocean
-%                 betay(:,1)=betay(:,3); % symmetric divide
-%                 betay(1,:)=betay(2,:); % symmetry axis
-%                 betay(ctr.imax,:)=betay(ctr.imax-1,:); % periodic BC
-%                 if ctr.mismip==2 % Thule setup
-%                     betax(ctr.imax,:)=0;
-%                     betay(ctr.imax,:)=0;
-%                 end
-%             end
-%         end
+
+         [uxs1,uys1,su,flagU,relresU,iterU]=SparseSolverSSA_daniel(nodeu,nodev, ...
+             su,MASKmx,MASKmy,bMASK, ...
+             H,eta,betax,betay,uxssa,uyssa,uxsia,uysia,udx,udy,taudx, ...
+             taudy,ctr,par);
+ 
+         uxssa=uxs1;
+         uyssa=uys1;
+         %---------iterative beta---------
+         if cnt<=ctr.BetaIter
+             ussa=vec2h(uxssa,uyssa); %VL: ussa on h-grid
+             if ctr.u0>1e10
+                 beta2=fg.*(ussa.^(1/ctr.m-1)).*Asf.^(-1/ctr.m);
+             else
+                 beta2=fg.*(ussa.^(1/ctr.m-1)).*((ussa+ctr.u0).*Asf ...
+                     /ctr.u0).^(-1/ctr.m);
+             end
+             beta2=min(beta2,1e8);
+             beta2(MASK==0)=0;
+             betax=0.5*(beta2+circshift(beta2,[0 -1]));
+             betay=0.5*(beta2+circshift(beta2,[-1 0]));
+
+             
+             % Daniel: beta interpolation for partially floating points.
+             if ctr.subgridGL == 1
+                [betax, betay] = SubGridGL(beta2, H, HAF, MASK, glMASK, Hmx, Hmy, B, SLR, ctr, par);
+             end
+
+             if ctr.mismip>=1
+                 betax(:,1)=betax(:,2); % symmetric divide
+                 betax(1,:)=betax(3,:); % symmetry axis
+                 betax(ctr.imax,:)=betax(ctr.imax-2,:); % periodic BC
+                 betax(:,ctr.jmax)=0; % ocean
+                 betay(:,1)=betay(:,3); % symmetric divide
+                 betay(1,:)=betay(2,:); % symmetry axis
+                 betay(ctr.imax,:)=betay(ctr.imax-1,:); % periodic BC
+                 if ctr.mismip==2 % Thule setup
+                     betax(ctr.imax,:)=0;
+                     betay(ctr.imax,:)=0;
+                 end
+             end
+         end
         %--------------------------------
         
         % PSEUDO-TRANSIENT METHOD. INSIDE THE PICARD LOOP???? Check Rass paper!
         % First, implicit initialization to avoid zeros.
-        if cnt < 10000000 % 0.1*ctr.nsteps, 20, 40, 200
-            k=0.0;
-            err=0.0;
-            [uxs1,uys1,su,flagU,relresU,iterU]=SparseSolverSSA_daniel(nodeu,nodev, ...
-                su,MASKmx,MASKmy,bMASK, ...
-                H,eta,betax,betay,uxssa,uyssa,uxsia,uysia,udx,udy,taudx, ...
-                taudy,ctr,par);
-
-                uxssa=uxs1;
-                uyssa=uys1;
-                %---------iterative beta---------
-                if cnt<=ctr.BetaIter
-                    ussa=vec2h(uxssa,uyssa); %VL: ussa on h-grid
-                    if ctr.u0>1e10
-                        beta2=fg.*(ussa.^(1/ctr.m-1)).*Asf.^(-1/ctr.m);
-                    else
-                        beta2=fg.*(ussa.^(1/ctr.m-1)).*((ussa+ctr.u0).*Asf ...
-                            /ctr.u0).^(-1/ctr.m);
-                    end
-                    beta2=min(beta2,1e8);
-                    beta2(MASK==0)=0;
-                    betax=0.5*(beta2+circshift(beta2,[0 -1]));
-                    betay=0.5*(beta2+circshift(beta2,[-1 0]));
-                    if ctr.mismip>=1
-                        betax(:,1)=betax(:,2); % symmetric divide
-                        betax(1,:)=betax(3,:); % symmetry axis
-                        betax(ctr.imax,:)=betax(ctr.imax-2,:); % periodic BC
-                        betax(:,ctr.jmax)=0; % ocean
-                        betay(:,1)=betay(:,3); % symmetric divide
-                        betay(1,:)=betay(2,:); % symmetry axis
-                        betay(ctr.imax,:)=betay(ctr.imax-1,:); % periodic BC
-                        if ctr.mismip==2 % Thule setup
-                            betax(ctr.imax,:)=0;
-                            betay(ctr.imax,:)=0;
-                        end
-                    end
-                end
-                %--------------------------------
-        % Pseudo-transient solver.
-        else
-            [uxs1,uys1,k,err]=SolverSSA_pseudo_transient(H,HB,B,stdB,eta,uxssa,uyssa,...
-                   uxsia,uysia,betax,betay,udx,udy,taudx,taudy,MASK,glMASK,Asf,cnt,ctr,par);
-
-        end
 
 
         duxs=sqrt((uxs1-uxssa).^2+(uys1-uyssa).^2);
@@ -227,6 +193,16 @@ function [uxssa,uyssa,beta2,eta,dudx,dudy,dvdx,dvdy,su,ubx,uby,ux,uy, ...
         ubx=ux-udx;
         uby=uy-udy;
     end
+
+
+    % Daniel: beta interpolation for partially floating points.
+    %if ctr.subgridGL == 1
+    %    [betax, betay, ux, uy] = SubGridGL(beta2, betax, betay, H, HAF, MASK, ...
+    %                                        uxssa, uyssa, glMASK, Hmx, Hmy, B, SLR, ctr, par);
+    %end
+
+    
+
 end
 
 

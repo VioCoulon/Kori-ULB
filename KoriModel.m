@@ -271,6 +271,9 @@ if ctr.Tcalc>=1
     [tmp,Tb,zeta,dzc,dzp,dzm]=InitTempParams(ctr,par,tmp,Ts,H);
 end
 
+% Daniel. Test for grain size model.
+zeta=CalculateZeta(ctr.kmax,0.015);
+
 %--------------------------------------
 % Initial Volume Above Floatation
 % Initialization of geoid calculation
@@ -598,11 +601,11 @@ for cnt=cnt0:ctr.nsteps
         end
 
         [uxssa,uyssa,beta2,eta,dudx,dudy,dvdx,dvdy,su,ubx,uby,ux,uy, ...
-            damage,NumStabVel,k,err,d_grain,EffStr]= ...
+            damage,NumStabVel]= ...
             SSAvelocity(ctr,par,su,Hmx,Hmy,gradmx,gradmy,signx,signy, ...
             uxssa,uyssa,H,HB,B,stdB,Asf,A,MASK,glMASK,HAF,HAFmx,HAFmy,cnt, ...
             nodeu,nodev,MASKmx,MASKmy,bMASK,uxsia,uysia,udx,udy,node,nodes, ...
-            Mb,Melt,dtdx,dtdx2,VM,damage,ThinComp,shelftune,zeta,tmp);
+            Mb,Melt,dtdx,dtdx2,VM,damage,ThinComp,shelftune,tmp,zeta,SLR);
 
         %fprintf('\n k = %1.0f \n ', k);
         %k
@@ -633,6 +636,12 @@ for cnt=cnt0:ctr.nsteps
         uxsch=ux;
         uysch=uy;
     end
+
+    if ctr.subgridGL==1
+        %[betax, betay, uxsch, uysch] = SubGridGL(beta2, H, HAF, MASK, ...
+        %                                    uxssa, uyssa, glMASK, Hmx, Hmy, B, SLR, ctr, par);
+    end
+
     [uxsch,uysch,d]=DiffusiveCorrection(ctr,par,uxsch,uysch,udx,udy, ...
         d,Ad,p,Hm,gradm,bMASK);
 
@@ -688,24 +697,14 @@ for cnt=cnt0:ctr.nsteps
 
 
 
-    % Daniel: stop forcing within the safety band.
-    %if abs(dIVg_dt) > 2.0 || collapse == 1 % 0.8 running local.
-        %fprintf('\n Collapse = %12.2f \n ', collapse);
-    %    collapse = 1;
-    %    Melt = zeros(ctr.imax,ctr.jmax);
-    %end
-
-    if ctr.dt*cnt > ctr.tforcing  % 0.8 running local.
+    % Daniel: ocean forcing removal exp.
+      %if ctr.dt*cnt > ctr.tforcing  % 0.8 running local.
         
-        fprintf('\n Collapse = ');
-        %Melt = zeros(ctr.imax,ctr.jmax) - 100.0;
-        Melt((glMASK==3)|(glMASK==4)|(glMASK==5)) = -5.0; % -50.0, -10.0.
-    end
+      %    fprintf('\n Collapse = ');
+        %  Melt((glMASK==3)|(glMASK==4)|(glMASK==5)) = -5.0; % -50.0, -10.0.
+      %end
 
-    %max(Melt, [], 'all')
-    %min(Melt, [], 'all')
 
-    %Melt = zeros(ctr.imax,ctr.jmax);
 
 
 %---------------------------------------------------------------
