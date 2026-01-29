@@ -64,56 +64,6 @@ function [uxssa,uyssa,beta2,eta,etaD,dudx,dudy,dvdx,dvdy,su,ubx,uby,ux,uy, ...
         udx=zeros(ctr.imax,ctr.jmax);
         udy=zeros(ctr.imax,ctr.jmax);
     end
-<<<<<<< HEAD
-
-    for ll=1:par.visciter % iteration over effective viscosity
-        
-        %if ll > 1
-        %    rel = 0.1;
-        %    eta = eta * rel + ( 1.0 - rel ) * eta_old;
-        %end
-        
-        [eta,dudx,dvdy,dudy,dvdx,d_grain,EffStr]=EffVisc(A,uxssa,uyssa,H,par,MASK, ...
-            glMASK,shelftune,zeta,tmp,ctr);
-        
-        eta_old = eta;
-        
-            
-        % Jablasco damage.
-        if ctr.damage==1 && cnt>1
-            if ll==1
-                if ctr.localdamage~=1
-                    % compute transport from previous damage
-                    if ctr.thinning==1 % Thinning component (very sensitive)
-                        ThinComp = ThinningComponent(ctr,par,dudx,dvdy,dudy,dvdx,eta,H);
-                        ThinComp(MASK==1)=0.0;
-                        ThinComp(MASKlk==1)=0.0;
-                    else
-                        ThinComp = zeros(ctr.imax,ctr.jmax);
-                    end
-                    
-                    dtr=TransportDamage(node,nodes,damage,Mb,Melt,ThinComp,H,glMASK,dtdx,dtdx2, ...
-                                    uxssa,uyssa,ctr,cnt,bMASK,VM,par);
-                else
-                    dtr=zeros(ctr.imax,ctr.jmax);
-                end
-                
-                % compute surface damage
-                ds=SurfaceDamageAlgorithms(ctr,par,dudx,dvdy,dudy,dvdx,eta,H,MASK);
-                % compute basal damage (and Kachuck term, necessary for transport)
-                db=BasalDamageAlgorithms(ctr,par,dudx,dvdy,dudy,dvdx,eta,H,HAF);
-                % Avoid basal damage on grounded ice
-                db(MASK==1)=0.0;
-                % Avoid damage on lakes
-                db(MASKlk==1)=0.0;
-                ds(MASKlk==1)=0.0;
-
-                % total damage is sum of surface and basal damage
-                % damage is limited to damlim
-                dlim=max(0,min(db+ds,H.*par.dlim));
-                damage=min(par.damlim*H,max(dlim,dtr));
-                scale_eta=(H-min(damage,H-eps))./(H+eps);
-=======
     for ll=1:par.visciter % iteration over effective viscosity
         if ctr.SSA<3
             % Effective viscosity for SSA and hybrid model
@@ -161,7 +111,6 @@ function [uxssa,uyssa,beta2,eta,etaD,dudx,dudy,dvdx,dvdy,su,ubx,uby,ux,uy, ...
                 end
                 % scaling of viscosity
                 scale_eta=1;
->>>>>>> upstream/main
             end
         else
             scale_eta=1;
@@ -210,68 +159,14 @@ function [uxssa,uyssa,beta2,eta,etaD,dudx,dudy,dvdx,dvdy,su,ubx,uby,ux,uy, ...
 %         end
         %--------------------------------
         
-<<<<<<< HEAD
-        % PSEUDO-TRANSIENT METHOD. INSIDE THE PICARD LOOP???? Check Rass paper!
-        % First, implicit initialization to avoid zeros.
-        if cnt < 10000000 % 0.1*ctr.nsteps, 20, 40, 200
-            k=0.0;
-            err=0.0;
-            [uxs1,uys1,su,flagU,relresU,iterU]=SparseSolverSSA_daniel(nodeu,nodev, ...
-                su,MASKmx,MASKmy,bMASK, ...
-                H,eta,betax,betay,uxssa,uyssa,uxsia,uysia,udx,udy,taudx, ...
-                taudy,ctr,par);
-
-                uxssa=uxs1;
-                uyssa=uys1;
-                %---------iterative beta---------
-                if cnt<=ctr.BetaIter
-                    ussa=vec2h(uxssa,uyssa); %VL: ussa on h-grid
-                    if ctr.u0>1e10
-                        beta2=fg.*(ussa.^(1/ctr.m-1)).*Asf.^(-1/ctr.m);
-                    else
-                        beta2=fg.*(ussa.^(1/ctr.m-1)).*((ussa+ctr.u0).*Asf ...
-                            /ctr.u0).^(-1/ctr.m);
-                    end
-                    beta2=min(beta2,1e8);
-                    beta2(MASK==0)=0;
-                    betax=0.5*(beta2+circshift(beta2,[0 -1]));
-                    betay=0.5*(beta2+circshift(beta2,[-1 0]));
-                    if ctr.mismip>=1
-                        betax(:,1)=betax(:,2); % symmetric divide
-                        betax(1,:)=betax(3,:); % symmetry axis
-                        betax(ctr.imax,:)=betax(ctr.imax-2,:); % periodic BC
-                        betax(:,ctr.jmax)=0; % ocean
-                        betay(:,1)=betay(:,3); % symmetric divide
-                        betay(1,:)=betay(2,:); % symmetry axis
-                        betay(ctr.imax,:)=betay(ctr.imax-1,:); % periodic BC
-                        if ctr.mismip==2 % Thule setup
-                            betax(ctr.imax,:)=0;
-                            betay(ctr.imax,:)=0;
-                        end
-                    end
-                end
-                %--------------------------------
-        % Pseudo-transient solver.
-        else
-            [uxs1,uys1,k,err]=SolverSSA_pseudo_transient(H,HB,B,stdB,eta,uxssa,uyssa,...
-                   uxsia,uysia,betax,betay,udx,udy,taudx,taudy,MASK,glMASK,Asf,cnt,ctr,par);
-
-        end
-
-
-=======
         [uxs1,uys1,su,flagU,relresU,iterU]=SparseSolverSSA(nodeu,nodev, ...
             su,MASKmx,MASKmy,bMASK,glMASK,H,eta,betax,betay,uxssa,uyssa, ...
             uxsia,uysia,udx,udy,taudx,taudy,ctr,par);
->>>>>>> upstream/main
         duxs=sqrt((uxs1-uxssa).^2+(uys1-uyssa).^2);
         duxs(isnan(duxs))=0;
         uxssa=uxs1;
         uyssa=uys1;
         limit=sum(duxs(:))/(ctr.imax*ctr.jmax);
-<<<<<<< HEAD
-
-=======
         if ctr.SSA==3 % DIVA solver
             % Integration factor.
             [F2,F2x,F2y]=Fint(ctr,etaD,H,zeta);
@@ -315,7 +210,6 @@ function [uxssa,uyssa,beta2,eta,etaD,dudx,dudy,dvdx,dvdy,su,ubx,uby,ux,uy, ...
             end
         end
         %--------------------------------
->>>>>>> upstream/main
         if limit<par.visctol % Limit on convergence
             break;
         end
