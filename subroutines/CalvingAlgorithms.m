@@ -1,193 +1,156 @@
 function [CMB,LSF,CR]=CalvingAlgorithms(ctr,par,dudx,dvdy,dudy,dvdx,glMASK,H,A, ...
-    uxssa,uyssa,arcocn,B,runoff,MASK,MASKo,Ho,bMASK,LSF,node,nodes,VM,cnt,ux,uy,Melt,he,fi,FMR,X,Y,LSFo)
+    uxssa,uyssa,arcocn,B,runoff,MASK,MASKo,Ho,bMASK,LSF,node,nodes,VM, ...
+    cnt,ux,uy,Melt,he,fi,FMR)
 
-ux1=circshift(ux,[0 1]); % ux(i,j-1)
-uy1=circshift(uy,[1 0]); % uy(i-1,j)
+% Kori-ULB
+% Calving functions (VC 2024) using LSF
 
-MAGV=max(0.0000000001,sqrt((0.5*(ux+ux1)).^2+(0.5*(uy+uy1)).^2));
+    ux1=circshift(ux,[0 1]); % ux(i,j-1)
+    uy1=circshift(uy,[1 0]); % uy(i-1,j)
 
-XUV=-(0.5*(ux+ux1))./MAGV;
-YUV=-(0.5*(uy+uy1))./MAGV;
+    MAGV=max(1e-10,sqrt((0.5*(ux+ux1)).^2+(0.5*(uy+uy1)).^2));
 
-uxh=(0.5*(ux+ux1));
-uyh=(0.5*(uy+uy1));
+    XUV=-(0.5*(ux+ux1))./MAGV;
+    YUV=-(0.5*(uy+uy1))./MAGV;
 
-if ctr.calving>=1 % LSF function calving. Generate a calving rate, CR
+    uxh=(0.5*(ux+ux1));
+    uyh=(0.5*(uy+uy1));
 
-    div=dudx+dvdy; % flow divergence
-    Hshelf=H;
-    Hshelf(fi<1)=he(fi<1);
+    if ctr.calving>=1 % LSF function calving. Generate a calving rate, CR
 
-    if ctr.calving==1 % Direct, constant imposition of calving rate
+        div=dudx+dvdy; % flow divergence
+        Hshelf=H;
+        Hshelf(fi<1)=he(fi<1);
 
-        CR=zeros(size(LSF));
-        CR(:,:)=ctr.CR;
-
-    end
-
-    if ctr.calving==2 % Direct, constant imposition of change in front positon. **ctr.WV=0 will fix calving front position to be unmoving**
-
-        MAGV=sqrt((0.5*(ux+ux1)).^2+(0.5*(uy+uy1)).^2);
-        CR=MAGV-ctr.WV;
-
-    end
-
-    if ctr.calving==3  % Pollard (2012) 
-
-        wc=min(1,he/200.);
-        CR=(1.-wc)*par.MinCalvThick+wc*par.MaxCalvRate.*max(div,0);
-
-    end
-
-    if ctr.calving==4 % Pollard 2015
-
-        dive=A.*(0.25*par.rho*par.g*Hshelf*(1.-par.rho/par.rhow)).^par.n;
-        div(fi<1)=dive(fi<1); % divergence for shelf edge grid points
-        div(div>dive)=dive(div>dive); % divergence not larger than maximum value
-        d_s=2./(par.rho*par.g)*(max(0,div)./A).^(1/par.n); % dry surface crevasse depth
-        d_b=2.*par.rho/((par.rhow-par.rho)*(par.rho*par.g))*(max(0,div)./A).^(1/par.n); % basal crevasse depth
-        uxs1=circshift(uxssa,[0 1]); % ux(i+1,j)
-        uys1=circshift(uyssa,[1 0]); % uy(i,j+1)
-        usH=sqrt((0.5*(uxssa+uxs1)).^2+(0.5*(uyssa+uys1)).^2);
-        d_a=Hshelf.*min(1,max(0,log(usH/par.Ucrit1))/log(par.Ucrit2/par.Ucrit1)); % additional crevasse deepening
-        if par.ArcOcean==1
-            hc=ctr.Hcrit*max(0,min(1,(arcocn-40)./20)); % PD16: hc=200*max(0,min(1,(arcocn-70)./20));
-        else
-            hc=zeros(ctr.imax,ctr.jmax)+ctr.Hcrit;
+        if ctr.calving==1 % Direct, constant imposition of calving rate
+            CR=zeros(size(LSF));
+            CR(:,:)=ctr.CR;
         end
-        d_t=Hshelf.*max(0,min(1,(hc-Hshelf)./50)); % thin floating ice
-        if ctr.HydroFrac==1
-            RPDD=runoff; % annual surface melt + rainfall available after refreezing
-            RPDD(runoff<1.5)=0; % R calculated as in DP16
-            RPDD(runoff>3)=runoff(runoff>3).^2;
-            RPDD(runoff<3 & runoff>1.5)=4*1.5*(runoff(runoff<3 & runoff>1.5)-1.5);
-            d_w=100*RPDD;
-        else
-            d_w=zeros(ctr.imax,ctr.jmax);
+
+        if ctr.calving==2 % Direct, constant imposition of change in front positon. **ctr.WV=0 will fix calving front position to be unmoving**
+            CR=MAGV-ctr.WV;
         end
-        % Calving
-        ratio=(d_s+d_b+d_a+d_t+d_w)./he;
-        % ratio_c=0.75; % Pollard(2015)
-        CR=par.MaxCalvRate*max(0,min(1,(ratio-par.CritCrevasse)./(1-par.CritCrevasse)));
-        CR(glMASK<3)=0; % ensure no calving in grounded ice
-    end
 
-    if ctr.calving==5
+        if ctr.calving==3  % Pollard (2012) 
+            wc=min(1,he/200.);
+            CR=(1.-wc)*par.MinCalvThick+wc*par.MaxCalvRate.*max(div,0);
+        end
 
-        % determine eigenvalues of strain tensor
-        StrTen=zeros(2,2);
-        StrEig1=zeros(ctr.imax,ctr.jmax);
-        StrEig2=zeros(ctr.imax,ctr.jmax);
-        for i=1:ctr.imax
-            for j=1:ctr.jmax
-                StrTen(1,1)=dudx(i,j);
-                StrTen(2,2)=dvdy(i,j);
-                StrTen(1,2)=0.5*(dudy(i,j)+dvdx(i,j));
-                StrTen(2,1)=StrTen(1,2);
-                StrVal=eig(StrTen);
-                StrEig1(i,j)=StrVal(1);
-                StrEig2(i,j)=StrVal(2);
+        if ctr.calving==4 % Pollard 2015
+            dive=A.*(0.25*par.rho*par.g*Hshelf*(1.-par.rho/par.rhow)).^par.n;
+            div(fi<1)=dive(fi<1); % divergence for shelf edge grid points
+            div(div>dive)=dive(div>dive); % divergence not larger than maximum value
+            d_s=2./(par.rho*par.g)*(max(0,div)./A).^(1/par.n); % dry surface crevasse depth
+            d_b=2.*par.rho/((par.rhow-par.rho)*(par.rho*par.g))*(max(0,div)./A).^(1/par.n); % basal crevasse depth
+            uxs1=circshift(uxssa,[0 1]); % ux(i+1,j)
+            uys1=circshift(uyssa,[1 0]); % uy(i,j+1)
+            usH=sqrt((0.5*(uxssa+uxs1)).^2+(0.5*(uyssa+uys1)).^2);
+            d_a=Hshelf.*min(1,max(0,log(usH/par.Ucrit1))/log(par.Ucrit2/par.Ucrit1)); % additional crevasse deepening
+            if par.ArcOcean==1
+                hc=ctr.Hcrit*max(0,min(1,(arcocn-40)./20)); % PD16: hc=200*max(0,min(1,(arcocn-70)./20));
+            else
+                hc=zeros(ctr.imax,ctr.jmax)+ctr.Hcrit;
+            end
+            d_t=Hshelf.*max(0,min(1,(hc-Hshelf)./50)); % thin floating ice
+            if ctr.HydroFrac==1
+                RPDD=runoff; % annual surface melt + rainfall available after refreezing
+                RPDD(runoff<1.5)=0; % R calculated as in DP16
+                RPDD(runoff>3)=runoff(runoff>3).^2;
+                RPDD(runoff<3 & runoff>1.5)=4*1.5*(runoff(runoff<3 & runoff>1.5)-1.5);
+                d_w=100*RPDD;
+            else
+                d_w=zeros(ctr.imax,ctr.jmax);
+            end
+            % Calving
+            ratio=(d_s+d_b+d_a+d_t+d_w)./he;
+            % ratio_c=0.75; % Pollard(2015)
+            CR=par.MaxCalvRate*max(0,min(1,(ratio-par.CritCrevasse)./(1-par.CritCrevasse)));
+            CR(glMASK<3)=0; % ensure no calving in grounded ice
+        end
+
+        if ctr.calving==5
+            % determine eigenvalues of strain tensor
+            StrTen=zeros(2,2);
+            StrEig1=zeros(ctr.imax,ctr.jmax);
+            StrEig2=zeros(ctr.imax,ctr.jmax);
+            for i=1:ctr.imax
+                for j=1:ctr.jmax
+                    StrTen(1,1)=dudx(i,j);
+                    StrTen(2,2)=dvdy(i,j);
+                    StrTen(1,2)=0.5*(dudy(i,j)+dvdx(i,j));
+                    StrTen(2,1)=StrTen(1,2);
+                    StrVal=eig(StrTen);
+                    StrEig1(i,j)=StrVal(1);
+                    StrEig2(i,j)=StrVal(2);
+                end
+            end
+            EffStr=max(1e-10,sqrt(0.5*(max(0,StrEig1).^2+max(0,StrEig2).^2)));
+            tauVM=sqrt(3)*(EffStr./A).^(1./par.n);
+            q=tauVM./ctr.taulim;
+            CR=MAGV.*q;
+        end
+
+        if ctr.calving==6 % Thickness dependent calve rate
+            CR=max(0,1+(ctr.Hcrit-H)/ctr.Hcrit).*MAGV;
+        end
+
+        if ctr.calving==7 % CalvMip Periodic forcing, ctr.CR_AMP is max rate of front position change
+            Wv=-ctr.CR_AMP*sind(cnt*360/ctr.nsteps);
+            CR=MAGV-Wv;
+        end
+
+        if ctr.calving==8 %CalvMip Periodic forcing, ctr.CR_AMP is max rate of front position change
+            if cnt <10000
+                Wv=-ctr.CR_AMP*sind(cnt*360/ctr.nsteps);
+                CR=MAGV-Wv;
+            else
+                CR=zeros(size(LSF));
             end
         end
-        EffStr=max(0.0000000001,sqrt(0.5*(max(0,StrEig1).^2+max(0,StrEig2).^2)));
-        tauVM=sqrt(3)*(EffStr./A).^(1./par.n);
-        q=tauVM./ctr.taulim;
-        CR=MAGV.*q;
-    end
+        CR(glMASK<3)=MAGV(glMASK<3); % ensure no calving in grounded ice
 
-    if ctr.calving==6 % Thickness dependent calve rate
-
-        CR=max(0,1+(ctr.Hcrit-H)/ctr.Hcrit).*MAGV;
-
-    end
-
-    if ctr.calving==7 % CalveMip Periodic forcing, ctr.CR_AMP is max rate of front position change
-
-        %Wv=-ctr.CR_AMP*sind(cnt*360/ctr.nsteps); % Wv=-ctr.CR_AMP*sind(cnt*360/ctr.nsteps);
-        %Wv=-ctr.CR_AMP*sind((cnt+500)*360/1000);
-        
-        Wv=-ctr.CR_AMP*sind(cnt*360/1000);
-        MAGV=sqrt(ux.^2+uy.^2); % Daniel: this was already calculated above?
-        CR=MAGV-Wv;
-
-        % Second half of the experiment 4 the ice front is alowed to freely advance, with no calving imposed.
-        %if cnt>500
-        %   %CR=0.0;
-        %    CR=zeros(size(LSF));
-        %end
-
-    end
-
-    if ctr.calving==8 %CalveMip Periodic forcing, ctr.CR_AMP is max rate of front position change
-        if cnt <10000
-            Wv=-ctr.CR_AMP*sind(cnt*360/ctr.nsteps);
-            MAGV=sqrt(ux.^2+uy.^2);
-            CR=MAGV-Wv;
-        else
-
-            CR=zeros(size(LSF));
+        if ctr.LimitFront==1
+            CR(CR<MAGV & (MASKo==3 & circshift(MASKo,[-1 0])==0 | ...
+                MASKo==3 & circshift(MASKo,[1 0])==0 | MASKo==3 & ...
+                circshift(MASKo,[0 -1])==0 | MASKo==3 & ...
+                circshift(MASKo,[0 1])==0))=MAGV(CR<MAGV & (MASKo==3 & ...
+                circshift(MASKo,[-1 0])==0 | MASKo==3 & circshift(MASKo,[1 0])==0 ...
+                | MASKo==3 & circshift(MASKo,[0 -1])==0 | MASKo==3 & ...
+                circshift(MASKo,[0 1])==0));
         end
-    end
 
-    if ctr.LimitFront==1
-        CR(CR<MAGV & (MASKo==3 & circshift(MASKo,[-1 0])==0 | MASKo==3 & circshift(MASKo,[1 0])==0 ...
-            | MASKo==3 & circshift(MASKo,[0 -1])==0 | MASKo==3 & circshift(MASKo,[0 1])==0)) ...
-            =MAGV(CR<MAGV & (MASKo==3 & circshift(MASKo,[-1 0])==0 | MASKo==3 & circshift(MASKo,[1 0])==0 ...
-            | MASKo==3 & circshift(MASKo,[0 -1])==0 | MASKo==3 & circshift(MASKo,[0 1])==0));
-    end
+        if ctr.calving==4 || ctr.calving==6
+            % advect calving front CR value in the open ocean
+            [CRadvec]=AdvecCR(CR,H,glMASK,MASK,ux,uy,ctr,par);
+            CR=CRadvec;
+        end
 
-    if ctr.calving==4 || ctr.calving==6 % || ctr.LimitFront==1 % Vio's update
-        % advect calving front CR value in the open ocean
-        [CRadvec]=AdvecCR(CR,H,glMASK,MASK,ux,uy,ctr,par);
-        CR=CRadvec;
-    end
+        % Diagnostic calculation of calving rate as a surface balance term over
+        % the entire grid cell
+        CMB=CR.*Hshelf/ctr.delta;
+        CMB(glMASK~=5)=0;
 
-    % Diagnostic calculation of calving rate as a surface balance term over
-    % the entire grid cell.
-    CMB=CR.*Hshelf/ctr.delta;
-    % Frank.
-    CMB(glMASK~=5)=0;
+        if  ctr.shelf==1 && ctr.FrontalMelt==1 % Add front melt to calve rate. Just uses vertical melt in calving front cell.....may need to improve this in future
+            CR(glMASK==5)=CR(glMASK==5)+FMR(glMASK==5);
+        end
 
-    % Daniel. Allow for a one grid cell of calving front between GL and open ocean.
-    %MASK1=circshift(glMASK,[0 -1]); % glMASK(i,j+1)
-    %MASK2=circshift(glMASK,[0 1]); % glMASK(i,j-1)
-    %MASK3=circshift(glMASK,[-1 0]); % glMASK(i+1,j)
-    %MASK4=circshift(glMASK,[1 0]); % glMASK(i-1,j)
-    %CMB((glMASK==1) & (glMASK==2) & (glMASK==3) & (glMASK==4) & (glMASK==6) & ((MASK1==2) | (MASK2==2) | (MASK3==2) | (MASK4==2)) )=0;
+        CRx=CR.*XUV;
+        CRy=CR.*YUV;
 
+        wx=uxh+CRx;
+        wy=uyh+CRy;
 
-    if  ctr.shelf==1 && ctr.FrontalMelt==1 % Add front melt to calve rate. Just uses vertical melt in calving front cell.....may need to improve this in future
-        CR(glMASK==5)=CR(glMASK==5)+FMR(glMASK==5);
-    end
+        LSF=LSFfunction(LSF,ctr,wx,wy,node,nodes,VM,MASK); %Advect calving front position
 
-    CRx=CR.*XUV;
-    CRy=CR.*YUV;
+        if ctr.LimitFront==1 % Impose maximum calving front extent from observed front position
+            LSF(MASKo==0)=-1;
+        end
 
-    wx=uxh+CRx;
-    wy=uyh+CRy;
+        if floor(cnt/par.LSFReset)==ceil(cnt/par.LSFReset)  % Reset LSF field for stability
+            LSF(LSF<-1)=-1;
+            LSF(LSF>1)=1;
+        end
 
-    % Original.
-    %LSF=LSFfunction(LSF,ctr,wx,wy,node,nodes,VM,MASK,LSFo); %Advect calving front position
-    
-    % Daniel.
-    LSF=LSFfunction(LSF,ctr,wx,wy,node,nodes,VM,MASK,glMASK,X,Y,LSFo);
-    
-    % Daniel function.
-    % IT WORKS VERY NICELY!
-    %LSF=LSFfunction_daniel(LSF,ctr,wx,wy,node,nodes,VM,MASK,glMASK,X,Y,LSFo);
-
-    if ctr.LimitFront==1 % Impose maximum calving front extent from observed front position
-        LSF(MASKo==0)=-1;
-    end
-
-    if floor(cnt/par.LSFReset)==ceil(cnt/par.LSFReset)  % Reset LSF field for stability
-        % Original.
-        LSF(LSF<-1)=-1;
-        LSF(LSF>1)=1;
-
-        % Daniel.
-        %LSF(LSF<0)=-1;
-        %LSF(LSF>0)=1;
     end
 
 end

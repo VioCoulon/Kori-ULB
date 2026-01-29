@@ -144,50 +144,18 @@ function LSF=LSFfunction(LSF,ctr,u,v,node,nodes,VM,MASK,glMASK,X,Y,LSFo)
     end
 
     LSF(node>0)=s(node(node>0));
-
-    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%v%
-    % Daniel test.
-    %M1 = circshift(MASK,[3 3]);
-    %M2 = circshift(MASK,[3 -3]);
-    %M3 = circshift(MASK,[-3 3]);
-    %M4 = circshift(MASK,[-3 -3]);
-
-    %a = (MASK==1)|(M1==1)|(M2==1)|(M3==1)|(M4==1);
-    %M(a) = 1;
-
-
-    % Daniel: calving front cannot retreat further than the GL by definition.
-    %LSF(M==1) = R0(M==1);
-
-    % Calving front cannot advance more than initial position.
-    %LSF(LSFo<0)=LSFo(LSFo<0);
-    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     
-
-    % Daniel's explicit calculation of LSF.
-    %dtdx=ctr.dt/ctr.delta;
-
-    %LSF_now = LSF;
-
-    %for i=1:ctr.imax
-    %    for j=1:ctr.jmax  
-    %        if u(i,j) > 0.0
-    %            LSF_x = LSF(i,j) - LSF(i,j-1);
-    %        end
-    %        if u(i,j) < 0.0
-    %            LSF_x = LSF(i,j-1) - LSF(i,j);
-    %        end
-    %        if v(i,j) > 0.0
-    %            LSF_y = LSF(i,j) - LSF(i-1,j);
-    %        end
-    %        if v(i,j) < 0.0
-    %            LSF_y = LSF(i-1,j) - LSF(i,j);
-    %        end
-
-    %    LSF_now(i,j) = LSF(i,j) + dtdx * ( u(i,j)*LSF_x(i,j) + v(i,j)*LSF_y(i,j) );
-
-    %    end 
-    %end
+%     % Avoid numerical issues when calving front coincides with grounding line.
+%     % Allow for a couple of grid cells of calving front between GL and open ocean.
+%     M1 = circshift(MASK,[3 3]);
+%     M2 = circshift(MASK,[3 -3]);
+%     M3 = circshift(MASK,[-3 3]);
+%     M4 = circshift(MASK,[-3 -3]);
+%     a = (MASK==1)|(M1==1)|(M2==1)|(M3==1)|(M4==1);
+%     M(a) = 1;
+% 
+%     % Calving front cannot retreat further than the GL by definition.
+%     LSF(M==1) = R0(M==1);
 
 end
 

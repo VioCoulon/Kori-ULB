@@ -1,7 +1,7 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %                 Kori-ULB: The ULB ice flow model                      %
 %                                                                       %
-%                       Version 0.91 July 2023                          %
+%                   Version 0.92 September 2025                         %
 %                                                                       %
 %                           Frank Pattyn                                %
 %                    Laboratoire de Glaciologie                         %
@@ -9,10 +9,15 @@
 %                       Frank.Pattyn@ulb.be                             %
 %                                                                       %
 %                       co-developpers team                             %
-%                            Kevin Bulthuis                             %
-%                         Violaine Coulon                               %
-%                           Sainan Sun                                  %
-%                             Lars Zipf                                 %
+%                        Javier Blasco Navarro                          %
+%                         Kevin Bulthuis                                %
+%                      Violaine Coulon                                  %
+%                         Elise Kazmierczak                             %
+%                        Daniel Moreno Parada                           %
+%                        Thomas Gregov                                  %
+%                        Olivia Raspoet                                 %
+%                        Sainan Sun                                     %
+%                          Lars Zipf                                    %
 %                                                                       %
 %                                                                       %
 % Kori-ULB (The ULB Ice Flow Model) is a 2.5-dimensional finite         %
@@ -20,7 +25,7 @@
 %                                                                       %
 % MIT License                                                           %
 %                                                                       %
-% Copyright (c) 2017-2023 Frank Pattyn                                  %
+% Copyright (c) 2017-2025 Frank Pattyn                                  %
 %                                                                       %
 % Permission is hereby granted, free of charge, to any person obtaining %
 % a copy of this software and associated documentation files (the       %
@@ -60,9 +65,8 @@
 % Model Features
 %-----------------------------------------------------------------
 % -2.5D Finite difference ice sheet/ice shelf model
-% -SSA-SIA hybrid velocity calculation (on Arakawa C grids)
-% -SIA diffusive calculation (on Arakawa B-grid)
-% -3D temperature field
+% -DIVA and SSA-SIA hybrid velocity calculation (on Arakawa C grids)
+% -3D temperature and/or enthalpy field
 % -Full thermomechanical coupling
 % -Local and non-local isostatic adjustment (ELRA model) with spatially
 %     varying flexural rigidity and asthenosphere viscosity
@@ -71,7 +75,7 @@
 % -Nudging method to determine spatially-varying basal slip coefficients
 % -Nudging method to optimize sub-shelf mass balance for steady-state
 % -PICO/PICOP/Plume ocean model for sub-shelf melt calculation
-% -Calving, hydrofracturing and damage
+% -Calving with LSF function, hydrofracturing and damage
 % -Subglacial hydrology and till deformation
 % -PDD model for surface melt
 % -Colorblind-friendly output figures
@@ -98,7 +102,7 @@
 %                   VERSION history                     %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
-% v0.91 (07/2023)
+% v0.92 (09/2025)
 %
 %------------------------------------------------------------------------
 
@@ -110,7 +114,7 @@ function varargout=KoriModel(infile,outfile,ctr,fc)
 %-------------------
 
 ctr.model='Kori-ULB';
-ctr.version='v0.91';
+ctr.version='v0.92';
 fprintf('---%s %s---\n  [%s Frank.Pattyn@ulb.be]\n',ctr.model, ...
     ctr.version,char(169));
 
@@ -159,6 +163,10 @@ if ctr.SSA==0 && ctr.shelf==1
     fprintf('If shelf=1, then SSA>0\n');
     return;
 end
+if ctr.SSA==0 && ctr.schoof==1
+    fprintf('If schoof=1, then SSA>0\n');
+    return;
+end
 
 % Read model parameters
 [par]=KoriInputParams(ctr.m,ctr.basin);
@@ -178,14 +186,15 @@ slicecount=0;
 %--------------------------------------------------------------------
 
 [Asor,stdB,v,vx,vy,tmp,Db,To,So,Tb,uxssa,uyssa,deltaZ,arcocn,arcocn0, ...
-    Pr,Evp,runoff,MeltInv,lat,acc,Smelt,rain,TF,HAF,Hinit,ZB, ...
-    flagHu,frb,kei,Ll]=deal(false);
+    E,wat,Pr,Evp,runoff,MeltInv,lat,acc,Smelt,rain,TF,HAF,Hinit,ZB, ...
+    flagHu,frb,kei,Ll,damage,CR,FMR,fluxmx,fluxmy,ds,db,Hw,Ht]=deal(false);
 
 %---------------------
 % Initialization
 %---------------------
 
 [ctr.snapshot,plotst,cnt_atm,snp_atm,cnt_ocn,snp_ocn, ...
+<<<<<<< HEAD
     Mb_update,Li,Lj,dtdx,dtdx2,X,Y,x,y,MASK,H,Ho,B,Bo, ...
     MASKo,Mb,Ts,As,G,u,VAF,VA0,POV,SLC,Ag,Af,Btau,IVg,IVf,glflux, ...
     cfflux,dHdt,time,mbcomp,InvVol,ncor,dSLR,SLR,Wd,Wtil,Bmelt,NumStab, ...
@@ -193,6 +202,16 @@ slicecount=0;
     TFf,Tsf,Mbf,Prf,Evpf,runofff,Melt,damage,ThinComp,shelftune,Melt_mean, ... 
     Bmelt_mean,Ts_mean,Mb_mean,To_mean,So_mean,TF_mean,CR_mean,FMR_mean, ...
     fluxmx_mean,fluxmy_mean]=InitMatrices(ctr,par,default,fc);
+=======
+    Mb_update,Li,Lj,dtdx,dtdx2,X,Y,x,y,MASK,H,Ho,B,Bo,glMASK0, ...
+    MASKo,Mb,Ts,As,G,u,ub,VAF,VA0,POV,SLC,Ag,Af,Btau,IVg,IVf,glflux, ...
+    cfflux,dHdt,time,mbcomp,InvVol,ncor,dSLR,SLR,Wd,Wtil,Bmelt,NumStab, ...
+    Dbw,CMB,FMB,flw,p,px,py,pxy,nodeu,nodev,nodes,node,VM,Tof,Sof, ...
+    TFf,Tsf,Mbf,Prf,Evpf,runofff,Melt,shelftune,Melt_mean, ... 
+    Bmelt_mean,Ts_mean,Mb_mean,To_mean,So_mean,TF_mean,CR_mean,FMR_mean, ...
+    fluxmx_mean,fluxmy_mean,Smelt_mean,runoff_mean,rain_mean,acc_mean, ...
+    Neff,expflw,kappa,etaD,beta2]=InitMatrices(ctr,par,default,fc);
+>>>>>>> upstream/main
 
 %----------------------------------------------------------------------
 % Read inputdata
@@ -231,7 +250,7 @@ end
 
 [ctr,invmax2D,Asor,ncor,To,So,Pr0,Evp0,runoff0,Evp,Hinit]= ...
     ExistParams(ctr,par,ncor,Asor,stdB,v,uxssa,To,So,Db,B,MASK,As, ...
-    Pr,Evp,runoff,Mb0,Hinit,Ho);
+    Pr,Evp,runoff,Mb0,Hinit,Ho,damage);
 
 %-------------------------------------
 % Define grounded/floating ice sheet
@@ -267,8 +286,22 @@ So0=So;
 %----------------------------------------
 
 cntT=0;
+zeta=CalculateZeta(ctr.kmax,0.015);
 if ctr.Tcalc>=1
-    [tmp,Tb,zeta,dzc,dzp,dzm]=InitTempParams(ctr,par,tmp,Ts,H);
+    [tmp,Tb,dzc,dzp,dzm,E,Epmp]=InitTempParams(ctr,par,zeta,tmp,Ts,H,E);
+    if ctr.Enthalpy==1
+        CTSm=zeros(size(tmp));
+        CTSp=zeros(size(tmp));
+        Ht=zeros(size(Tb));
+        Hw=zeros(size(Tb));
+        Bmelt=zeros(size(Tb));
+        Dfw=zeros(size(E));
+        if ctr.Tinit==0
+            Hw=max(0,min((Bmelt-par.Cdr)*ctr.dt*ctr.intT,par.Wmax));
+            wat=max(0,(E-Epmp)/par.Latent);
+            [CTSm,CTSp,Ht]=CalculateCTS(ctr,E,Epmp,MASK,H,zeta);
+        end
+    end
 end
 
 %--------------------------------------
@@ -428,10 +461,6 @@ for cnt=cnt0:ctr.nsteps
     if Mb_update==0
         Mb=Pr-Evp-runoff; 
     end
-    if ctr.PDDcalc==1 && ctr.PDD_anomaly==1
-        aMb=Mb-fc.Mbref;
-        Mb=Mb0+aMb;
-    end
 
 %------------------------------------------------------
 % Stochastic boundary conditions.
@@ -499,20 +528,23 @@ for cnt=cnt0:ctr.nsteps
     end
 
 %--------------------------------------------------------------------------
+% Thermomechanical coupling with method of Lliboutry (1979) and Ritz (1992)
+%--------------------------------------------------------------------------
+
+    [A,Ax,Ay,Ad,A3d,Tbc]=ThermoCoupling(ctr,par,Tb,H,bMASK,bMASKm, ...
+        bMASKx,bMASKy,tmp,zeta,wat);
+
+%--------------------------------------------------------------------------
 % Basal sliding coefficients for different slip laws and basal hydrological
 % models. All determined on h-grid
 %--------------------------------------------------------------------------
     
+    updateHydro=and(rem(cnt-1,ctr.FreqHydro)==0,ctr.FreqHydro<Inf);
     taud=par.rho*par.g*Hm.*sqrt(gradm); % taud on d-grid
     taudxy=par.rho*par.g*H.*sqrt(gradxy); % taud on h-grid
-    [Asf,Asfx,Asfy,Asfd,Tbc,Neff,pwv,Wtil,r]=BasalSliding(ctr,par, ...
-        As,Tb,H,B,MASK,Wd,Wtil,Bmelt,flw,bMASK,bMASKm,bMASKx,bMASKy);
-
-%--------------------------------------------------------------------------
-% Thermomechanical coupling with method of Lliboutry (1979) and Ritz (1992)
-%--------------------------------------------------------------------------
-
-    [A,Ax,Ay,Ad]=ThermoCoupling(ctr,par,Tb,Tbc,H,bMASK,bMASKm,bMASKx,bMASKy);
+    [Asf,Asfx,Asfy,Asfd,Neff,Wtil,r,expflw]=BasalSliding(ctr,par, ...
+        A,As,Tbc,H,B,MASK,ub,Wd,Wtil,Bmelt,flw,Neff,expflw,kappa,updateHydro, ...
+        bMASK,bMASKm,bMASKx,bMASKy);
 
 %-------------------------------------------------
 % SIA velocity and diffusivities
@@ -522,6 +554,9 @@ for cnt=cnt0:ctr.nsteps
     [d,udx,udy,ud,ubx,uby,ub,uxsia,uysia,p,pxy]= ...
         SIAvelocity(ctr,par,A,Ad,Ax,Ay,Asfd,Asfx,Asfy,taud,G,Tb, ...
         H,Hm,Hmx,Hmy,gradm,gradmx,gradmy,gradxy,signx,signy,MASK,p,px,py,pxy);
+    if ctr.SSA>=1 && (ctr.uSSAexist==1 || cnt>1)
+        [ub,ubx,uby]=BasalVelocitySSA(uxssa,uyssa,beta2,etaD,H,zeta,MASK,ctr);
+    end
     
     
 %---------------------------------------------
@@ -530,25 +565,25 @@ for cnt=cnt0:ctr.nsteps
     if ctr.Tcalc>=1 % on d-grid
         if cntT==1
             if (ctr.Tinit==1 && cnt==1) || ctr.Tinit==2
-                tmp=InitTemp3d(G,taudxy,ub,ud,par,H,Mb,zeta,ctr,Ts, ...
-                    MASK,fc.DeltaT(cnt));
+                [tmp,E,wat]=InitTemp3d(G,taudxy,ub,ud,par,H,Mb,zeta,ctr,Ts, ...
+                    MASK,fc.DeltaTo(cnt));
             end
             if ctr.Tinit<2
-                if ctr.shelf==1 && ctr.SSA>=1 && cnt>1
-                    [tmp,ctr]=Temperature3d(tmp,Mb,Ts,pxy,par, ...
-                        ctr,ctr.dt*par.intT,gradsx,gradsy,gradHx,gradHy, ...
-                        udx,udy,vec2h(uxssa,uyssa),uxssa,uyssa,zeta, ...
-                        gradxy,H,dzc,dzm,dzp,G,taudxy, ...
-                        A,fc.DeltaT,MASK,Bmelt,cnt);
-                    Bmelt=BasalMelting(ctr,par,G,taudxy, ...
-                        vec2h(uxssa,uyssa),H,tmp,dzm,MASK);
+                if ctr.Enthalpy==1
+                    [E,Epmp,wat,CTSm,CTSp,Dbw,Dfw,Ht,tmp]= ...
+                        Enthalpy3d(par,ctr,E,Mb,Ts,G,A,H,pxy, ...
+                        ctr.dt*ctr.intT,gradsx,gradsy,gradHx,gradHy, ...
+                        gradxy,taudxy,udx,udy,ub,ubx,uby,zeta,dzc, ...
+                        dzm,dzp,fc.DeltaT,fc.DeltaTo,MASK,Bmelt,CTSm,CTSp, ...
+                        Hw,Ht,Dbw,Dfw,etaD,beta2,cnt);
                 else
                     [tmp,ctr]=Temperature3d(tmp,Mb,Ts,pxy,par, ...
-                        ctr,ctr.dt*par.intT,gradsx,gradsy,gradHx,gradHy, ...
+                        ctr,ctr.dt*ctr.intT,gradsx,gradsy,gradHx,gradHy, ...
                         udx,udy,ub,ubx,uby,zeta,gradxy,H,dzc,dzm,dzp, ...
-                        G,taudxy,A,fc.DeltaT,MASK,Bmelt,cnt);
-                    Bmelt=BasalMelting(ctr,par,G,taudxy,ub,H,tmp,dzm,MASK);
+                        G,taudxy,A,fc.DeltaT,fc.DeltaTo,MASK,Bmelt,etaD,beta2,cnt);
                 end
+                [Bmelt,Hw]=BasalMelting(ctr,par,G,taudxy,ub,H,tmp, ...
+                    dzm,MASK,Hw,Ht,E,Epmp,wat,Dbw);
             end
         end
         Tb=tmp(:,:,ctr.kmax)-par.T0;
@@ -562,9 +597,9 @@ for cnt=cnt0:ctr.nsteps
 %-------------------------------------
 % Subglacial water flow
 %-------------------------------------
-    if ctr.subwaterflow==1 || ctr.subwaterflow==3
+    if not(or(ctr.subwaterflow==0, ctr.subwaterflow==2))
         if cntT==1
-            [flw,Wd]=SubWaterFlux(ctr,par,H,HB,MASK,Bmelt);
+            [flw,Wd]=SubWaterFlux(ctr,par,H,HB,MASK,max(1e-8,Bmelt+Dbw));
             Wd0=Wd;
         else
             if ctr.inverse==0
@@ -596,17 +631,12 @@ for cnt=cnt0:ctr.nsteps
                 uyssa=zeros(ctr.imax,ctr.jmax);
             end
         end
-
-        [uxssa,uyssa,beta2,eta,dudx,dudy,dvdx,dvdy,su,ubx,uby,ux,uy, ...
-            damage,NumStabVel,k,err,d_grain,EffStr]= ...
-            SSAvelocity(ctr,par,su,Hmx,Hmy,gradmx,gradmy,signx,signy, ...
-            uxssa,uyssa,H,HB,B,stdB,Asf,A,MASK,glMASK,HAF,HAFmx,HAFmy,cnt, ...
-            nodeu,nodev,MASKmx,MASKmy,bMASK,uxsia,uysia,udx,udy,node,nodes, ...
-            Mb,Melt,dtdx,dtdx2,VM,damage,ThinComp,shelftune,zeta,tmp);
-
-        %fprintf('\n k = %1.0f \n ', k);
-        %k
-
+        [uxssa,uyssa,beta2,eta,etaD,dudx,dudy,dvdx,dvdy,su,ubx,uby,ux,uy, ...
+            damage,ds,db,NumStabVel]= ...
+            SSAvelocity(ctr,par,su,Hmx,Hmy,gradmx,gradmy,signx,signy,zeta, ...
+            uxssa,uyssa,etaD,A3d,H,H0,HB,B,stdB,Asf,A,MASK,glMASK,HAF,HAFmx,HAFmy,cnt, ...
+            nodeu,nodev,MASKmx,MASKmy,bMASK,uxsia,uysia,udx,udy,ubx,uby,node,nodes, ...
+            Mb,Melt,dtdx,dtdx2,VM,damage,shelftune,ds,db);
         if ctr.NumCheck==1
             NumStab(cnt,1:5)=NumStabVel;
         end
@@ -633,8 +663,7 @@ for cnt=cnt0:ctr.nsteps
         uxsch=ux;
         uysch=uy;
     end
-    [uxsch,uysch,d]=DiffusiveCorrection(ctr,par,uxsch,uysch,udx,udy, ...
-        d,Ad,p,Hm,gradm,bMASK);
+    [uxsch,uysch,d]=DiffusiveCorrection(ctr,par,uxsch,uysch,d,bMASK);
 
 %------------------------------------------------------------------
 % Define distance to open ocean for calving and sub-shelf melting
@@ -655,7 +684,7 @@ for cnt=cnt0:ctr.nsteps
 
 	if ctr.glMASKexist==1 && ctr.inverse==0
 		% Update ocean forcing based on external forcing data
-		[Tof,Sof,TFf,cnt_ocn,snp_ocn]=OCEANupdate(fc,ctr,time,cnt, ...
+		[Tof,Sof,TFf,cnt_ocn,snp_ocn]=OCEANupdate(fc,time,cnt, ...
             So0,To0,Tof,Sof,TFf,cnt_ocn,snp_ocn);
 
 		% Extrapolate To and Tf to the depth of interest according 
@@ -682,7 +711,10 @@ for cnt=cnt0:ctr.nsteps
         Melt=zeros(ctr.imax,ctr.jmax);
         Melt(MASK==0)=ctr.meltfac;
     end
-    if ctr.inverse==2 && cnt>1
+    if ctr.inverse==2
+        if islogical(MeltInv)
+            MeltInv=zeros(ctr.imax,ctr.jmax);
+        end
         Melt=MeltInv;
     end
 
@@ -711,14 +743,15 @@ for cnt=cnt0:ctr.nsteps
 %---------------------------------------------------------------
 % Calving and hydrofracturing (after Pollard et al., 2015)
 % Melting at vertical face of calving front
+% Use of LSF function (implemented by Vio - 2024)
 %---------------------------------------------------------------
 
     if ctr.calving>=1 && ctr.shelf==1
-        [he,fi]=DefineEdgeThickness(ctr,par,glMASK,H); % Pollard 2015   %VL: add par
+        [he,fi]=DefineEdgeThickness(ctr,par,glMASK,H); % Pollard 2015
         [FMB,FMR]=VerticalFaceMelt(ctr,par,SLR,B,Melt,MASK,glMASK,he);
-        [CMB,LSF,CR]=CalvingAlgorithms(ctr,par,dudx,dvdy,dudy,dvdx,glMASK,H,A, ...
-            uxssa,uyssa,arcocn,B,runoff,MASK,MASKo,Ho,bMASK,LSF,node,nodes,VM, ...
-            cnt,ux,uy,Melt,he,fi,FMR,X,Y,LSFo);
+        [CMB,LSF,CR]=CalvingAlgorithms(ctr,par,dudx,dvdy,dudy,dvdx, ...
+            glMASK,H,A,uxssa,uyssa,arcocn,B,runoff,MASK,MASKo,Ho, ...
+            bMASK,LSF,node,nodes,VM,cnt,ux,uy,Melt,he,fi,FMR);
     end
 
 %---------------------------------------------------------
@@ -747,8 +780,7 @@ for cnt=cnt0:ctr.nsteps
         if ctr.NumCheck==1
             NumStab(cnt,6:8)=[relresH,iterH,flagH];
         end
-        if ctr.calving>=1
-            % remove icebergs
+        if ctr.calving>=1 % remove icebergs
             Hn(LSF<0)=par.SeaIceThickness;
             
             % Daniel: avoid calving front surpassing GL.
@@ -756,6 +788,16 @@ for cnt=cnt0:ctr.nsteps
         end
         Hn(Hn<0)=0; % limit on minimal ice thickness
         dHdt(cnt)=mean(abs(Hn(:)-H(:)))/ctr.dt; % ice-sheet imbalance
+    end
+    % Ensure continuity of ice shelves during calving front advance/retreat
+    % Grid point indices that have now become calving front and used
+    % to be open sea. (DMP)
+    if ctr.glMASKexist==1
+        [row,col]=find((glMASK==5) & (glMASK0==6));
+        % Ensure continuity if for such points.
+        if ~isempty(row)
+            [H,Hn]=IceShelfContinuity(ctr,row,col,H,Hn,glMASK);
+        end
     end
 
     
@@ -789,7 +831,7 @@ for cnt=cnt0:ctr.nsteps
     if cntT==1 && ctr.BedAdj>0
         bload=BedrockAdjustment(ctr,par,load0,MASK,Hn,B,SLR,Db,VM, ...
             node,nodes,frb,kei,Ll);
-        Bn=(B-B0+bload)*ctr.dt*par.intT./(-Btau)+B;
+        Bn=(B-B0+bload)*ctr.dt*ctr.intT./(-Btau)+B;
     end
 
 %-----------------------------------------------------------------
@@ -800,23 +842,22 @@ for cnt=cnt0:ctr.nsteps
     if ctr.inverse>=1 && rem(cnt*ctr.dt,ctr.Tinv)==0 && cnt>1 && ...
             cnt<(1-ctr.stopoptim)*ctr.nsteps
         [As,deltaZ,Asor]=OptimizeIceSheet(ctr,par,cnt,Asor,MASK, ...
-            MASKo,bMASK,deltaZ,sn,sn0,r,ncor,B,stdB,vx,vy,ux,uy,invmax2D);
+            bMASK,deltaZ,sn,sn0,r,ncor,B,stdB,vx,vy,ux,uy,invmax2D);
     end
     % optimization of basal melt rates based on Bernales (2017)
     if ctr.inverse==2 && rem(cnt*ctr.dt,ctr.TinvMelt)==0
-        if ctr.GroundedMelt==1 
-            [MeltInv]=OptimizeIceShelf(ctr,MASKo,glMASK,H,Ho,Melt,bMASK);
-        else
-            [MeltInv]=OptimizeIceShelf(ctr,MASK,glMASK,H,Ho,Melt,bMASK);
-        end
+        [MeltInv]=OptimizeIceShelf(ctr,MASK,glMASK,H,Ho,Melt,bMASK);
     end
     if ctr.inverse>=1
-        InvVol(cnt,1)=sum(abs(sn(MASK==1)-sn0(MASK==1)));
-        InvVol(cnt,2)=sum(sn(MASK==1)-sn0(MASK==1));
+        % calculates misfit for ice grid cells (and only within drainage
+        % basin if ctr.basin=1)
+        InvVol(cnt,1)=sum(abs(sn(MASK==1 & bMASK==0)-sn0(MASK==1 & bMASK==0)));
+        InvVol(cnt,2)=sum(sn(MASK==1 & bMASK==0)-sn0(MASK==1 & bMASK==0));
         if ctr.shelf==1
             InvVol(cnt,3)=mean(H(shMASK==1)-Ho(shMASK==1),'omitnan');
         end
     end
+
     
 %------------------------------------------------------
 % Volume above floatation, sea level contribution
@@ -882,6 +923,8 @@ for cnt=cnt0:ctr.nsteps
             end
         end
     end
+    % Update glMASK to keep track of moving calving front (DMP)
+    glMASK0=glMASK;
 
 %------------------------------------
 % NaN check
@@ -900,26 +943,35 @@ for cnt=cnt0:ctr.nsteps
 %------------------------------------
 % Save time-dependent matrices
 %------------------------------------
-    if ctr.CalculateYearlyMeans==1 && cnt==1
-        [Melt_mean,Bmelt_mean,Ts_mean,Mb_mean,To_mean,So_mean,TF_mean,CR_mean,FMR_mean,fluxmx_mean,fluxmy_mean]=InitYearlyMeans(Melt, ...
-            Bmelt,Ts,Mb,To,So,TF,CR,FMR,fluxmx,fluxmy,cnt,ctr,Melt_mean,Bmelt_mean,Ts_mean,Mb_mean,To_mean,So_mean,TF_mean,CR_mean,FMR_mean,fluxmx_mean,fluxmy_mean);
+    if ctr.YearlyMeans==1 && cnt==1
+        [Melt_mean,Bmelt_mean,Ts_mean,Mb_mean,To_mean,So_mean,TF_mean, ...
+            CR_mean,FMR_mean,fluxmx_mean,fluxmy_mean,Smelt_mean, ...
+            runoff_mean,rain_mean,acc_mean]=InitYearlyMeans(Melt, ...
+            Bmelt,Ts,Mb,To,So,TF,CR,FMR,fluxmx,fluxmy,Smelt,runoff,rain,acc);
     end
     if ctr.timeslice==1 
-        if cnt==1 || (ctr.snapshot_list==1 && fc.snap_year(slicecount)==time(cnt)) || (ctr.snapshot_list==0 && rem(cnt-1,plotst)==0)
+        if cnt==1 || (ctr.SnapList==1 && fc.snap_year(slicecount)==time(cnt)) ...
+                || (ctr.SnapList==0 && rem(cnt-1,plotst)==0)
             slicecount=slicecount+1;
-            fname=strcat(outfile,'_',num2str(slicecount-1,'%04i'));
-            save(fname,par.varlist{1,1}); % compressed and chunked format.'-v7.3')
+            fname=strcat(outfile,'_',num2str(slicecount-1,'%03i'));
+            save(fname,par.varlist{1,1});
             for i=2:length(par.varlist)
                 save(fname,par.varlist{1,i},'-append');
             end
-            if (cnt>1 && ctr.snapshot_list==1 && fc.snap_year(slicecount-1)==fc.snap_year(end))
+            if (cnt>1 && ctr.SnapList==1 && ...
+                    fc.snap_year(slicecount-1)==fc.snap_year(end))
                 slicecount=length(fc.snap_year);
             end
         end
     end
-    if ctr.CalculateYearlyMeans==1
-        [Melt_mean,Bmelt_mean,Ts_mean,Mb_mean,To_mean,So_mean,TF_mean,CR_mean,FMR_mean,fluxmx_mean,fluxmy_mean]=YearlyMeans(Melt, ...
-            Bmelt,Ts,Mb,To,So,TF,CR,FMR,fluxmx,fluxmy,cnt,ctr,Melt_mean,Bmelt_mean,Ts_mean,Mb_mean,To_mean,So_mean,TF_mean,CR_mean,FMR_mean,fluxmx_mean,fluxmy_mean);
+    if ctr.YearlyMeans==1
+        [Melt_mean,Bmelt_mean,Ts_mean,Mb_mean,To_mean,So_mean,TF_mean, ...
+            CR_mean,FMR_mean,fluxmx_mean,fluxmy_mean,Smelt_mean, ...
+            runoff_mean,rain_mean,acc_mean]=YearlyMeans(Melt, ...
+            Bmelt,Ts,Mb,To,So,TF,CR,FMR,fluxmx,fluxmy,Smelt,runoff, ...
+            rain,acc,cnt,ctr,Melt_mean,Bmelt_mean,Ts_mean,Mb_mean, ...
+            To_mean,So_mean,TF_mean,CR_mean,FMR_mean,fluxmx_mean, ...
+            fluxmy_mean,Smelt_mean,runoff_mean,rain_mean,acc_mean);
     end
     
 %------------------------------------
@@ -927,7 +979,7 @@ for cnt=cnt0:ctr.nsteps
 %------------------------------------
 
     if ctr.runmode<2 && rem(cnt-1,plotst)==0
-        PlotMainFigure(ctr,par,x,y,sn,S0,H,u,B,MASK,glMASK,LSF);
+        PlotMainFigure(ctr,par,x,y,sn,S0,H,u,B,MASK,MASKo,glMASK,LSF);
     end
 
     %fprintf('\n err = %2.4f \n ', err);
@@ -937,15 +989,15 @@ for cnt=cnt0:ctr.nsteps
 % Save intermediate output
 %------------------------------------
 
-    cntT(cntT>=par.intT)=0;
+    cntT(cntT>=ctr.intT)=0;
     oldMASK=MASK;
     if ctr.runmode==1 || ctr.runmode==3 || ctr.runmode==5
         if rem(cnt-1,plotst)==0 && cnt>1
             outputname=[outfile,'_toto'];
             save(outputname);
-            if ctr.runmode==5
-                MeltDown; break;
-            end
+        end
+        if ctr.runmode==5
+            MeltDown; break;
         end
     end
 
@@ -980,6 +1032,9 @@ save(outfile,'H','B','Ho','Bo','MASK','MASKo','As','G', ...
 if ctr.Tcalc>=1
     save(outfile,'tmp','Bmelt','-append');
 end
+if ctr.Enthalpy==1
+    save(outfile,'E','-append'); %OR
+end
 if ctr.inverse>0
     save(outfile,'Asor','-append');
 end
@@ -1000,6 +1055,9 @@ if islogical(lat)==0
 end
 if ctr.SSA>=1
     save(outfile,'uxssa','uyssa','-append');
+end
+if ctr.damage>=1
+    save(outfile,'damage','-append');
 end
 if islogical(Btau)==0
     save(outfile,'Btau','-append');

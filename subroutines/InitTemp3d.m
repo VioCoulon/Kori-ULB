@@ -1,4 +1,4 @@
-function tmp=InitTemp3d(G,taudxy,ub,ud,par,H,Mb,zeta,ctr,Ts,MASK,DeltaT)
+function [tmp,E,wat]=InitTemp3d(G,taudxy,ub,ud,par,H,Mb,zeta,ctr,Ts,MASK,DeltaTo)
 
 % Kori-ULB
 % Temperature field initialization with analytical solution for temperature
@@ -20,7 +20,7 @@ function tmp=InitTemp3d(G,taudxy,ub,ud,par,H,Mb,zeta,ctr,Ts,MASK,DeltaT)
     % Ice shelf and open ocean
     repmask=repmat(MASK,[1,1,ctr.kmax]);
     repM=repmat(max(Mb,1e-5),[1,1,ctr.kmax]);
-    TBshelf=repmat(min(par.Toi+ctr.meltfactor*DeltaT- ...
+    TBshelf=repmat(min(par.Toi+DeltaTo- ...
         0.12e-3*par.rho*H/par.rhow,0),[1,1,ctr.kmax]);
     c2=exp(repM.*repH/(par.kdif*par.secperyear));
     c1=exp(repM.*repz.*repH/(par.kdif*par.secperyear));
@@ -31,6 +31,15 @@ function tmp=InitTemp3d(G,taudxy,ub,ud,par,H,Mb,zeta,ctr,Ts,MASK,DeltaT)
     % Correction for pmp
     tmp(tmp>par.T0-Tp)=par.T0-Tp(tmp>par.T0-Tp);
     
+    % Enthalpy
+    if ctr.Enthalpy==1
+        E=par.cp.*(tmp-par.Tref);
+        Epmp=par.cp.*(par.T0-Tp-par.Tref);
+        % Water content
+        wat=max(0,(E-Epmp)./par.Latent);
+    else
+        [E,wat]=deal(false);
+    end
 end
 
 

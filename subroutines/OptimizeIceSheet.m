@@ -1,5 +1,5 @@
 function [As,deltaZ,Asor]=OptimizeIceSheet(ctr,par,cnt, ...
-    Asor,MASK,MASKo,bMASK,deltaZ,sn,sn0,r,ncor,B,stdB,vx,vy,ux,uy,invmax2D)
+    Asor,MASK,bMASK,deltaZ,sn,sn0,r,ncor,B,stdB,vx,vy,ux,uy,invmax2D)
 
 % Kori-ULB
 % Optimization of basal sliding coefficients underneath grounded ice sheet
@@ -7,7 +7,7 @@ function [As,deltaZ,Asor]=OptimizeIceSheet(ctr,par,cnt, ...
 
     % introduce deltaZold to compare deltaZ between consecutive iterations
     deltaZold=zeros(ctr.imax,ctr.jmax);     %LZ
-    % optimize only for grounded.
+    % optimize only for grounded grid cells
     if cnt*ctr.dt>ctr.Tinv
         deltaZold(MASK==1)=deltaZ(MASK==1);
     end

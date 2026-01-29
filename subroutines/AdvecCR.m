@@ -1,9 +1,9 @@
 function [CRadvec]=AdvecCR(CR,H,glMASK,MASK,vx,vy,ctr,par)
 
 % Kori-ULB
-% PICOP model Pelle et al. (2018)
-% Advecting the grounding line thickness Zgl 
+% Advection of calving rate into ocean 
 % Employs an upstream difference scheme
+% based on advection scheme from Pelle (for PICOP and Plume)
 
     epsilon=1e-5; % diffusion coefficient for stabilizing advection scheme
 
