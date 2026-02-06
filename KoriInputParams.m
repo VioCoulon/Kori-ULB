@@ -234,19 +234,7 @@ par.Q2D     = 139e3;
 % PDD model parameters
 %-----------------------------------
 
-<<<<<<< HEAD
-par.PDDth=0; % PDD threshold temperature (0�C)
-par.Train=2;
-par.Tsnow=0;
-par.snowfac=3/par.rho; % PDD factor for snow melt
-par.icefac=8/par.rho; % PDD factor for ice melt
-par.d_ice=5; % Maximum depth of refreezing of percolating meltwater (m)
-par.Tlapse=-0.008; % Lapse rate for temperature correction with height
-par.Tsigma=4; % standard deviation of mean T for PDD calculation
-par.Psigma=3.5; % standard deviation of mean T for rain factor calculation
-par.PDDsteps=48;
-=======
-par.PDDth=0;                 % PDD threshold temperature (0�C)
+par.PDDth     = 0;                 % PDD threshold temperature (0�C)
 par.Train     = 2;
 par.Tsnow     = 0;
 par.snowfac   = 3/par.rho;   % PDD factor for snow melt
@@ -258,7 +246,6 @@ par.Psigma    = 3.5;         % standard deviation of mean T for rain factor calc
 par.PDDsteps  = 48;
 par.Prfac     = 0.053;       % sensitivity factor: precipitation change with temperature
                              % Golledge et al. (2015): 0.053 -- fit to CMIP5 data
->>>>>>> upstream/main
 
 %-----------------------------------
 % Basin model parameters
