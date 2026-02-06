@@ -51,7 +51,7 @@ output = strcat(path, name_2);
 ctr.inverse      = 2;        % Optimization of basal sliding coefficients As for the grounded ice sheet and sub-shelf melt/accretion for floating ice shelves.
 ctr.meltfunc     = 1;        % Beckmann and Goosse (2003) with linear dependency on the thermal forcing, following (de Boert al., 2015). 
 ctr.GroundedMelt = 1;        % necessary for basins!! Vio: 0. Frank: 1.
-ctr.shelf        = 1;        % Ice shelves are considered.
+ctr.shelf        = 0;        % Ice shelves are considered.
 ctr.SSA          = 2;
 ctr.nsteps       = 101;
 ctr.dt           = 0.01;
@@ -62,7 +62,7 @@ ctr.HinvMelt     = 10;
 
 
 name_1 = 'INIT_SIA';
-name_2 = 'INIT_SSA_1';
+name_2 = 'INIT_DIVA_1';  % INIT_SSA_1
 input  = strcat(path, name_1);
 output = strcat(path, name_2);
 
@@ -73,15 +73,15 @@ output = strcat(path, name_2);
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% Second SSA inversion (As, MeltInv) - short run
+% Second SSA inversion (As, MeltInv) 
 ctr.nsteps   = 40001; % 10000, 40000
 ctr.dt       = 0.1; % 0.1
 ctr.TinvMelt = 5;
 ctr.Tinv     = 5;
 ctr.Hinv     = 200;
 
-name_1 = 'INIT_SSA_1';   % INITB_NON
-name_2 = 'INIT_SSA_2';  % INIT_NON_1
+name_1 = 'INIT_DIVA_1';   % INIT_SSA_1
+name_2 = 'INIT_DIVA_2';  % INIT_SSA_2
 input  = strcat(path, name_1);
 output = strcat(path, name_2);
 

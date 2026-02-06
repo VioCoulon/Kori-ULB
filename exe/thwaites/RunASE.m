@@ -30,7 +30,8 @@ ctr.runmode  = 3;  % 1: graphics; 3: no graphics
 %KoriModelAll('ASE2km','INITA_NON',ctr);
 %KoriModel('ASE2km','INITA_NON',ctr);
 
-path = '/globalscratch/ulb/glaciol/dmoreno/Kori-ULB/ice_data/eta1e7/ground_melt_1/';
+%path = '/globalscratch/ulb/glaciol/dmoreno/Kori-ULB/ice_data/eta1e7/ground_melt_1/';
+path = '/home/daniel/models/Kori-ULB/ice_data/eta1e7/ground_melt_0/';
 
 name_1 = 'ASE2km';
 name_2 = 'INIT_SIA';
@@ -48,9 +49,9 @@ output = strcat(path, name_2);
 % Second SSA inversion (As, MeltInv) - short run
 ctr.inverse      = 2;        % Optimization of basal sliding coefficients As for the grounded ice sheet and sub-shelf melt/accretion for floating ice shelves.
 ctr.meltfunc     = 1;        % Beckmann and Goosse (2003) with linear dependency on the thermal forcing, following (de Boert al., 2015). 
-ctr.GroundedMelt = 1;        % necessary for basins!! Vio: 0. Frank: 1.
+ctr.GroundedMelt = 0;        % necessary for basins!! Vio: 0. Frank: 1.
 ctr.shelf        = 1;        % Ice shelves are considered.
-ctr.SSA          = 2;
+ctr.SSA          = 3;        % 2 Hybrid, 3 DIVA.
 ctr.nsteps       = 101;
 ctr.dt           = 0.01;
 ctr.Tinit        = 0;        % SET 1 FOR INITIALIZATION ! Initial temperature field read from input file or when not available kept constant at values of surface temperature
@@ -60,11 +61,11 @@ ctr.HinvMelt     = 10;
 
 
 name_1 = 'INIT_SIA';
-name_2 = 'INIT_SSA_1';
+name_2 = 'INIT_DIVA_1';  % INIT_SSA_1
 input  = strcat(path, name_1);
 output = strcat(path, name_2);
 
-%KoriModel(input, output, ctr);
+KoriModel(input, output, ctr);
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
@@ -119,7 +120,7 @@ ctr.meltfac  = 5;          % Factor multiplying sub-shelf melt.
 ctr.timeslice = 1;
 ctr.snapshot  = 50;
 
-ctr.tforcing = 20.0
+ctr.tforcing = 20.0;
 
 % Test stochastic forcing.
 %ctr.stochastic = 0;
@@ -142,7 +143,7 @@ out_name  = 'deter_bassis_reg1';        % deter_gamma1e-2
 input     = strcat(path_1, init_name);
 output    = strcat(path_2, out_name);
 
-KoriModel(input, output, ctr);
+%KoriModel(input, output, ctr);
 
 % Make 2 runs: with and without stochastic forcing.
 % Chech if we should limit the values of melt.

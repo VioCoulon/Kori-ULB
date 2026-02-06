@@ -41,10 +41,9 @@ par.color  = 'imola'; % Crameri colorscale (requires CrameriColourMaps7.0.mat) -
 % Numerical control parameters
 %-----------------------------------
 
-<<<<<<< HEAD
 par.maxspeed=40e3; % maximum ice speed limit (m/a)
 % Keep omega=2.5 for optimization!
-par.omega=1.0; % Crank-Nicolson scale factor (0=explicit; 1=implicit; >1 over-implicit) Frank: 2.5
+par.omega=2.5; % Crank-Nicolson scale factor (0=explicit; 1=implicit; >1 over-implicit) Frank: 2.5
 par.secperyear=31556926;
 % 2d variables to be saved when timeslice=1
 par.varlist={'MASK','H','d','B','ux','uy','fluxmx_mean', ...
@@ -54,36 +53,11 @@ par.varlist={'MASK','H','d','B','ux','uy','fluxmx_mean', ...
 
 % Reduced number for high resolution output.
 %par.varlist={'glMASK','H','ux','uy'};
-=======
-par.maxspeed   = 40e3;       % maximum ice speed limit (m/a)
-par.omega      = 2.5;        % Crank-Nicolson scale factor (0=explicit; 1=implicit; >1 over-implicit)
-par.secperyear = 31556926;
-% 2d variables to be saved when timeslice=1
-par.varlist    = {'MASK','H','B','ux','uy','Tbc','SLR','Neff','Melt'};
->>>>>>> upstream/main
 
 %-----------------------------------
 % Subglacial characteristics
 %-----------------------------------
 
-<<<<<<< HEAD
-par.PoreFrac=0.96; % Fraction of water pressure to balance ice pressure (0.96)
-par.longcoupwater=5; % distance in number of ice thicknesses over which.
-                 % hydraulic gradient coupling takes place
-par.dirpp_war=[9 8 7 6 5 4 3 2 1];
-par.waterviscosity=1.8e-3/par.secperyear;
-par.NeffScale=5e6; % scale factor for Effective Pressure
-par.Wdmin=1e-8; % minimum value for Wd and Wtil
-par.Wdmax=0.015; % maximum value for Wd
-par.Wmax=2; % maximum value for Wtil (2 m)
-par.flw0=1e5; % maximum value for subglacial water flux
-par.Cdr=1e-3; % background till drainage rate
-par.Cc=0.12; % till compressibility (Tulaczyk et al., 2000a)
-par.e0=0.69; % reference void ratio at N0(Tulaczyk et al., 2000a)
-par.N0=1e3; % reference effective pressure (Tulaczyk et al., 2000a)
-par.sigmat=0.02; % Ntil lower bound, as fraction of overburden pressure
-
-=======
 par.PoreFrac         = 0.98;                    % fraction of water pressure to balance ice pressure (0.98)
 par.longcoupwater    = 5;                       % distance in number of ice thicknesses over which
                                                 % hydraulic gradient coupling takes place
@@ -109,24 +83,11 @@ par.f                = 0.1;                     % friction coefficient for water
 par.hb               = 0.1;                     % size of bed protrusions
 par.hc               = 0.1;                     % thickness of canals
 par.Qc               = 1.0;                     % critical flux for transition to canals
->>>>>>> upstream/main
 
 %-----------------------------------
 % Ice dynamics
 %-----------------------------------
 
-<<<<<<< HEAD
-par.ShelfPinning=1; % sub-shelf pinning of ice shelves based on bedrock variability
-par.g=9.81; % gravitational acceleration
-par.rho=917.; % ice density
-par.rhow=1027.; % sea water density
-par.rhom=3370.; % mantle density
-par.n=3; % flow law exponent
-par.visciter=50; % Maximum number of iterations on the nonlinear part of the SSA equation (50)
-par.visctol=5e-1; % Tolerance for calculation of the nonlinear part of the SSA equation (0.5)
-par.veliter=50;  % Maximum number of iterations for the iterative SSA velocity solver (50)
-par.veltol=1e-4;  % Tolerance for the iterative SSA velocity solver (1e-3 works, 1e-4)
-=======
 par.ShelfPinning = 1;                        % sub-shelf pinning of ice shelves based on bedrock variability
 par.g            = 9.81;                     % gravitational acceleration
 par.rho          = 917.;                     % ice density
@@ -137,7 +98,7 @@ par.visciter     = 50;                       % Maximum number of iterations on t
 par.visctol      = 5e-1;                     % Tolerance for calculation of the nonlinear part of the SSA equation (0.5)
 par.veliter      = 50;                       % Maximum number of iterations for the iterative SSA velocity solver (50)
 par.veltol       = 1e-4;                     % Tolerance for the iterative SSA velocity solver (1e-4)
->>>>>>> upstream/main
+
 if basin==1
     par.veltol   = par.veltol/10;
 end
@@ -149,17 +110,6 @@ par.Z            = 2*(par.g*par.rho)^par.n;  % SIA isothermal pre-term
 % Ice-ocean interactions
 %-----------------------------------
 
-<<<<<<< HEAD
-par.Latent=3.35e5; % Latent heat of freezing
-par.cp0=3974.; % Heat capacity of ocean water
-par.Soi=34.5; % ocean salinity for initialization
-par.Toi=-1.7; % Ocean temperature for initialization
-par.SeaIceThickness=0.1;
-par.ArcOcean=0; % include Ocean Arc to control Melt and calving
-par.LatentMelt=(par.rhow*par.cp0)/(par.rho*par.Latent);
-par.f_coriolis=-1.4e-4;
-par.BetaS=7.86e-4 ; 
-=======
 par.Latent          = 3.35e5;            % Latent heat of freezing
 par.cp0             = 3974.;             % Heat capacity of ocean water
 par.Soi             = 34.5;              % ocean salinity for initialization
@@ -169,7 +119,6 @@ par.ArcOcean        = 0;                 % include Ocean Arc to control Melt and
 par.LatentMelt      = (par.rhow*par.cp0)/(par.rho*par.Latent);
 par.f_coriolis      = -1.4e-4;
 par.BetaS           = 7.86e-4 ; 
->>>>>>> upstream/main
 
 %-----------------------------------
 % PICO and plume model parameters
@@ -212,19 +161,6 @@ par.beta_coeff_lazero  = 7.86e-4;  % psu-1 Haline contraction coefficient
 % Calving
 %-----------------------------------
 
-<<<<<<< HEAD
-par.LSFReset=30;
-
-% PD12 calving scheme (ctr.calving=3)
-par.MinCalvThick=30;
-par.MaxCalvRate=3e5;
-
-% PD15 calving scheme (ctr.calving=4)
-par.MaxCalvRate=3000;
-par.CritCrevasse=0.75;
-par.Ucrit1=1600;
-par.Ucrit2=1900;
-=======
 par.LSFReset     = 30;
 par.MinCalvThick = 30;     % PD12 calving scheme (ctr.calving=3)
 % par.MaxCalvRate  = 3e5;    % PD15 calving scheme (ctr.calving=4)
@@ -232,7 +168,6 @@ par.MaxCalvRate  = 3000;
 par.CritCrevasse = 0.75;
 par.Ucrit1       = 1600;
 par.Ucrit2       = 1900;
->>>>>>> upstream/main
 
 %-----------------------------------
 % Isostasy
@@ -311,7 +246,7 @@ par.Tsigma=4; % standard deviation of mean T for PDD calculation
 par.Psigma=3.5; % standard deviation of mean T for rain factor calculation
 par.PDDsteps=48;
 =======
-par.PDDth=0;                 % PDD threshold temperature (0°C)
+par.PDDth=0;                 % PDD threshold temperature (0ï¿½C)
 par.Train     = 2;
 par.Tsnow     = 0;
 par.snowfac   = 3/par.rho;   % PDD factor for snow melt

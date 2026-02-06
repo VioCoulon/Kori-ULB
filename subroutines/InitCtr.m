@@ -28,7 +28,7 @@ function [ctr,fc]=InitCtr(ctr,fc,default)
     ctr.m(any(ismember(fields(ctr),'m'))==0)=default.m; % default linear sliding
     ctr.p(any(ismember(fields(ctr),'p'))==0)=0;
     
-    ctr.stochastic(any(ismember(fields(ctr),'stochastic'))==0)=default.stochastic;
+    ctr.stochastic(any(ismember(fields(ctr),'stochastic'))==0)=0; %default.stochastic;
     ctr.sigma_To(any(ismember(fields(ctr),'sigma_To'))==0)=0; % Amplitude stochastic noise.
     ctr.sigma_Mb(any(ismember(fields(ctr),'sigma_Mb'))==0)=0;
     ctr.tau_To(any(ismember(fields(ctr),'tau_To'))==0)=0; % Decorrelation time stochastic noise.
