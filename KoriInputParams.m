@@ -42,7 +42,7 @@ par.color  = 'imola'; % Crameri colorscale (requires CrameriColourMaps7.0.mat) -
 %-----------------------------------
 
 par.maxspeed=40e3; % maximum ice speed limit (m/a)
-% Keep omega=2.5 for optimization!
+% Keep omega=2.5 for optimization! 1.0 for forward run is quite stable.
 par.omega=2.5; % Crank-Nicolson scale factor (0=explicit; 1=implicit; >1 over-implicit) Frank: 2.5
 par.secperyear=31556926;
 % 2d variables to be saved when timeslice=1

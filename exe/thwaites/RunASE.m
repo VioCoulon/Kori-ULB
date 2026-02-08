@@ -26,7 +26,7 @@ ctr.Tinit    = 1;    % Initialization of temperature field from semi-analytical 
 ctr.Tcalc    = 2;    % Calculate temperature field and thermomechanical coupling, , i.e. A = f (T)
 ctr.basin    = 1;    % Run the model for a specific basin.
 ctr.inverse  = 1;  % optimization of basal sliding coefficients As for the grounded ice sheet with fixed grounding line position.
-ctr.runmode  = 3;  % 1: graphics; 3: no graphics
+ctr.runmode  = 1;  % 1: graphics; 3: no graphics
 %KoriModelAll('ASE2km','INITA_NON',ctr);
 %KoriModel('ASE2km','INITA_NON',ctr);
 
@@ -59,13 +59,14 @@ ctr.Tinv         = 10;       % Time interval between updates in the optimization
 ctr.TinvMelt     = 0.01;
 ctr.HinvMelt     = 10;
 
+ctr.shelftune=0.5; % Lower values make ice shelf more viscous. In ASE we strongly underestimate ice shelves velocities.
 
 name_1 = 'INIT_SIA';
-name_2 = 'INIT_DIVA_1';  % INIT_SSA_1
+name_2 = 'INIT_DIVA_shelftune05_1';  % INIT_SSA_1
 input  = strcat(path, name_1);
 output = strcat(path, name_2);
 
-KoriModel(input, output, ctr);
+%KoriModel(input, output, ctr);
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
@@ -73,18 +74,18 @@ KoriModel(input, output, ctr);
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Second SSA inversion (As, MeltInv) - short run
-ctr.nsteps   = 40001; % 10000, 40000
+ctr.nsteps   = 1001; % 10001, 40001
 ctr.dt       = 0.1; % 0.1
 ctr.TinvMelt = 5;
 ctr.Tinv     = 5;
 ctr.Hinv     = 200;
 
-name_1 = 'INIT_SSA_1';   % INITB_NON
-name_2 = 'INIT_SSA_2';  % INIT_NON_1
+name_1 = 'INIT_DIVA_shelftune05_2';   % INIT_SSA_1
+name_2 = 'INIT_DIVA_shelftune05_3';  % INIT_SSA_2
 input  = strcat(path, name_1);
 output = strcat(path, name_2);
 
-%KoriModel(input, output, ctr);
+KoriModel(input, output, ctr);
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 

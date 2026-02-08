@@ -9,8 +9,8 @@ path_kori_subroutines=$path_kori/subroutines
 REMOTE_HOST=lemaitre4
 
 # EXPERIMENT NAME.
-exp=revert_t_m05_gammas
-#exp=deter
+#exp=revert_t_m05_gammas
+exp=INIT_DIVA_2
 #exp=sigma_oce400  
 
 
@@ -18,16 +18,30 @@ exp=revert_t_m05_gammas
 path_exe=$path_kori/exe/thwaites
 #path_param=$path_exe/nic5/$exp          # Stochastic ensemble.
 
-path_param=$path_exe/$REMOTE_HOST/deter/$exp      # Stochastic.
+# Deterministic.
+#path_param=$path_exe/$REMOTE_HOST/deter/$exp      # Stochastic.
+
+# Stochastic.
 #path_param=$path_exe/$REMOTE_HOST/stoch/smb_0/tau_To_001/$exp      # Stochastic.
-#path_param=$path_exe/$REMOTE_HOST/$exp      # Deter.
+
+# Initialization.
+path_param=$path_exe/$REMOTE_HOST/init/$exp      # Deter.
 
 
 # CLUSTER PATHS.
 # Lemaitre4.
-path_cluster=/globalscratch/ulb/glaciol/dmoreno/Kori-ULB/exe/thwaites/deter
+# Deterministic.
+#path_cluster=/globalscratch/ulb/glaciol/dmoreno/Kori-ULB/exe/thwaites/deter
+
+# Stochastic.
+#path_cluster=/globalscratch/ulb/glaciol/dmoreno/Kori-ULB/exe/thwaites/stoch
+
+# Initialization.
+path_cluster=/globalscratch/ulb/glaciol/dmoreno/Kori-ULB/exe/thwaites/init
+
+# Path to precompile executable.
 path_exe_cluster=/globalscratch/ulb/glaciol/dmoreno/Kori-ULB/exe/thwaites/precompiled
-#path_cluster=/globalscratch/ulb/glaciol/dmoreno/Kori-ULB/exe/deter/
+
 
 
 # Enter path with matlab scripts to be compiled.
@@ -57,9 +71,10 @@ exe_name=RunASE_ceci
 
 
 # Compile Kori only once.
-echo "Path_par  : $path_param"
-echo "Path_exe  : $path_exe"
-echo "Compiling : $file"
+echo "Path_par     : $path_param"
+echo "Path_exe     : $path_exe"
+echo "Path_cluster : $path_cluster"
+echo "Compiling    : $file"
 
 # RECOMPILE IN CASE OF CHANGES IN THE CODE!
 mcc -m "$file" -a "$path_kori/KoriModel.m" -a "$path_kori_subroutines" -o "$exe_name"

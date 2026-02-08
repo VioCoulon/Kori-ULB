@@ -154,4 +154,4 @@ function [CMB,LSF,CR]=CalvingAlgorithms(ctr,par,dudx,dvdy,dudy,dvdx,glMASK,H,A, 
     end
 
 end
-end
+%end

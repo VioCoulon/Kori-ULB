@@ -32,12 +32,12 @@ ctr.runmode  = 3;  % 1: graphics; 3: no graphics
 %path = '/globalscratch/ulb/glaciol/dmoreno/Kori-ULB/ice_data/eta1e7/ground_melt_0/';
 
 % Lyra.
-path = '/globalsc/ulb/glaciol/dmoreno/Kori-ULB/ice_data/eta1e7/ground_melt_0/';
+%path = '/globalsc/ulb/glaciol/dmoreno/Kori-ULB/ice_data/eta1e7/ground_melt_0/';
 
-name_1 = 'ASE2km';
-name_2 = 'INIT_SIA';
-input  = strcat(path, name_1);
-output = strcat(path, name_2);
+%name_1 = 'ASE2km';
+%name_2 = 'INIT_SIA';
+%input  = strcat(path, name_1);
+%output = strcat(path, name_2);
 
 %KoriModel(input, output, ctr);
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -61,12 +61,15 @@ ctr.TinvMelt     = 0.01;
 ctr.HinvMelt     = 10;
 
 
-name_1 = 'INIT_SIA';
-name_2 = 'INIT_DIVA_1';  % INIT_SSA_1
-input  = strcat(path, name_1);
-output = strcat(path, name_2);
-
+%name_1 = 'INIT_SIA';
+%name_2 = 'INIT_DIVA_1';  % INIT_SSA_1
+%input  = strcat(path, name_1);
+%output = strcat(path, name_2);
 %KoriModel(input, output, ctr);
+
+% Load corresponding inputs from param file.
+%load('params.mat');
+%KoriModel(input_full, output_full, ctr);
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
@@ -80,12 +83,14 @@ ctr.TinvMelt = 5;
 ctr.Tinv     = 5;
 ctr.Hinv     = 200;
 
-name_1 = 'INIT_DIVA_1';   % INIT_SSA_1
-name_2 = 'INIT_DIVA_2';  % INIT_SSA_2
-input  = strcat(path, name_1);
-output = strcat(path, name_2);
+%name_1 = 'INIT_DIVA_1';   % INIT_SSA_1
+%name_2 = 'INIT_DIVA_2';  % INIT_SSA_2
+%input  = strcat(path, name_1);
+%output = strcat(path, name_2);
 
-%KoriModel(input, output, ctr);
+% Load corresponding inputs from param file.
+load('params.mat');
+KoriModel(input_full, output_full, ctr);
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
@@ -95,10 +100,10 @@ output = strcat(path, name_2);
 ctr.nsteps = 40001;  % Frank: 40000
 %ctr.dt     = 0.1;   % 0.1
 
-name_1 = 'INIT_SSA_2';  % INIT_NON_1
-name_2 = 'INIT_SSA_3';  % INIT_NON_2
-input  = strcat(path, name_1);
-output = strcat(path, name_2);
+%name_1 = 'INIT_DIVA_2';  % INIT_NON_1
+%name_2 = 'INIT_DIVA_3';  % INIT_NON_2
+%input  = strcat(path, name_1);
+%output = strcat(path, name_2);
 
 %KoriModel(input, output, ctr);
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -133,9 +138,8 @@ ctr.snapshot  = 100; % 50
 %output    = strcat(path_2, out_name);
 
 % Load corresponding inputs from param file.
-load('params.mat');
-
-KoriModel(input, output, ctr);
+%load('params.mat');
+%KoriModel(input, output, ctr);
 
 
 

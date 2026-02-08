@@ -711,12 +711,6 @@ for cnt=cnt0:ctr.nsteps
 
 
     % Daniel: stop forcing within the safety band.
-    %if abs(dIVg_dt) > 2.0 || collapse == 1 % 0.8 running local.
-        %fprintf('\n Collapse = %12.2f \n ', collapse);
-    %    collapse = 1;
-    %    Melt = zeros(ctr.imax,ctr.jmax);
-    %end
-
     if ctr.dt*cnt > ctr.tforcing  % 0.8 running local.
         
         fprintf('\n Collapse = ');
@@ -724,10 +718,6 @@ for cnt=cnt0:ctr.nsteps
         Melt((glMASK==3)|(glMASK==4)|(glMASK==5)) = -5.0; % -50.0, -10.0.
     end
 
-    %max(Melt, [], 'all')
-    %min(Melt, [], 'all')
-
-    %Melt = zeros(ctr.imax,ctr.jmax);
 
 
 %---------------------------------------------------------------
