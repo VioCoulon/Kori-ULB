@@ -32,7 +32,7 @@ ctr.runmode  = 3;  % 1: graphics; 3: no graphics
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% Second SSA inversion (As, MeltInv) - short run
+% First SSA inversion (As, MeltInv) - short run
 ctr.inverse      = 2;        % Optimization of basal sliding coefficients As for the grounded ice sheet and sub-shelf melt/accretion for floating ice shelves.
 ctr.meltfunc     = 1;        % Beckmann and Goosse (2003) with linear dependency on the thermal forcing, following (de Boert al., 2015). 
 ctr.GroundedMelt = 0;        % necessary for basins!! Vio: 0. Frank: 1.
@@ -53,7 +53,7 @@ ctr.shelftune=0.5; % Lower values make ice shelf more viscous. In ASE we strongl
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Second SSA inversion (As, MeltInv) - short run
 %{  %}
-ctr.nsteps   = 40001; % 10001, 40001
+ctr.nsteps   = 10001; % 10001, 40001
 ctr.dt       = 0.1; % 0.1
 ctr.TinvMelt = 5;
 ctr.Tinv     = 5;
