@@ -37,10 +37,20 @@ function [uxssa,uyssa,beta2,eta,etaD,dudx,dudy,dvdx,dvdy,su,ubx,uby,ux,uy, ...
         beta2=beta2./(1.0+beta2.*F2);
         beta2(beta2>1e8)=1./F2(beta2>1e8); % frozen conditions
     end
+
+    % Frank.
     beta2=min(beta2,1e8);
     beta2(MASK==0)=0;
-    betax=0.5*(beta2+circshift(beta2,[0 -1]));
-    betay=0.5*(beta2+circshift(beta2,[-1 0]));
+    %betax=0.5*(beta2+circshift(beta2,[0 -1]));
+    %betay=0.5*(beta2+circshift(beta2,[-1 0]));
+
+    % Daniel.
+    % Sub-grid interpolation.
+    [betax, betay, H] = SubGridGL(beta2, H, ...
+                                    HAF, MASK, glMASK, Hmx, Hmy, B, ctr, par);
+
+
+
 
     if ctr.mismip>=1
         betax(:,1)=betax(:,2); % symmetric divide

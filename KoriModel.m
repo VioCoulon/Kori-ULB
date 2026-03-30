@@ -801,7 +801,10 @@ for cnt=cnt0:ctr.nsteps
 
     
        
-    
+% Daniel.
+% Sub-grid interpolation.
+    %[betax, betay, Hn] = SubGridGL(beta2, Hn, ...
+    %                                HAF, MASK, glMASK, Hmx, Hmy, B, ctr, par);
 
 
 %----------------------

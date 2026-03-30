@@ -1,30 +1,146 @@
-function [betax, betay] = SubGridGL(beta2, H, ...
-                                    HAF, MASK, glMASK, Hmx, Hmy, B, SLR, ctr, par)
+function [betax, betay, H] = SubGridGL(beta2, H, ...
+                                    HAF, MASK, glMASK, Hmx, Hmy, B, ctr, par)
 
 
-    betax=0.5*(beta2+circshift(beta2,[0 -1]));
-    betay=0.5*(beta2+circshift(beta2,[-1 0])); 
+    %betax=0.5*(beta2+circshift(beta2,[0 -1]));
+    %betay=0.5*(beta2+circshift(beta2,[-1 0])); 
 
 
     HAF1 = circshift(HAF,[0 -1]); % (i,j+1)
     HAF2 = circshift(HAF,[-1 0]); % (i+1,j)
+    HAF4 = circshift(HAF,[0 1]); % (i,j+1)
+    HAF5 = circshift(HAF,[1 0]); % (i+1,j+1)
+
+
+    M = MASK;
+    M1 = circshift(MASK,[0 -1]); % (i,j+1)
+    M2 = circshift(MASK,[-1 0]); % (i+1,j)
+    M3 = circshift(MASK,[-1 -1]); % (i+1,j+1)
+    M4 = circshift(MASK,[0 1]); % (i,j+1)
+    M5 = circshift(MASK,[1 0]); % (i+1,j)
+    M6 = circshift(MASK,[1 1]); % (i+1,j+1)
+    M7 = circshift(MASK,[1 -1]); % (i,j+1)
+    M8 = circshift(MASK,[-1 1]); % (i+1,j)
+
+
+    % HAF in d-grid.
+    M_d1 = 0.25 * ( M + M2 + M3 + M1 );
+    M_d2 = 0.25 * ( M + M4 + M8 + M2 );
+    M_d3 = 0.25 * ( M + M5 + M3 + M4 );
+    M_d4 = 0.25 * ( M + M1 + M7 + M5 );
+
+    % Try this to preserve.
+    %M_d2 = 0.5 * ( M + M2 );
+    %M_d3 = 0.5 * ( M + M5 );
+
+    betax=0.5*(beta2+circshift(beta2,[0 -1]));
+    betay=0.5*(beta2+circshift(beta2,[-1 0]));
+
+    % It produces retreat but it is not symmetric.
+    betax = 0.5 * ( M_d1 + M_d4 ) .* betax;
+    betay = 0.5 * ( M_d1 + M_d2 ) .* betay;
+
+
+    %a = (M==1) & (M1==0);
+    %betax(a) = 0.5 * ( M_d1(a) + M_d4(a) ) .* betax(a);
+
+
+    %b = (M==1) & (M2==0);
+    %betay(b) = 0.5 * ( M_d1(b) + M_d2(b) ) .* betay(b);
+
+    %c = (M==1) & (M4==0);
+    %betax(c) = 0.5 * ( M_d2(c) + M_d3(c) ) .* betax(c);
+
+    %d = (M==1) & (M5==0);
+    %betay(d) = 0.5 * ( M_d3(d) + M_d4(d) ) .* betay(d);
+
+
+    %for i=1:ctr.imax
+    %    for j=1:ctr.jmax
+
+    %        if (M(i,j) == 1) & (M(i,j+1) == 0)
+
+    %            betax(i,j) = 0.5 * ( M_d1(i,j) + M_d4(i,j) ) .* betax(i,j);
+                %betax(i,j-1) = 0.5 * ( M_d1(i,j) + M_d4(i,j) ) .* betax(i,j-1);
+
+    %        end
+
+
+    %        if (M(i,j) == 1) & (M(i,j-1) == 0)
+
+    %            betax(i,j-1) = 0.5 * ( M_d2(i,j) + M_d3(i,j) ) .* betax(i,j-1);
+                %betax(i,j) = 0.5 * ( M_d2(i,j) + M_d3(i,j) ) .* betax(i,j);
+
+    %        end
+
+
+    %        if (M(i,j) == 1) & (M(i+1,j) == 0)
+
+    %            betay(i,j) = 0.5 * ( M_d1(i,j) + M_d2(i,j) ) .* betay(i,j);
+                %betay(i-1,j) = 0.5 * ( M_d1(i,j) + M_d2(i,j) ) .* betay(i-1,j);
+
+    %        end
+
+
+    %        if (M(i,j) == 1) & (M(i-1,j) == 0)
+
+    %            betay(i-1,j) = 0.5 * ( M_d3(i,j) + M_d4(i,j) ) .* betay(i-1,j);
+                %betay(i,j) = 0.5 * ( M_d3(i,j) + M_d4(i,j) ) .* betay(i,j);
+
+    %        end
+
+
+    %    end 
+    %end
+
+
+
+
+
+
+
+    % HAF in h-grid.
+    % HAF = B - SLR + H*par.rho/par.rhow;
+    % MASK(HAF<0)=0;
+    % MASK(HAF>=0)=1;
+    M = 0.25 * ( M_d1 + M_d2 + M_d3 + M_d4 );
+
+    f1=HAF./(HAF-HAF1);
+    f2=HAF./(HAF-HAF2);
+    f4=HAF./(HAF-HAF4);
+    f5=HAF./(HAF-HAF5);
+
+
+    a1 = (M==1) & (M1==0);
+    a2 = (M==1) & (M2==0);
+    a4 = (M==1) & (M4==0);
+    a5 = (M==1) & (M5==0);
+
+    H(a1) = abs(f1(a1)) .* H(a1);
+    H(a2) = abs(f2(a2)) .* H(a2);
+    H(a4) = abs(f4(a4)) .* H(a4);
+    H(a5) = abs(f5(a5)) .* H(a5);
+
+
+
+
 
     % Working version.
-    xm = (HAF>=0.0) & (HAF1<0.0);
-    xp = (HAF<0.0) & (HAF1>=0.0);
+    %xm = (HAF>=0.0) & (HAF1<0.0);
+    %xp = (HAF<0.0) & (HAF1>=0.0);
 
-    ym = (HAF>=0.0) & (HAF2<0.0);
-    yp = (HAF<0.0) & (HAF2>=0.0);
+    %ym = (HAF>=0.0) & (HAF2<0.0);
+    %yp = (HAF<0.0) & (HAF2>=0.0);
 
-    f_grnd_x = zeros(ctr.imax, ctr.jmax);
-    f_grnd_y = zeros(ctr.imax, ctr.jmax);
+    %f_grnd_x = zeros(ctr.imax, ctr.jmax);
+    %f_grnd_y = zeros(ctr.imax, ctr.jmax);
 
     % Grounded fraction on u-grid.
-    f_grnd_x(xm) = HAF(xm) ./ ( HAF(xm) - HAF1(xm) );
-    f_grnd_y(ym) = HAF(ym) ./ ( HAF(ym) - HAF2(ym) );
+    %f_grnd_x(xm) = HAF(xm) ./ ( HAF(xm) - HAF1(xm) );
+    %f_grnd_y(ym) = HAF(ym) ./ ( HAF(ym) - HAF2(ym) );
 
-    f_grnd_x(xp) = HAF1(xp) ./ ( HAF1(xp) - HAF(xp) );
-    f_grnd_y(yp) = HAF2(yp) ./ ( HAF2(yp) - HAF(yp) );
+    %f_grnd_x(xp) = HAF1(xp) ./ ( HAF1(xp) - HAF(xp) );
+    %f_grnd_y(yp) = HAF2(yp) ./ ( HAF2(yp) - HAF(yp) );
 
 
 
@@ -167,38 +283,16 @@ function [betax, betay] = SubGridGL(beta2, H, ...
 
 
     % Weighting term as a function of grounded fraction 
-    wt_x = f_grnd_x;
-    wt_y = f_grnd_y;
-
-    % Full advance.
-    % Friction evaluated in u-grid from interpolation.
-    %betax(xm) = wt_x(xm) .* beta2_x(xm) + (1.0-wt_x(xm)) .* beta2(xm);
-    %betax(xp) = (1.0-wt_x(xp)) .* beta2_x(xp) + wt_x(xp) .* beta2(xp);
-
-    %betay(ym) = wt_y(ym) .* beta2_y(ym) + (1.0-wt_y(ym)) .* beta2(ym);
-    %betay(yp) = (1.0-wt_y(yp)) .* beta2_y(yp) + wt_y(yp) .* beta2(yp);
-
-    %xm2 = circshift(xm, [0 -1]); % (HAF>=0.0) & (HAF1<0.0);
-    %xp2 = circshift(xp, [0 1]);% (HAF<0.0) & (HAF1>=0.0);
-
-    %ym2 = circshift(ym, [-1 0]); %(HAF>=0.0) & (HAF2<0.0);
-    %yp2 = circshift(yp, [1 0]); %(HAF<0.0) & (HAF2>=0.0);
-
-
-    % GL advance is limited. SOMETHING WRONG???
-    %betax(xm) = wt_x(xm) .* beta2(xm) + (1.0-wt_x(xm)) .* beta2_x(xm);
-    %betax(xp) = (1.0-wt_x(xp)) .* beta2(xp) + wt_x(xp) .* beta2_x(xp);
-
-    %betay(ym) = wt_y(ym) .* beta2(ym) + (1.0-wt_y(ym)) .* beta2_y(ym);
-    %betay(yp) = (1.0-wt_y(yp)) .* beta2(yp) + wt_y(yp) .* beta2_y(yp);
+    %wt_x = f_grnd_x;
+    %wt_y = f_grnd_y;
 
     
     % BEST ONE SO FAR.
-    betax(xm) = wt_x(xm) .* betax(xm);
-    betax(xp) = (1.0-wt_x(xp)) .* betax(xp);
+    %betax(xm) = wt_x(xm) .* betax(xm);
+    %betax(xp) = (1.0-wt_x(xp)) .* betax(xp);
 
-    betay(ym) = wt_y(ym) .* betay(ym);
-    betay(yp) = (1.0-wt_y(yp)) .* betay(yp);
+    %betay(ym) = wt_y(ym) .* betay(ym);
+    %betay(yp) = (1.0-wt_y(yp)) .* betay(yp);
 
 
     %betax(xm) = wt_x(xm) .* beta2(xm);
