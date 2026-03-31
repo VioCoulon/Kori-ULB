@@ -271,15 +271,15 @@ for i = 1:length(values_1)
 
         % If all sims start from the same file: name_1: [path_in, name_1]
         % If each sim start from a given restart file: name_2: [path_in, name_2]
-        input_full  = [path_in, name_2];
-        output_full = [path_out, name_2];
+        in  = [path_in, name_2];
+        out = [path_out, name_2];
 
         % Save all variables to a .mat file
-        save(full_mat, 'ctr', 'input_full', 'output_full');
+        save(full_mat, 'ctr', 'in', 'out');
         
         fprintf('Saved: %s\n', full_mat);
-        fprintf('input_full: %s\n', input_full);
-        fprintf('output_full: %s\n', output_full);
+        fprintf('input_full: %s\n', in);
+        fprintf('output_full: %s\n', out);
 
     end
 end

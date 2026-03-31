@@ -10,36 +10,39 @@ REMOTE_HOST=lemaitre4
 
 # EXPERIMENT NAME.
 #exp=revert_t_m05_gammas
-exp=INIT_DIVA_2
+exp=DIVA
 #exp=sigma_oce400  
 
 
 # LOCAL PATHS.
-path_exe=$path_kori/exe/thwaites
-#path_param=$path_exe/nic5/$exp          # Stochastic ensemble.
+path_exe=$path_kori/exe/thwaites         # Thwaites.
+#path_exe=$path_kori/exe/CalvingMIP      # CalvingMIP.
 
 # Deterministic.
-#path_param=$path_exe/$REMOTE_HOST/deter/$exp      # Stochastic.
+path_param=$path_exe/$REMOTE_HOST/deter/$exp     
 
 # Stochastic.
-#path_param=$path_exe/$REMOTE_HOST/stoch/smb_0/tau_To_001/$exp      # Stochastic.
+#path_param=$path_exe/$REMOTE_HOST/stoch/smb_0/tau_To_001/$exp     
 
 # Initialization.
-path_param=$path_exe/$REMOTE_HOST/init/$exp      # Deter.
+#path_param=$path_exe/$REMOTE_HOST/init/$exp    
+
 
 
 # CLUSTER PATHS.
-# Lemaitre4.
 # Deterministic.
-#path_cluster=/globalscratch/ulb/glaciol/dmoreno/Kori-ULB/exe/thwaites/deter
+path_cluster=/globalscratch/ulb/glaciol/dmoreno/Kori-ULB/exe/thwaites/deter
 
 # Stochastic.
 #path_cluster=/globalscratch/ulb/glaciol/dmoreno/Kori-ULB/exe/thwaites/stoch
 
 # Initialization.
-path_cluster=/globalscratch/ulb/glaciol/dmoreno/Kori-ULB/exe/thwaites/init
+#path_cluster=/globalscratch/ulb/glaciol/dmoreno/Kori-ULB/exe/thwaites/init
 
-# Path to precompile executable.
+# CalvingMIP.
+#path_cluster=/globalscratch/ulb/glaciol/dmoreno/Kori-ULB/exe/calvingMIP/Exp3/dx_1km
+
+# Path to precompile executable.    
 path_exe_cluster=/globalscratch/ulb/glaciol/dmoreno/Kori-ULB/exe/thwaites/precompiled
 
 
@@ -47,28 +50,38 @@ path_exe_cluster=/globalscratch/ulb/glaciol/dmoreno/Kori-ULB/exe/thwaites/precom
 # Enter path with matlab scripts to be compiled.
 cd $path_exe
 
+# Compiling options: individual_file, ensemble.
+option="ensemble"  
 
+
+##################################################################################
 # OPTION 1.
+if [ "$option" = "individual_file" ]; then
+
+echo "Compiling individual file..."
+
 # Compilation for single files.
-#file_name=RunASE_lemaitre4.m
-#exe_name=RunASE_lemaitre4_stoch_gamma10e5_sigma_oce1_seed2
-#echo "Compiling: $file_name"
-#echo "Exe_name : $exe_name"
-#mcc -m $file_name -a $path_kori/KoriModel.m -a $path_kori_subroutines -o $exe_name
-#scp $exe_name lemaitre4:$path_lemaitre4
+file_name=CaMIP_Exp3_CECI.m
+exe_name=CaMIP_Exp3_CECI
+echo "Compiling: $file_name"
+echo "Exe_name : $exe_name"
+mcc -m $file_name -a $path_kori/KoriModel.m -a $path_kori_subroutines -o $exe_name
+rsync -avz --progress "$exe_name" "$REMOTE_HOST:$path_cluster"
+
+##################################################################################
 
 
+
+
+##################################################################################
 # OPTION 2.
 # Loop over each file in the directory.
+elif [ "$option" = "ensemble" ]; then
+
+echo "Compiling ensemble..."
+
 file=RunASE_ceci.m
 exe_name=RunASE_ceci
-
-
-
-# Create an array with subfolder names.
-#SUBFOLDERS=($(find $path_param -mindepth 1 -maxdepth 1 -type d -printf "%f\n" | sort))
-#printf "%s\n" "${SUBFOLDERS[@]}"
-
 
 # Compile Kori only once.
 echo "Path_par     : $path_param"
@@ -86,7 +99,6 @@ ssh $REMOTE_HOST "mkdir -p $path_cluster"
 rsync -avz --progress "$path_param" "$REMOTE_HOST:$path_cluster/"
 
 
-
 echo "Copying executable to all directories in a single SSH connection"
 #ssh $REMOTE_HOST "mkdir -p $path_cluster"
 
@@ -102,9 +114,14 @@ for dir in "$path_cluster/$exp"/*/; do
 done
 EOF
 
-
-
-# Original.
-#rsync -avz --progress "$path_param" "$REMOTE_HOST:$path_cluster/"
-
 echo "All files copied!"
+
+##################################################################################
+
+fi
+
+
+
+
+
+

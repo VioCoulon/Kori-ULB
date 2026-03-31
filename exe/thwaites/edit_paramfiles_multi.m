@@ -9,7 +9,7 @@
 % FORWARD RUN (CONSTANT FORCING).
 ctr.imax     = 472;
 ctr.jmax     = 400;
-ctr.delta    = 2.e3;
+ctr.delta    = 2.0e3;
 ctr.Ao       = 5.0e-17; % 5.0e-17
 ctr.m        = 3;
 ctr.Asin     = zeros(ctr.imax,ctr.jmax)+3e-9;
@@ -18,11 +18,11 @@ ctr.basin    = 1;    % Run the model for a specific basin.
 ctr.runmode    = 3;  % 1: graphics; 3: no graphics
 ctr.inverse    = 0;
 ctr.shelf      = 1;        % Ice shelves are considered.
-ctr.SSA        = 2;
+ctr.SSA        = 3;        % Hybrid=2, DIVA=3.
 ctr.calving    = 4;          % 5, to apply LSF function.
 ctr.Tcalc      = 2;            % Calculate temperature field and thermomechanical coupling, , i.e. A = f (T)
 ctr.dt         = 0.05;        % 0.02, 0.1, 0.05, 0.025
-ctr.nsteps     = 50001;       % 15001, 20001, 50001, 100001
+ctr.nsteps     = 20001;       % 15001, 20001, 50001, 100001
 ctr.meltfunc   = 3;          % PICO
 ctr.gammaT     = 2.0e-5;     % 2.5e4, 1.0e-4, 0.25e-4. Best fit in PICO: 2e-5.
 ctr.meltfac    = 1;          % Factor multiplying sub-shelf melt.
@@ -45,14 +45,14 @@ values_1 = [0.125, 0.25, 0.5, 1.0, 1.5, 2.0, 2.5, 3.0, 3.5, 4.0, 4.5, 5.0];
 
 %values_2 = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
 %values_2 = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29];
-%values_2 = [0];
+values_2 = [0];
 
 % Time to stop forcing.
 %values_2 = [0.0, 10.0, 20.0, 30.0, 40.0, 50.0, 
 %            60.0, 70.0, 80.0, 90.0, 100.0, 150.0, 200.0, 250.0, 500.0, 2500.0];
 
-values_2 = linspace(0, 1000, 101);
-values_2 = [values_2, 2500.0];
+%values_2 = linspace(0, 1000, 101);
+%values_2 = [values_2, 2500.0];
 
 % Create empty dictionary to populate it with exp names.
 script_names = cell(length(values_1), length(values_2));
@@ -60,11 +60,12 @@ script_names = cell(length(values_1), length(values_2));
 % Experiment name.ll
 %exp_1 = 'sigma_oce010';
 %exp_1 = 'deter';
-exp_1 = 'revert_t_m05_gammas'; %'deter_revert_t500'
+%exp_1 = 'revert_t_m05_gammas'; %'deter_revert_t500'
+exp_1 = 'DIVA';
 
 % Variables.
 var_1   = 'meltfac';      % gamma
-var_2   = 'tforcing';     % seed, snapshot
+var_2   = 'seed';     % seed, snapshot, tforcing
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%25%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -93,7 +94,8 @@ var_2   = 'tforcing';     % seed, snapshot
 % exe_path_local = '/home/daniel/models/Kori-ULB/exe/thwaites/lemaitre4/stoch/
 exe_path_local = '/home/daniel/models/Kori-ULB/exe/thwaites/lemaitre4/deter/';
 parent_path    = '/globalscratch/ulb/glaciol/dmoreno/Kori-ULB/';
-rel_in         = 'ice_data/eta1e7/ground_melt_0/';
+%rel_in         = 'ice_data/eta1e7/ground_melt_0/';
+rel_in         = 'ice_data/eta1e7/ground_melt_0/INIT_DIVA_2/INIT_shelftune0500_seed0/';
 %rel_out        = 'output/thwaites/stoch/smb_0/tau_To_140/'; 
 rel_out        = 'output/thwaites/deter/';                              % Stoch.
 
@@ -144,22 +146,20 @@ for i = 1:length(values_1)
         end
 
         % Seed.
-        %num_2 = sprintf('%.0f', values_2(j)); 
+        num_2 = sprintf('%.0f', values_2(j)); 
 
         % tforcing.
-        if values_2(j)<1e3
-            num_2 = sprintf('0%.0f', values_2(j));
-        else
-            num_2 = sprintf('%.0f', values_2(j));
-        end
-
-        if values_2(j)<1e2
-            num_2 = sprintf('00%.0f', values_2(j));
-        end
-
-        if values_2(j) == 0.0
-            num_2 = '0000'
-        end
+        %if values_2(j)<1e3
+        %    num_2 = sprintf('0%.0f', values_2(j));
+        %else
+        %    num_2 = sprintf('%.0f', values_2(j));
+        %end
+        %if values_2(j)<1e2
+        %    num_2 = sprintf('00%.0f', values_2(j));
+        %end
+        %if values_2(j) == 0.0
+        %    num_2 = '0000'
+        %end
 
         % Script names based on variables and corresponding values.
         script_names{i,j} = [var_1, num_1, '_', var_2, num_2];
@@ -226,41 +226,39 @@ for i = 1:length(values_1)
 
 
         % Seed.
-        %num_2 = sprintf('%.0f', value_2); 
+        num_2 = sprintf('%.0f', value_2); 
 
         % tforcing.
-        if values_2(j)<1e3
-            num_2 = sprintf('0%.0f', values_2(j));
-        else
-            num_2 = sprintf('%.0f', values_2(j));
-        end
-
-        if values_2(j)<1e2
-            num_2 = sprintf('00%.0f', values_2(j));
-        end
-
-        if values_2(j) == 0.0
-            num_2 = '0000'
-        end
+        %if values_2(j)<1e3
+        %    num_2 = sprintf('0%.0f', values_2(j));
+        %else
+        %    num_2 = sprintf('%.0f', values_2(j));
+        %end
+        %if values_2(j)<1e2
+        %    num_2 = sprintf('00%.0f', values_2(j));
+        %end
+        %if values_2(j) == 0.0
+        %    num_2 = '0000'
+        %end
 
 
         % Input and output file names.
-        name_1 = 'INIT_SSA_3'; % ASEfor_m2_80, INIT_NON_3, INIT_NON_LONG_10K
+        name_1 = 'INIT_shelftune0500_seed0'; % INIT_SSA_3, ASEfor_m2_80, INIT_shelftune0500_seed0
         name_2 = [var_1, num_1, '_', var_2, num_2];
     
         path_in     = [parent_path, rel_in];
         path_out    = [parent_path, rel_out, exp_1, '/', name_2, '/'];
         %path_out    = [parent_path, rel_out, exp_1, '/'];
 
-        input       = [path_in, name_1];
-        output      = [path_out, name_2];
+        in       = [path_in, name_1];
+        out      = [path_out, name_2];
 
         % Save all variables to a .mat file
-        save(full_mat, 'ctr', 'input', 'output');
+        save(full_mat, 'ctr', 'in', 'out');
         
         fprintf('Saved: %s\n', full_mat);
-        fprintf('Input: %s\n', input);
-        fprintf('Output: %s\n', output);
+        fprintf('Input: %s\n', in);
+        fprintf('Output: %s\n', out);
 
     end
 end

@@ -89,8 +89,8 @@ ctr.Hinv     = 200;
 %output = strcat(path, name_2);
 
 % Load corresponding inputs from param file.
-load('params.mat');
-KoriModel(input_full, output_full, ctr);
+%load('params.mat');
+%KoriModel(input_full, output_full, ctr);
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
@@ -138,8 +138,8 @@ ctr.snapshot  = 100; % 50
 %output    = strcat(path_2, out_name);
 
 % Load corresponding inputs from param file.
-%load('params.mat');
-%KoriModel(input, output, ctr);
+load('params.mat');
+KoriModel(in, out, ctr);
 
 
 

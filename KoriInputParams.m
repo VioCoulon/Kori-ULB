@@ -43,13 +43,13 @@ par.color  = 'imola'; % Crameri colorscale (requires CrameriColourMaps7.0.mat) -
 
 par.maxspeed=40e3; % maximum ice speed limit (m/a)
 % Keep omega=2.5 for optimization! 1.0 for forward run is quite stable.
-par.omega=2.5; % Crank-Nicolson scale factor (0=explicit; 1=implicit; >1 over-implicit) Frank: 2.5
+par.omega=1.0; % Crank-Nicolson scale factor (0=explicit; 1=implicit; >1 over-implicit) Frank: 2.5
 par.secperyear=31556926;
 % 2d variables to be saved when timeslice=1
 par.varlist={'MASK','H','d','B','ux','uy','fluxmx_mean', ...
              'fluxmy_mean','Tb','glMASK','Melt_mean','FMR_mean', ...
              'CR_mean','Mb_mean','Bmelt_mean','ubx','uby', 'beta2', ...
-             'eta','LSF','Bmelt','Melt','To','Mb','d_grain','EffStr'};
+             'eta','LSF','Bmelt','Melt','To','Mb'};
 
 % Reduced number for high resolution output.
 %par.varlist={'glMASK','H','ux','uy'};

@@ -45,7 +45,7 @@ function [eta,etaD,dudx,dvdy,dudy,dvdx]=EffViscDIVA(A3d,betax,betay,ubx,uby, ...
     %etaD=0.5*Astar.^(-1./par.n).*EffStrD.^((1-par.n)/(2*par.n));
 
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    % Shelf tune has to be included in 3D viscosity.
+    % Daniel: shelf tune has to be included in 3D viscosity.
     etaD=0.5*Astar.^(-1./par.n).*EffStrD.^((1-par.n)/(2*par.n));
     MASK3d=repmat(MASK,[1,1,ctr.kmax]);
     tune3d=repmat(shelftune,[1,1,ctr.kmax]);

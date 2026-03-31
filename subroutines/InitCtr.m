@@ -34,7 +34,7 @@ function [ctr,fc]=InitCtr(ctr,fc,default)
     ctr.tau_To(any(ismember(fields(ctr),'tau_To'))==0)=0; % Decorrelation time stochastic noise.
     ctr.tau_Mb(any(ismember(fields(ctr),'tau_Mb'))==0)=0;
     ctr.seed(any(ismember(fields(ctr),'seed'))==0)=0;
-    ctr.tforcing(any(ismember(fields(ctr),'tforcing'))==0)=+inf; %default.stochastic;
+    ctr.tforcing(any(ismember(fields(ctr),'tforcing'))==0)=1e15; %default.stochastic;
 
     ctr.kmax(any(ismember(fields(ctr),'kmax'))==0)=default.kmax; % default number of z-levels    
     ctr.subwaterflow(any(ismember(fields(ctr),'subwaterflow'))==0)=0;
