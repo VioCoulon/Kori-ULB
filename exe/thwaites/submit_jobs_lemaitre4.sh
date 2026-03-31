@@ -1,38 +1,58 @@
 #!/bin/bash
 
 # Test without the submitting file settings because this is run directly.
-module --force purge
-module load tis/2018.01
-module load MCR/R2018b
+#module --force purge
+#module load tis/2018.01
+#module load MCR/R2018b
 
 
 # EXPERIMENT.
 #exp=deter
-exp=sigma_oce400
+#exp=sigma_oce400
+#exp=revert_t_m05_gammas
+exp=DIVA
+#exp=CaMIP_Exp3_CECI
 
 # PATHS.
 # Stoch.
 #path=/globalscratch/ulb/glaciol/dmoreno/Kori-ULB/exe/stoch/tau_To_10/$exp
 #path_out=/globalscratch/ulb/glaciol/dmoreno/Kori-ULB/output/thwaites/stoch/tau_To_10/$exp
 
-path=/globalscratch/ulb/glaciol/dmoreno/Kori-ULB/exe/stoch/extra_runs/tau_To_70/$exp
-path_out=/globalscratch/ulb/glaciol/dmoreno/Kori-ULB/output/thwaites/stoch/extra_runs/tau_To_70/$exp
-
 # Deter.
-#path=/globalscratch/ulb/glaciol/dmoreno/Kori-ULB/exe/$exp
-#path_out=/globalscratch/ulb/glaciol/dmoreno/Kori-ULB/output/thwaites/$exp
+path=/globalscratch/ulb/glaciol/dmoreno/Kori-ULB/exe/thwaites/deter/$exp
+path_out=/globalscratch/ulb/glaciol/dmoreno/Kori-ULB/output/thwaites/deter/$exp
+
+# Init.
+#path=/globalscratch/ulb/glaciol/dmoreno/Kori-ULB/exe/thwaites/init/$exp
+#path_out=/globalscratch/ulb/glaciol/dmoreno/Kori-ULB/ice_data/eta1e7/ground_melt_0/$exp
+
+# CalvingMIP.
+#path=/globalscratch/ulb/glaciol/dmoreno/Kori-ULB/exe/calvingMIP/Exp3/dx_1km
+#path_out=/globalscratch/ulb/glaciol/dmoreno/Kori-ULB/output/calvingMIP/Exp3/dx_1km/$exp
 
 
+    
 # Slurm job script.
-SBATCH_SCRIPT="/globalscratch/ulb/glaciol/dmoreno/Kori-ULB/slurm_job.sh"
+SBATCH_SCRIPT="/globalscratch/ulb/glaciol/dmoreno/Kori-ULB/exe/thwaites/slurm_job.sh"
 
 cd $path
+
+# COMPILING OPTIONS: individual_file, ensemble.
+option="ensemble"  
 
 
 ##########################################################################
 # OPTION 1.
 # Submit just one job.
+if [ "$option" = "individual_file" ]; then
+
 #srun ./RunASE_lemaitre4_stoch_gamma10e5_sigma_oce1_seed2 2>&1 > /dev/null
+#srun ./$exp 2>&1 > /dev/null
+
+echo "Working directory of the job : $path"
+echo "Submited job                 : $path/$exp"
+
+sbatch --export=EXECUTABLE="$path/$exp" --chdir="$path" "$SBATCH_SCRIPT"
 ##########################################################################
 
 
@@ -40,8 +60,10 @@ cd $path
 ##########################################################################
 # OPTION 2.
 # Submit several jobs by looping through each file in the directory.
+elif [ "$option" = "ensemble" ]; then
 
 find . -type f -executable | while read -r exe; do
+    
     # Extract the filename without the path
     exe_name=$(basename "$exe")
     
@@ -72,3 +94,6 @@ find . -type f -executable | while read -r exe; do
     #srun "$exe" "2>&1"
 done
 ##########################################################################
+
+
+fi
