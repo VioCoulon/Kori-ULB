@@ -189,8 +189,8 @@ for i = 1:length(values_1)
 
         % Update control values.
         ctr.meltfac = values_1(i);
-        %ctr.seed    = values_2(j);
-        ctr.tforcing = values_2(j);
+        ctr.seed    = values_2(j);
+        %ctr.tforcing = values_2(j);
 
 
 
@@ -198,8 +198,9 @@ for i = 1:length(values_1)
         % Avoid sign "-" in the file name as it does not compile.
         % Appropirate numering to ensure order when listing in Linux.
         
-        %value_2 = ctr.seed;
-        value_2 = ctr.tforcing;
+        
+        value_2 = ctr.seed;
+        %value_2 = ctr.tforcing;
 
         % Gamma.
         %ctr.gammaT   = values_1(i);
