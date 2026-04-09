@@ -211,7 +211,7 @@ function MismipTest
     % Test on Schoof and symmetry of ice sheet
     % With LSF and fixed calving front
     
-    ctr.schoof=0; % 1
+    ctr.schoof=2; % 2:Daniel.
     ctr.imax=67; % 67, 134
     ctr.jmax=67;
     ctr.delta=50.e3; % 50.0e3, 25.0e3
@@ -242,7 +242,8 @@ function MismipTest
     save('MismipIn','B','H','Mb','Ts','LSF');
 %     save('MismipIn','B','H','Mb','Ts');
 
-    KoriModel('MismipIn','mismip2a',ctr);
+    %KoriModel('MismipIn','mismip2a',ctr);
+    KoriModel('mismip2a','mismip2GL',ctr);
     ctr.Ao=1e-17;
     KoriModel('mismip2a','mismip2b',ctr);
     ctr.Ao=1e-16;

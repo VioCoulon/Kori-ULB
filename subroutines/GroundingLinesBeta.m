@@ -1,8 +1,8 @@
-function [uxsch,uysch]=GroundingLines(ctr,par,glMASK,HAF,SLR,Ax,Ay,butfac, ...
-    H,Hmx,Hmy,B,Bmx,Bmy,Asfx,Asfy,ux,uy,dudx,dvdy,dudy,dvdx,eta)
+function [betax,betay]=GroundingLinesBeta(ctr,par,glMASK,HAF,SLR,Ax,Ay,butfac, ...
+    H,Hmx,Hmy,B,Bmx,Bmy,Asfx,Asfy,ux,uy,dudx,dvdy,dudy,dvdx,eta,betax,betay,cnt)
 
 % Kori-ULB
-% Caluclation of buttress factors and parameterized flux condition at the
+% Calculation of buttress factors and parameterized flux condition at the
 % grounding line for large-scale model simulations.
 
     if ctr.shelf==1
@@ -27,8 +27,8 @@ function [uxsch,uysch]=GroundingLines(ctr,par,glMASK,HAF,SLR,Ax,Ay,butfac, ...
     %    Tf,Txx,Tyy,Txy,butfac,ncorx,ncory,ux,uy,Hmx,Hmy,Asfx,Asfy); %VL: new function + new call!
 
     % Daniel interpolation.
-    [uxsch,uysch]=SubGridbeta(ctr,glMASK,HAF,B,SLR,par,Ax,Ay, ...
-        Tf,Txx,Tyy,Txy,butfac,ncorx,ncory,ux,uy,Hmx,Hmy,Asfx,Asfy); %VL: new function + new call!
+    [betax,betay]=SubGridBeta(ctr,glMASK,HAF,B,SLR,par,Ax,Ay, ...
+        Tf,Txx,Tyy,Txy,butfac,ncorx,ncory,ux,uy,Hmx,Hmy,Asfx,Asfy,betax,betay,cnt); %VL: new function + new call!
 
 end
 

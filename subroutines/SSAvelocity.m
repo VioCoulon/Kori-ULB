@@ -3,7 +3,7 @@ function [uxssa,uyssa,beta2,eta,etaD,dudx,dudy,dvdx,dvdy,su,ubx,uby,ux,uy, ...
     SSAvelocity(ctr,par,su,Hmx,Hmy,gradmx,gradmy,signx,signy,zeta, ...
     uxssa,uyssa,etaD,A3d,H,H0,HB,B,stdB,Asf,A,MASK,glMASK,HAF,HAFmx,HAFmy,cnt, ...
     nodeu,nodev,MASKmx,MASKmy,bMASK,uxsia,uysia,udx,udy,ubx,uby,node,nodes, ...
-    Mb,Melt,dtdx,dtdx2,VM,damage,shelftune,ds,db)
+    Mb,Melt,dtdx,dtdx2,VM,damage,shelftune,ds,db,SLR,Ax,Ay,butfac,Bmx,Bmy,Asfx,Asfy)
 
 % Kori-ULB
 % Iterative solution to the SSA velocity (with SSA, hybrid and DIVA model)
@@ -41,15 +41,30 @@ function [uxssa,uyssa,beta2,eta,etaD,dudx,dudy,dvdx,dvdy,su,ubx,uby,ux,uy, ...
     % Frank.
     beta2=min(beta2,1e8);
     beta2(MASK==0)=0;
-    %betax=0.5*(beta2+circshift(beta2,[0 -1]));
-    %betay=0.5*(beta2+circshift(beta2,[-1 0]));
+    betax=0.5*(beta2+circshift(beta2,[0 -1]));
+    betay=0.5*(beta2+circshift(beta2,[-1 0]));
+    %betax=beta2;
+    %betay=beta2;
 
     % Daniel.
     % Sub-grid interpolation.
-    [betax, betay, H] = SubGridGL(beta2, H, ...
-                                    HAF, MASK, glMASK, Hmx, Hmy, B, ctr, par);
+    %[betax, betay, H] = SubGridGL(beta2, H, ...
+    %                                HAF, MASK, glMASK, Hmx, Hmy, B, ctr, par);
 
-
+    % Correct beta from grounding line interpolation.
+    if ctr.SSA<3
+        % Effective viscosity for SSA and hybrid model
+        [eta,dudx,dvdy,dudy,dvdx]=EffVisc(A,uxssa,uyssa,H,H0,par,MASK, ...
+            glMASK,shelftune,damage,ctr);
+    else
+        % Effective viscosity for DIVA solver
+        [eta,etaD,dudx,dvdy,dudy,dvdx]=EffViscDIVA(A3d,betax,betay,ubx,uby, ...
+            etaD,H,H0,damage,uxssa,uyssa,zeta,MASK,glMASK,shelftune,ctr,par);
+    end
+    
+    [betax,betay]=GroundingLinesBeta(ctr,par,glMASK,HAF,SLR,Ax,Ay,butfac, ...
+                                        H,Hmx,Hmy,B,Bmx,Bmy,Asfx,Asfy,uxssa,uyssa,dudx, ...
+                                            dvdy,dudy,dvdx,eta,betax,betay,cnt);
 
 
     if ctr.mismip>=1
@@ -84,6 +99,12 @@ function [uxssa,uyssa,beta2,eta,etaD,dudx,dudy,dvdx,dvdy,su,ubx,uby,ux,uy, ...
             [eta,etaD,dudx,dvdy,dudy,dvdx]=EffViscDIVA(A3d,betax,betay,ubx,uby, ...
                 etaD,H,H0,damage,uxssa,uyssa,zeta,MASK,glMASK,shelftune,ctr,par);
         end
+
+        % Correct beta from grounding line interpolation.
+        %[betax,betay]=GroundingLinesBeta(ctr,par,glMASK,HAF,SLR,Ax,Ay,butfac, ...
+        %                                    H,Hmx,Hmy,B,Bmx,Bmy,Asfx,Asfy,uxssa,uyssa,dudx, ...
+        %                                        dvdy,dudy,dvdx,eta,betax,betay);
+
         if ctr.damage==1 && (ctr.damexist==1 || cnt>1)
             if ll==1
                 dtr=zeros(ctr.imax,ctr.jmax);
