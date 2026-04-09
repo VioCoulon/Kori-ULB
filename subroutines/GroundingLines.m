@@ -21,7 +21,13 @@ function [uxsch,uysch]=GroundingLines(ctr,par,glMASK,HAF,SLR,Ax,Ay,butfac, ...
     % Weighting factor for Schoof correction as function bed
     ncorx=max(min(1-1/50*(Bmx+50),1),0);
     ncory=max(min(1-1/50*(Bmy+50),1),0);
+    
+    % Schoof conditions.
     [uxsch,uysch]=GroundingLineFlux(ctr,glMASK,HAF,B,SLR,par,Ax,Ay, ...
+        Tf,Txx,Tyy,Txy,butfac,ncorx,ncory,ux,uy,Hmx,Hmy,Asfx,Asfy); %VL: new function + new call!
+
+    % Daniel interpolation.
+    [uxsch,uysch]=SubGrid_beta(ctr,glMASK,HAF,B,SLR,par,Ax,Ay, ...
         Tf,Txx,Tyy,Txy,butfac,ncorx,ncory,ux,uy,Hmx,Hmy,Asfx,Asfy); %VL: new function + new call!
 
 end
