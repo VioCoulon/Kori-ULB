@@ -100,7 +100,7 @@ function [CMB,LSF,CR]=CalvingAlgorithms(ctr,par,dudx,dvdy,dudy,dvdx,glMASK,H,A, 
         end
 
         if ctr.calving==8 %CalvMip Periodic forcing, ctr.CR_AMP is max rate of front position change
-            if cnt <10000
+            if cnt < 10000
                 Wv=-ctr.CR_AMP*sind(cnt*360/ctr.nsteps);
                 CR=MAGV-Wv;
             else
