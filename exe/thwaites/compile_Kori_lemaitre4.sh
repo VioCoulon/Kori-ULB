@@ -42,7 +42,7 @@ path_parent=/globalscratch/ulb/glaciol/dmoreno/Kori-ULB/exe
 #path_cluster=$path_parent/thwaites/init
 
 # CalvingMIP.
-path_cluster=$path_parent/calvingMIP/Exp3/dx_2km
+path_cluster=$path_parent/calvingMIP/Exp3/dx_2km/OceanVisc_7e9/
 
 # Path to precompile executable.    
 path_exe_cluster=$path_parent/thwaites/precompiled
