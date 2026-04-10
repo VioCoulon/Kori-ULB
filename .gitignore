@@ -1,3 +1,13 @@
 /output
 /postprocess
 *.mat
+
+# Ignore everything inside exe/
+exe/*
+
+# Keep subfolders
+!exe/*/
+
+# Allow only .m and .sh files
+!exe/**/*.m
+!exe/**/*.sh

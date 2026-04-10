@@ -1,0 +1,105 @@
+function CaMIP_Exp1_5
+    
+    clear; close all;
+    addpath /home/daniel/models/Kori-ULB;
+    addpath /home/daniel/models/Kori-ULB/subroutines;
+    
+    %% Initial ice sheet creation. 
+    ctr.delta=2e3; % 5e3. Try run them at 2 km!!
+    ctr.imax=805;  % 322 (5 km), 805 (2 km)
+    ctr.jmax=805;
+    
+    
+    Li=(ctr.imax-1)*ctr.delta;
+    Lj=(ctr.jmax-1)*ctr.delta;
+    [X,Y]=meshgrid(-Lj/2:ctr.delta:Lj/2,-Li/2:ctr.delta:Li/2);
+    
+    R=800e3 ;%800e3
+    Bc=900;  %900
+    Bl=-2000; %-2000
+    Ba=1100;  %1100
+    B=BedGeom(X,Y,R,Bc,Bl,Ba);
+
+
+    
+    ctr.m=3;
+    ctr.dt=1;
+    ctr.shelf=1;
+    ctr.shelftune=1;
+    ctr.SSA=1;
+    %ctr.Asin=zeros(ctr.imax,ctr.jmax)+1e-7; % Same as Hilmars set up
+    ctr.Ao=2.9377e-18;
+    
+    % Initial LSF mask. Prepare other fields to run Kori.
+    p = nsidedpoly(10000, 'Center', [0 0], 'Radius', 750e3);
+    XX=reshape(X, [numel(X),1]);
+    YY=reshape(X, [numel(Y),1]);
+    IceMask=inpolygon(X,Y,p.Vertices(:,1),p.Vertices(:,2));
+    LSF=zeros(ctr.imax,ctr.jmax);
+    LSF(IceMask==1)=1;
+    LSF(IceMask==0)=-1;
+    %save('ThuleLSF5','LSF');
+    H=zeros(ctr.imax,ctr.jmax)+10;
+    Mb=zeros(ctr.imax,ctr.jmax)+0.3;
+    Ts=zeros(ctr.imax,ctr.jmax)-5.0;
+
+    %---------------------------------------
+    % Cut out domain along symmetry axes
+    ctr.imax=(ctr.imax-1)/2+2;
+    ctr.jmax=(ctr.jmax-1)/2+2;
+    ctr.Asin=zeros(ctr.imax,ctr.jmax)+1e-7;
+
+    B   = B(ctr.imax-2:end,ctr.jmax-2:end);
+    LSF = LSF(ctr.imax-2:end,ctr.jmax-2:end);
+
+    H  = H(ctr.imax-2:end,ctr.jmax-2:end);
+    Mb = Mb(ctr.imax-2:end,ctr.jmax-2:end);
+    Ts = Ts(ctr.imax-2:end,ctr.jmax-2:end);
+    %---------------------------------------
+
+
+    save('ThuleIn5','B','H','Mb','Ts','LSF');
+    
+    % 1 - Initial spin up.
+    ctr.dt=4;   % Jim: 1. Daniel: 2, 5
+    ctr.nsteps=2000; % Jim: 15000, Daniel: 8000, 4000 is enough
+    %KoriModel('ThuleIn5','Thule5_visceff1e10_limitno_daniel',ctr);
+    KoriModel('ThuleIn5','Thule5_quarter',ctr);
+    ctr.timeslice=1;
+    ctr.snapshot=10; % 800 output every 10 years.
+    %KoriModel('ThuleIn5','Thule5_visceff8e9',ctr);
+    
+    % 2 - Adjustment to imposition of Calving Front.
+    ctr.calving=2;   % Direct, constant imposition of change in front positon.
+    ctr.WV=0;        % ctr.WV=0 will fix calving front position to be unmoving.
+    ctr.dt=5.0;   % 1
+    ctr.LSFReset=30;
+    ctr.nsteps=2000; %Jim: 10000, Daniel: 4000 is enough
+    save('Thule5_visceff8e9','LSF','-append'); % save('Thule5','LSF','-append'); % Make sure to save the LSF that comes from the initial spinup. 
+    %KoriModel('Thule5_visceff6e9','Thule-Circ5_visceff6e9',ctr);
+    %KoriModel('Thule5_visceff8e9','Exp1_5_visceff8e9',ctr);
+    
+    % Old Jim's code.
+    % %CalvingMIP-Algorithim 1
+    %
+    ctr.dt=1; 
+    ctr.WV=0;
+    ctr.nsteps=100;
+    ctr.timeslice=1;
+    ctr.snapshot=10;
+    %KoriModel('Thule-Circ5_visceff5e9','Exp1_5_visceff5e9',ctr); 
+    %KoriModel('Thule-Circ5','Exp1_5',ctr);
+    end
+
+function [B]=BedGeom(x,y,R,Bc,Bl,Ba)
+% param ters
+
+rc=0;
+%polarcoordinates
+r=sqrt(x.*x+y.*y);
+theta=atan2(y,x);
+% B calculation
+l=R-cos(2*theta).*R/2;
+a=Bc-(Bc-Bl)*(r-rc).^2./(R-rc).^2;
+B=a ;
+end
