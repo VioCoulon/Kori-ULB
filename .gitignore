@@ -1,13 +1,20 @@
+# Ignore everything
+*
+
+# Keep folders
+!*/
+
+# Allow only source files
+!*.m
+!*.sh
+!*.py
+
+# Keep important text files
+!*.md
+!LICENSE
+!README*
+!.gitignore
+
+# Ignore specific folders.
 /output
 /postprocess
-*.mat
-
-# Ignore everything inside exe/
-exe/*
-
-# Keep subfolders
-!exe/*/
-
-# Allow only .m and .sh files
-!exe/**/*.m
-!exe/**/*.sh
