@@ -42,7 +42,7 @@ path_parent=/globalscratch/ulb/glaciol/dmoreno/Kori-ULB/exe
 #path_cluster=$path_parent/thwaites/init
 
 # CalvingMIP.
-path_cluster=$path_parent/calvingMIP/Exp3/dx_2km/OceanVisc_7e9/
+path_cluster=$path_parent/calvingMIP/Exp3/dx_2km/OceanVisc_9e9/
 
 # Path to precompile executable.    
 path_exe_cluster=$path_parent/thwaites/precompiled
@@ -65,9 +65,13 @@ echo "Compiling individual file..."
 # Compilation for single files.
 file_name=CaMIP_Exp3_CECI.m
 exe_name=CaMIP_Exp3_CECI
-echo "Compiling: $file_name"
-echo "Exe_name : $exe_name"
+
+echo "Compiling    : $file_name"
+echo "Exe_name     : $exe_name"
+echo "path_cluster : $path_cluster"
+
 mcc -m $file_name -a $path_kori/KoriModel.m -a $path_kori_subroutines -o $exe_name
+ssh $REMOTE_HOST "mkdir -p $path_cluster"
 rsync -avz --progress "$exe_name" "$REMOTE_HOST:$path_cluster"
 
 ##################################################################################
@@ -121,9 +125,3 @@ echo "All files copied!"
 ##################################################################################
 
 fi
-
-
-
-
-
-
