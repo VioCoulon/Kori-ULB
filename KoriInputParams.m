@@ -43,7 +43,7 @@ par.color  = 'imola'; % Crameri colorscale (requires CrameriColourMaps7.0.mat) -
 
 par.maxspeed=40e3; % maximum ice speed limit (m/a)
 % Keep omega=2.5 for optimization! 1.0 for forward run is quite stable.
-par.omega=2.5; % Crank-Nicolson scale factor (0=explicit; 1=implicit; >1 over-implicit) Frank: 2.5
+par.omega=1.0; % Crank-Nicolson scale factor (0=explicit; 1=implicit; >1 over-implicit) Frank: 2.5
 par.secperyear=31556926;
 % 2d variables to be saved when timeslice=1
 par.varlist={'MASK','H','d','B','ux','uy','fluxmx_mean', ...
@@ -97,7 +97,7 @@ par.n            = 3;                        % flow law exponent
 par.visciter     = 50;                       % Maximum number of iterations on the nonlinear part of the SSA equation (50)
 par.visctol      = 5e-1;                     % Tolerance for calculation of the nonlinear part of the SSA equation (0.5)
 par.veliter      = 50;                       % Maximum number of iterations for the iterative SSA velocity solver (50)
-par.veltol       = 1e-3;                     % Tolerance for the iterative SSA velocity solver (1e-4). 1e-3 for init.
+par.veltol       = 1e-4;                     % Tolerance for the iterative SSA velocity solver (1e-4). 1e-3 for init.
 
 if basin==1
     par.veltol   = par.veltol/10;

@@ -48,8 +48,8 @@ function [uxssa,uyssa,beta2,eta,etaD,dudx,dudy,dvdx,dvdy,su,ubx,uby,ux,uy, ...
 
     % Daniel.
     % Sub-grid interpolation.
-
-    rel = 1.0;
+    %uxsch = uxssa;
+    %uysch = uyssa;
 
     %[betax, betay, H] = SubGridGL(beta2, H, ...
     %                                HAF, MASK, glMASK, Hmx, Hmy, B, ctr, par);
@@ -107,12 +107,15 @@ function [uxssa,uyssa,beta2,eta,etaD,dudx,dudy,dvdx,dvdy,su,ubx,uby,ux,uy, ...
         %                                    H,Hmx,Hmy,B,Bmx,Bmy,Asfx,Asfy,uxssa,uyssa,dudx, ...
         %                                        dvdy,dudy,dvdx,eta,betax,betay);
 
-        [uxsch,uysch]=GroundingLines(ctr,par,glMASK,HAF,SLR,Ax,Ay, ...
-                            butfac,H,Hmx,Hmy,B,Bmx,Bmy,Asfx,Asfy,uxssa,uyssa, ...
-                            dudx,dvdy,dudy,dvdx,eta);
+        if ctr.schoof == 2
+            rel = 0.2;
+            [uxsch,uysch]=GroundingLines(ctr,par,glMASK,HAF,SLR,Ax,Ay, ...
+                                butfac,H,Hmx,Hmy,B,Bmx,Bmy,Asfx,Asfy,uxssa,uyssa, ...
+                                dudx,dvdy,dudy,dvdx,eta);
 
-        uxssa = rel * uxssa + ( 1.0 - rel ) * uxsch;
-        uyssa = rel * uyssa + ( 1.0 - rel ) * uysch;
+            uxssa = rel * uxssa + ( 1.0 - rel ) * uxsch;
+            uyssa = rel * uyssa + ( 1.0 - rel ) * uysch;
+        end
         
 
         if ctr.damage==1 && (ctr.damexist==1 || cnt>1)
@@ -163,42 +166,6 @@ function [uxssa,uyssa,beta2,eta,etaD,dudx,dudy,dvdx,dvdy,su,ubx,uby,ux,uy, ...
         end
         eta=eta.*scale_eta;
 
-
-%         [uxs1,uys1,su,flagU,relresU,iterU]=SparseSolverSSA_daniel(nodeu,nodev, ...
-%             su,MASKmx,MASKmy,bMASK, ...
-%             H,eta,betax,betay,uxssa,uyssa,uxsia,uysia,udx,udy,taudx, ...
-%             taudy,ctr,par);
-% 
-%         uxssa=uxs1;
-%         uyssa=uys1;
-%         %---------iterative beta---------
-%         if cnt<=ctr.BetaIter
-%             ussa=vec2h(uxssa,uyssa); %VL: ussa on h-grid
-%             if ctr.u0>1e10
-%                 beta2=fg.*(ussa.^(1/ctr.m-1)).*Asf.^(-1/ctr.m);
-%             else
-%                 beta2=fg.*(ussa.^(1/ctr.m-1)).*((ussa+ctr.u0).*Asf ...
-%                     /ctr.u0).^(-1/ctr.m);
-%             end
-%             beta2=min(beta2,1e8);
-%             beta2(MASK==0)=0;
-%             betax=0.5*(beta2+circshift(beta2,[0 -1]));
-%             betay=0.5*(beta2+circshift(beta2,[-1 0]));
-%             if ctr.mismip>=1
-%                 betax(:,1)=betax(:,2); % symmetric divide
-%                 betax(1,:)=betax(3,:); % symmetry axis
-%                 betax(ctr.imax,:)=betax(ctr.imax-2,:); % periodic BC
-%                 betax(:,ctr.jmax)=0; % ocean
-%                 betay(:,1)=betay(:,3); % symmetric divide
-%                 betay(1,:)=betay(2,:); % symmetry axis
-%                 betay(ctr.imax,:)=betay(ctr.imax-1,:); % periodic BC
-%                 if ctr.mismip==2 % Thule setup
-%                     betax(ctr.imax,:)=0;
-%                     betay(ctr.imax,:)=0;
-%                 end
-%             end
-%         end
-        %--------------------------------
         
         [uxs1,uys1,su,flagU,relresU,iterU]=SparseSolverSSA(nodeu,nodev, ...
             su,MASKmx,MASKmy,bMASK,glMASK,H,eta,betax,betay,uxssa,uyssa, ...

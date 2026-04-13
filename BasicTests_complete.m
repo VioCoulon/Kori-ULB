@@ -6,6 +6,8 @@
 function BasicTests(n)
 
     close all;
+
+    addpath /home/daniel/models/Kori-ULB/subroutines/;
     
     scenario_txt={'All tests','Mass conservation','EISMINT', ...
         'MISMIP circular','Circular','Circular quarter', ...
@@ -211,7 +213,7 @@ function MismipTest
     % Test on Schoof and symmetry of ice sheet
     % With LSF and fixed calving front
     
-    ctr.schoof=2; % 2:Daniel.
+    ctr.schoof=1; % 2:Daniel.
     ctr.imax=67; % 67, 134
     ctr.jmax=67;
     ctr.delta=50.e3; % 50.0e3, 25.0e3
@@ -238,19 +240,29 @@ function MismipTest
     H(LSF<0)=0;
     ctr.calving=2;
     ctr.WV=0;
+    
+    parent_path = '/home/daniel/models/Kori-ULB/output/basic_tests';
+    path_1 = [parent_path, '/MismipIn'];
+    path_2 = [parent_path, '/mismip2a'];
+    path_3 = [parent_path, '/mismip2b'];
+    path_4 = [parent_path, '/mismip2c'];
 
-    save('MismipIn','B','H','Mb','Ts','LSF');
+    path_fig = [parent_path, '/mismip2'];
+
+    save(path_1,'B','H','Mb','Ts','LSF');
 %     save('MismipIn','B','H','Mb','Ts');
 
-    %KoriModel('MismipIn','mismip2a',ctr);
-    KoriModel('mismip2a','mismip2GL',ctr);
+    %KoriModel(path_1, path_2, ctr);
     ctr.Ao=1e-17;
-    KoriModel('mismip2a','mismip2b',ctr);
+    %KoriModel(path_2, path_3, ctr);
     ctr.Ao=1e-16;
     ctr.nsteps=ctr.nsteps*4-3;
     ctr.dt=ctr.dt/4;
-    KoriModel('mismip2b','mismip2c',ctr);
-    PlotFiguresMISMIP('mismip2');
+
+    KoriModel(path_3, path_4, ctr);
+    %PlotFiguresMISMIP('mismip2');
+    PlotFiguresMISMIP(path_fig);
+
 end
 
 function PlotFiguresMISMIP(outputf)
