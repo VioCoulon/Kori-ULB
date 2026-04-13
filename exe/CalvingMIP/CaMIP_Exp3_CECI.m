@@ -3,8 +3,8 @@ function Thule
 
 parent_path = '/globalscratch/ulb/glaciol/dmoreno/Kori-ULB/';
 %path_in     = [parent_path, 'ice_data/calvingMIP/Exp3/dx_2km/'];
-path_in     = [parent_path, 'output/calvingMIP/Exp3/dx_2km/OceanVisc_9e9/'];
-path_out    = [parent_path, 'output/calvingMIP/Exp3/dx_2km/OceanVisc_9e9/'];
+path_in     = [parent_path, 'output/calvingMIP/Exp3/dx_2km/OceanVisc_1e10/'];
+path_out    = [parent_path, 'output/calvingMIP/Exp3/dx_2km/OceanVisc_1e10/'];
 
 % Run in CECI cluster.
 ctr.runmode  = 3;      % 1: graphics; 3: no graphics
@@ -76,7 +76,7 @@ ctr.shelftune = 1;
 ctr.SSA       = 1;         % ctr.SSA=1
 ctr.dt        = 0.1;       % 0.2 (dx=2 km), 1, 2, 4. 
 ctr.nsteps    = 100000;    % Jim: 10000; Daniel: 6000, 50000 (dt=0.2)
-ctr.OceanVisc = 9e9;       % CalvingMIP: 8e9 (original), 7e9.
+ctr.OceanVisc = 1e10;       % CalvingMIP: 8e9 (original), 7e9. Default 1e8.
 
 out_3 = [path_out, 'Thule_quarter_Exp3_1'];
 KoriModel(out_2, out_3, ctr);
@@ -89,7 +89,7 @@ ctr.calving  = 2;       % Direct, constant imposition of change in front positon
 ctr.LSFReset = 30;      % Jim: 50. Daniel: 30
 ctr.nsteps   = 40000;   % Jim: 6000. Daniel: 4000 (dt=1). 20000
 
-%save(out_3,'LSF','-append');
+save(out_3,'LSF','-append');
 out_4 = [path_out, 'Thule_quarter_Exp3_2'];
 KoriModel(out_3, out_4, ctr); 
 

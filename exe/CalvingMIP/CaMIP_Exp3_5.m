@@ -36,14 +36,6 @@ LSF(IceMask==1) = 1;
 LSF(IceMask==0) = -1;
 save('ThuleLSF5','LSF');
 
-%  p = nsidedpoly(1000, 'Center', [0 0], 'Radius', 700e3);
-%  XX=reshape(X, [numel(X),1]);
-%  YY=reshape(X, [numel(Y),1]);
-%  IceMask=inpolygon(X,Y,p.Vertices(:,1),p.Vertices(:,2));
-%  LSF2=zeros(ctr.imax,ctr.jmax);
-%  LSF2(IceMask==1)=1;
-%  LSF2(IceMask==0)=-1;
-%  save('ThuleLSF2','LSF2');
 
 %ctr.CF_Boundary = 'CircThule.mat';
 ctr.LSFfile     = 'ThuleLSF5';
