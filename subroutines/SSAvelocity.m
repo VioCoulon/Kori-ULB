@@ -48,23 +48,25 @@ function [uxssa,uyssa,beta2,eta,etaD,dudx,dudy,dvdx,dvdy,su,ubx,uby,ux,uy, ...
 
     % Daniel.
     % Sub-grid interpolation.
+
+    rel = 1.0;
+
     %[betax, betay, H] = SubGridGL(beta2, H, ...
     %                                HAF, MASK, glMASK, Hmx, Hmy, B, ctr, par);
 
     % Correct beta from grounding line interpolation.
-    if ctr.SSA<3
+    %if ctr.SSA<3
         % Effective viscosity for SSA and hybrid model
-        [eta,dudx,dvdy,dudy,dvdx]=EffVisc(A,uxssa,uyssa,H,H0,par,MASK, ...
-            glMASK,shelftune,damage,ctr);
-    else
+    %    [eta,dudx,dvdy,dudy,dvdx]=EffVisc(A,uxssa,uyssa,H,H0,par,MASK, ...
+    %        glMASK,shelftune,damage,ctr);
+    %else
         % Effective viscosity for DIVA solver
-        [eta,etaD,dudx,dvdy,dudy,dvdx]=EffViscDIVA(A3d,betax,betay,ubx,uby, ...
-            etaD,H,H0,damage,uxssa,uyssa,zeta,MASK,glMASK,shelftune,ctr,par);
-    end
-    
-    [betax,betay]=GroundingLinesBeta(ctr,par,glMASK,HAF,SLR,Ax,Ay,butfac, ...
-                                        H,Hmx,Hmy,B,Bmx,Bmy,Asfx,Asfy,uxssa,uyssa,dudx, ...
-                                            dvdy,dudy,dvdx,eta,betax,betay,cnt);
+    %    [eta,etaD,dudx,dvdy,dudy,dvdx]=EffViscDIVA(A3d,betax,betay,ubx,uby, ...
+    %        etaD,H,H0,damage,uxssa,uyssa,zeta,MASK,glMASK,shelftune,ctr,par);
+    %end
+    %[betax,betay]=GroundingLinesBeta(ctr,par,glMASK,HAF,SLR,Ax,Ay,butfac, ...
+    %                                    H,Hmx,Hmy,B,Bmx,Bmy,Asfx,Asfy,uxssa,uyssa,dudx, ...
+    %                                        dvdy,dudy,dvdx,eta,betax,betay,cnt);
 
 
     if ctr.mismip>=1
@@ -104,6 +106,14 @@ function [uxssa,uyssa,beta2,eta,etaD,dudx,dudy,dvdx,dvdy,su,ubx,uby,ux,uy, ...
         %[betax,betay]=GroundingLinesBeta(ctr,par,glMASK,HAF,SLR,Ax,Ay,butfac, ...
         %                                    H,Hmx,Hmy,B,Bmx,Bmy,Asfx,Asfy,uxssa,uyssa,dudx, ...
         %                                        dvdy,dudy,dvdx,eta,betax,betay);
+
+        [uxsch,uysch]=GroundingLines(ctr,par,glMASK,HAF,SLR,Ax,Ay, ...
+                            butfac,H,Hmx,Hmy,B,Bmx,Bmy,Asfx,Asfy,uxssa,uyssa, ...
+                            dudx,dvdy,dudy,dvdx,eta);
+
+        uxssa = rel * uxssa + ( 1.0 - rel ) * uxsch;
+        uyssa = rel * uyssa + ( 1.0 - rel ) * uysch;
+        
 
         if ctr.damage==1 && (ctr.damexist==1 || cnt>1)
             if ll==1
