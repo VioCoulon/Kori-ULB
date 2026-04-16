@@ -651,9 +651,9 @@ for cnt=cnt0:ctr.nsteps
            fc.butfac(cnt),H,Hmx,Hmy,B,Bmx,Bmy,Asfx,Asfy,ux,uy, ...
            dudx,dvdy,dudy,dvdx,eta);
 
-        %rel = 0.0;
-        %uxsch = rel * ux + ( 1.0 - rel ) * uxsch;
-        %uysch = rel * uy + ( 1.0 - rel ) * uysch;
+        rel = 0.5;
+        uxsch = rel * ux + ( 1.0 - rel ) * uxsch;
+        uysch = rel * uy + ( 1.0 - rel ) * uysch;
     else
         uxsch=ux;
         uysch=uy;

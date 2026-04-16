@@ -213,13 +213,13 @@ function MismipTest
     % Test on Schoof and symmetry of ice sheet
     % With LSF and fixed calving front
     
-    ctr.schoof=1; % 2:Daniel.
+    ctr.schoof=2; % 2:Daniel.
     ctr.imax=67; % 67, 134
     ctr.jmax=67;
     ctr.delta=50.e3; % 50.0e3, 25.0e3
     ctr.m=2;
-    ctr.nsteps=2001;
-    ctr.dt=10;
+    ctr.nsteps=1001;  % 2001
+    ctr.dt=20;        % 10
     ctr.SSA=2;
     ctr.shelf=1;
     ctr.shelftune=ones(ctr.imax,ctr.jmax);
@@ -243,18 +243,18 @@ function MismipTest
     
     parent_path = '/home/daniel/models/Kori-ULB/output/basic_tests';
     path_1 = [parent_path, '/MismipIn'];
-    path_2 = [parent_path, '/mismip2a'];
-    path_3 = [parent_path, '/mismip2b'];
-    path_4 = [parent_path, '/mismip2c'];
+    path_2 = [parent_path, '/schoof_beta_mismip2a'];
+    path_3 = [parent_path, '/schoof_beta_mismip2b'];
+    path_4 = [parent_path, '/schoof_beta_mismip2c'];
 
-    path_fig = [parent_path, '/mismip2'];
+    path_fig = [parent_path, '/schoof_beta_mismip2'];
 
     save(path_1,'B','H','Mb','Ts','LSF');
-%     save('MismipIn','B','H','Mb','Ts');
+    %save('MismipIn','B','H','Mb','Ts');
 
-    %KoriModel(path_1, path_2, ctr);
+    KoriModel(path_1, path_2, ctr);
     ctr.Ao=1e-17;
-    %KoriModel(path_2, path_3, ctr);
+    KoriModel(path_2, path_3, ctr);
     ctr.Ao=1e-16;
     ctr.nsteps=ctr.nsteps*4-3;
     ctr.dt=ctr.dt/4;
