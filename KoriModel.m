@@ -715,7 +715,7 @@ for cnt=cnt0:ctr.nsteps
         
         fprintf('\n Collapse = ');
         %Melt = zeros(ctr.imax,ctr.jmax) - 100.0;
-        Melt((glMASK==3)|(glMASK==4)|(glMASK==5)) = -5.0; % -50.0, -10.0.
+        Melt((glMASK==3)|(glMASK==4)|(glMASK==5)) = -20.0; % -50.0, -25.0, -10.0.
     end
 
 

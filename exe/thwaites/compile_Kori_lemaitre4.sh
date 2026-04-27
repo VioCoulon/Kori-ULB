@@ -9,14 +9,14 @@ path_kori_subroutines=$path_kori/subroutines
 REMOTE_HOST=lemaitre4
 
 # Experiment name (only for ensembles).
-#exp=revert_t_m05_gammas
-exp=DIVA
+exp=revert_t_m20_gammas
+#exp=DIVA
 #exp=sigma_oce400  
 
 
 # LOCAL PATHS.
-#path_exe=$path_kori/exe/thwaites         # Thwaites.
-path_exe=$path_kori/exe/CalvingMIP      # CalvingMIP.
+path_exe=$path_kori/exe/thwaites         # Thwaites.
+#path_exe=$path_kori/exe/CalvingMIP      # CalvingMIP.
 
 # Deterministic.
 path_param=$path_exe/$REMOTE_HOST/deter/$exp     
@@ -33,7 +33,7 @@ path_param=$path_exe/$REMOTE_HOST/deter/$exp
 path_parent=/globalscratch/ulb/glaciol/dmoreno/Kori-ULB/exe
 
 # Deterministic.
-#path_cluster=$path_parent/thwaites/deter
+path_cluster=$path_parent/thwaites/deter
 
 # Stochastic.
 #path_cluster=$path_parent/thwaites/stoch
@@ -42,7 +42,7 @@ path_parent=/globalscratch/ulb/glaciol/dmoreno/Kori-ULB/exe
 #path_cluster=$path_parent/thwaites/init
 
 # CalvingMIP.
-path_cluster=$path_parent/calvingMIP/Exp3/dx_2km/OceanVisc_7e9/
+#path_cluster=$path_parent/calvingMIP/Exp3/dx_2km/OceanVisc_7e9/
 
 # Path to precompile executable.    
 path_exe_cluster=$path_parent/thwaites/precompiled
@@ -53,7 +53,7 @@ path_exe_cluster=$path_parent/thwaites/precompiled
 cd $path_exe
 
 # Compiling options: individual_file, ensemble.
-option="individual_file"  
+option="ensemble"  
 
 
 ##################################################################################
