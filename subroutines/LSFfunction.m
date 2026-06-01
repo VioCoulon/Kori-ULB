@@ -1,4 +1,4 @@
-function LSF=LSFfunction(LSF,ctr,u,v,node,nodes,VM,MASK,glMASK,X,Y,LSFo)
+function LSF=LSFfunction(LSF,ctr,u,v,node,nodes,VM,MASK,glMASK,LSFo)
 
 % Kori-ULB
 % Calculate the Level Set Function (LSF) for following the calving front.
@@ -61,6 +61,9 @@ function LSF=LSFfunction(LSF,ctr,u,v,node,nodes,VM,MASK,glMASK,X,Y,LSFo)
     % boundaries
     V10=zeros(ctr.imax,ctr.jmax); % i=1 periodic boundary or ocean
     V11=zeros(ctr.imax,ctr.jmax); % i=imax periodic boundary or ocean
+
+
+    ctr.mismip=1;
 
     wholemask=ctr.imax*ctr.jmax-sum(MASK(:));
     if wholemask~=0 && ctr.mismip>=1 % only when domain is not MASK=1 everywhere
@@ -144,18 +147,15 @@ function LSF=LSFfunction(LSF,ctr,u,v,node,nodes,VM,MASK,glMASK,X,Y,LSFo)
     end
 
     LSF(node>0)=s(node(node>0));
+
+
+    % Daniel: ensure symmetry in ctr.mismip=2.
+    LSF(1,:) = LSF(3,:);
+    LSF(:,1) = LSF(:,3);
+
+    % CalvingMIP: Calving front cannot advance further than original extent for stability.
+    LSF(LSFo<0.0) = R0(LSFo<0.0);
     
-%     % Avoid numerical issues when calving front coincides with grounding line.
-%     % Allow for a couple of grid cells of calving front between GL and open ocean.
-%     M1 = circshift(MASK,[3 3]);
-%     M2 = circshift(MASK,[3 -3]);
-%     M3 = circshift(MASK,[-3 3]);
-%     M4 = circshift(MASK,[-3 -3]);
-%     a = (MASK==1)|(M1==1)|(M2==1)|(M3==1)|(M4==1);
-%     M(a) = 1;
-% 
-%     % Calving front cannot retreat further than the GL by definition.
-%     LSF(M==1) = R0(M==1);
 
 end
 

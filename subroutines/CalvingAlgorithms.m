@@ -1,6 +1,6 @@
 function [CMB,LSF,CR]=CalvingAlgorithms(ctr,par,dudx,dvdy,dudy,dvdx,glMASK,H,A, ...
     uxssa,uyssa,arcocn,B,runoff,MASK,MASKo,Ho,bMASK,LSF,node,nodes,VM, ...
-    cnt,ux,uy,Melt,he,fi,FMR)
+    cnt,ux,uy,Melt,he,fi,FMR,LSFo)
 
 % Kori-ULB
 % Calving functions (VC 2024) using LSF
@@ -100,7 +100,7 @@ function [CMB,LSF,CR]=CalvingAlgorithms(ctr,par,dudx,dvdy,dudy,dvdx,glMASK,H,A, 
         end
 
         if ctr.calving==8 %CalvMip Periodic forcing, ctr.CR_AMP is max rate of front position change
-            if cnt < 5000
+            if cnt < 0.5*ctr.nsteps % 5000
                 Wv=-ctr.CR_AMP*sind(cnt*360/ctr.nsteps);
                 CR=MAGV-Wv;
             else
@@ -140,7 +140,11 @@ function [CMB,LSF,CR]=CalvingAlgorithms(ctr,par,dudx,dvdy,dudy,dvdx,glMASK,H,A, 
         wx=uxh+CRx;
         wy=uyh+CRy;
 
-        LSF=LSFfunction(LSF,ctr,wx,wy,node,nodes,VM,MASK); %Advect calving front position
+        % (LSF,ctr,u,v,node,nodes,VM,MASK,glMASK,X,Y,LSFo)
+        LSF=LSFfunction(LSF,ctr,wx,wy,node,nodes,VM,MASK,glMASK,LSFo); %Advect calving front position
+
+        % Daniel: fixed boundary conditions.
+        %LSF=LSFfunction_BC(LSF,ctr,wx,wy,node,nodes,VM,MASK);
 
         if ctr.LimitFront==1 % Impose maximum calving front extent from observed front position
             LSF(MASKo==0)=-1;

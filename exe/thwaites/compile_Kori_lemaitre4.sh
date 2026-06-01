@@ -15,8 +15,8 @@ exp=revert_t_m20_gammas
 
 
 # LOCAL PATHS.
-path_exe=$path_kori/exe/thwaites         # Thwaites.
-#path_exe=$path_kori/exe/CalvingMIP      # CalvingMIP.
+#path_exe=$path_kori/exe/thwaites         # Thwaites.
+path_exe=$path_kori/exe/CalvingMIP      # CalvingMIP.
 
 # Deterministic.
 path_param=$path_exe/$REMOTE_HOST/deter/$exp     
@@ -33,7 +33,7 @@ path_param=$path_exe/$REMOTE_HOST/deter/$exp
 path_parent=/globalscratch/ulb/glaciol/dmoreno/Kori-ULB/exe
 
 # Deterministic.
-path_cluster=$path_parent/thwaites/deter
+#path_cluster=$path_parent/thwaites/deter
 
 # Stochastic.
 #path_cluster=$path_parent/thwaites/stoch
@@ -41,8 +41,8 @@ path_cluster=$path_parent/thwaites/deter
 # Initialization.
 #path_cluster=$path_parent/thwaites/init
 
-# CalvingMIP.
-#path_cluster=$path_parent/calvingMIP/Exp3/dx_2km/OceanVisc_7e9/
+# CalvingMIP. /home/daniel/models/Kori-ULB/exe/CalvingMIP
+path_cluster=$path_parent/calvingMIP/Exp3-4/dx_2km/OceanVisc_1e10/
 
 # Path to precompile executable.    
 path_exe_cluster=$path_parent/thwaites/precompiled
@@ -53,7 +53,7 @@ path_exe_cluster=$path_parent/thwaites/precompiled
 cd $path_exe
 
 # Compiling options: individual_file, ensemble.
-option="ensemble"  
+option="individual_file"  
 
 
 ##################################################################################

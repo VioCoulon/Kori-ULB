@@ -114,7 +114,7 @@ ctr.nsteps = 40001;  % Frank: 40000
 % Forcing run
 ctr.inverse  = 0;
 %ctr.calving  = 2;          % ice shelves do not extend further than initially
-ctr.calving = 2;          % 5, to apply LSF function.
+ctr.calving = 2;            % 2, to apply LSF function.
 ctr.dt       = 0.05;        % 0.02, 0.1, 0.05, 0.025
 ctr.nsteps   = 5001;       % 20001
 ctr.meltfunc = 3;          % PICO

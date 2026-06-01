@@ -1,4 +1,4 @@
-function LSF=LSFfunction_daniel(LSF,ctr,u,v,node,nodes,VM,MASK,glMASK,X,Y,LSFo)
+function LSF=LSFfunction_daniel(LSF,ctr,u,v,node,nodes,VM,MASK,glMASK)
 
 % Kori-ULB
 % Calculate the Level Set Function (LSF) for following the calving front.
@@ -8,6 +8,7 @@ function LSF=LSFfunction_daniel(LSF,ctr,u,v,node,nodes,VM,MASK,glMASK,X,Y,LSFo)
 
     % Daniel's explicit calculation of LSF.
     dtdx=ctr.dt/ctr.delta;
+
 
     R0 = LSF;
     %LSF_now = LSF;
@@ -45,10 +46,10 @@ function LSF=LSFfunction_daniel(LSF,ctr,u,v,node,nodes,VM,MASK,glMASK,X,Y,LSFo)
     % TEST ON CALVING FRONT APPROACHING GL.
     %M = zeros(ctr.imax,ctr.jmax);
 
-    M1 = circshift(MASK,[3 3]);
-    M2 = circshift(MASK,[3 -3]);
-    M3 = circshift(MASK,[-3 3]);
-    M4 = circshift(MASK,[-3 -3]);
+    %M1 = circshift(MASK,[3 3]);
+    %M2 = circshift(MASK,[3 -3]);
+    %M3 = circshift(MASK,[-3 3]);
+    %M4 = circshift(MASK,[-3 -3]);
 
     %M5 = circshift(MASK,[0 2]);
     %M6 = circshift(MASK,[2 0]);
@@ -66,10 +67,10 @@ function LSF=LSFfunction_daniel(LSF,ctr,u,v,node,nodes,VM,MASK,glMASK,X,Y,LSFo)
 
     % Daniel: calving front cannot retreat further than the GL by definition.
     %LSF(MASK==1) = R0(MASK==1);
-    LSF(M==1) = R0(M==1);
+    %LSF(M==1) = R0(M==1);
 
     % Calving front cannot advance more than initial position.
-    LSF(LSFo<0)=LSFo(LSFo<0);
+    %LSF(LSFo<0)=LSFo(LSFo<0);
 
 end
 

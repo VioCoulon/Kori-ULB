@@ -336,14 +336,8 @@ if exist('LSFo','var')==1
 else
     LSFo=LSF;
 end
-%LSFo
 glMASK_old=zeros(ctr.imax,ctr.jmax);
-%dIVg_dt = 0.0;
-%collapse = 0
-%k=0;
-%err=0;
-%Hunf=H;
-%Hold=H;
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %                                                 %
@@ -731,7 +725,7 @@ for cnt=cnt0:ctr.nsteps
         [FMB,FMR]=VerticalFaceMelt(ctr,par,SLR,B,Melt,MASK,glMASK,he);
         [CMB,LSF,CR]=CalvingAlgorithms(ctr,par,dudx,dvdy,dudy,dvdx, ...
             glMASK,H,A,uxssa,uyssa,arcocn,B,runoff,MASK,MASKo,Ho, ...
-            bMASK,LSF,node,nodes,VM,cnt,ux,uy,Melt,he,fi,FMR);
+            bMASK,LSF,node,nodes,VM,cnt,ux,uy,Melt,he,fi,FMR,LSFo);
     end
 
 %---------------------------------------------------------

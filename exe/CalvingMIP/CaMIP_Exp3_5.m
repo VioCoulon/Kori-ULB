@@ -4,10 +4,20 @@ clear; close all;
 addpath /home/daniel/models/Kori-ULB;
 addpath /home/daniel/models/Kori-ULB/subroutines;
 
+
+parent_path = '/home/daniel/models/Kori-ULB/';
+%path_in     = [parent_path, 'ice_data/calvingMIP/Exp3/dx_2km/'];
+path_in     = [parent_path, 'output/CalvingMIP/Exp3/dx_2km/OceanVisc_7e9/'];
+path_out    = [parent_path, 'output/CalvingMIP/Exp3/dx_2km/OceanVisc_7e9/'];
+
+
+ctr.runmode  = 1;      % 1: graphics; 3: no graphics
+
 %% Initial ice sheet creation
-ctr.delta = 1e3; % 5e3. Try run them at 2 km!!
-ctr.imax  = 1611;  % 322 (5 km), 805 (2 km), 1611 (1 km)
-ctr.jmax  = 1611;
+quarter   = true;
+ctr.delta = 2e3; % 5e3. Try run them at 2 km!!
+ctr.imax  = 805;  % 161 (10 km), 322 (5 km), 805 (2 km), 1611 (1 km)
+ctr.jmax  = 805;
 
 Li    = (ctr.imax-1)*ctr.delta;
 Lj    = (ctr.jmax-1)*ctr.delta;
@@ -22,7 +32,7 @@ B  = BedGeom(X,Y,R,Bc,Bl,Ba);
 ctr.m     = 3;
 ctr.dt    = 1;
 ctr.shelf = 1;
-ctr.Asin  = zeros(ctr.imax,ctr.jmax)+1e-7; % Same as Hilmars set up
+ctr.Asin  = zeros(ctr.imax,ctr.jmax)+1e-7; % Same as Hilmarsh set up
 ctr.Ao    = 2.9377e-18;
 
 %Initial LSF mask
@@ -34,7 +44,9 @@ IceMask = inpolygon(X,Y,p.Vertices(:,1),p.Vertices(:,2));
 LSF             = zeros(ctr.imax,ctr.jmax);
 LSF(IceMask==1) = 1;
 LSF(IceMask==0) = -1;
-save('ThuleLSF5','LSF');
+%save('ThuleLSF5','LSF');
+out_1 = [path_in, 'ThuleLSF5'];
+save(out_1, 'LSF');
 
 
 %ctr.CF_Boundary = 'CircThule.mat';
@@ -46,45 +58,59 @@ Ts = zeros(ctr.imax,ctr.jmax)-5.0;
 
 %---------------------------------------
 % Cut out domain along symmetry axes (quarter).
-ctr.imax = (ctr.imax-1)/2+2;
-ctr.jmax = (ctr.jmax-1)/2+2;
-ctr.Asin = zeros(ctr.imax,ctr.jmax)+1e-7;
+if quarter == true
 
-B   = B(ctr.imax-2:end,ctr.jmax-2:end);
-H   = H(ctr.imax-2:end,ctr.jmax-2:end);
-Mb  = Mb(ctr.imax-2:end,ctr.jmax-2:end);
-Ts  = Ts(ctr.imax-2:end,ctr.jmax-2:end);
-LSF = LSF(ctr.imax-2:end,ctr.jmax-2:end);
+    ctr.mismip = 2;                 % Necessary for boundary conditions.
+    ctr.imax   = (ctr.imax-1)/2+2;
+    ctr.jmax   = (ctr.jmax-1)/2+2;
+    ctr.Asin   = zeros(ctr.imax,ctr.jmax)+1e-7;
+
+    B   = B(ctr.imax-2:end,ctr.jmax-2:end);
+    H   = H(ctr.imax-2:end,ctr.jmax-2:end);
+    Mb  = Mb(ctr.imax-2:end,ctr.jmax-2:end);
+    Ts  = Ts(ctr.imax-2:end,ctr.jmax-2:end);
+    LSF = LSF(ctr.imax-2:end,ctr.jmax-2:end);
+end
 %---------------------------------------
 
 
-save('ThuleIn','B','H','Mb','Ts');
+
+% Prepare initial file.
+% save('ThuleIn','B','H','Mb','Ts');
+out_2 = [path_in, 'ThuleIn'];
+save(out_2, 'B','H','Mb','Ts');
 
 % 1. Initial spin up.
 ctr.shelftune = 1;
-ctr.SSA       = 1; % ctr.SSA=1
-ctr.dt        = 0.2; % 1, 2, 4. 
-ctr.nsteps    = 10000; % Jim: 10000; Daniel: 6000, 5000 (dt=2)
+ctr.SSA       = 1;         % ctr.SSA=1
+ctr.dt        = 1.0;      % 0.2 (dx=2), 1, 2 (dx=5), 4. 
+ctr.nsteps    = 6000;     % Jim: 10000; Daniel: 3000 is ok (dt=2)
+ctr.OceanVisc = 7e9;       % CalvingMIP: 8e9 (original), 7e9. Default 1e8.
 ctr.timeslice = 1;
-ctr.snapshot  = 100; % Daniel:100. Jim_: nothing.
-KoriModel('ThuleIn','Thule_quarter_1km',ctr); 
-%KoriModel('Thule_quarter_a','Thule_quarter_b',ctr); 
+ctr.snapshot  = 10;        % Daniel:100. Jim_: nothing.
+
+out_3 = [path_out, 'Thule_quarter_Exp3_1'];
+KoriModel(out_2, out_3, ctr);
+%KoriModel('ThuleIn','Thule_quarter_2km',ctr); 
+
 
 % 2. Adjustment to imposition of Calving Front.
 ctr.WV       = 0;
-ctr.dt       = 0.2;  % dt=1
-ctr.calving  = 2;    % Direct, constant imposition of change in front positon.
-ctr.LSFReset = 30; % Jim: 50. Daniel: 30
-ctr.nsteps   = 1000; % Jim: 6000. Daniel: 4000
-%ctr.MMELT=50;
-%save('Thule_quarter_a','LSF','-append');
-%KoriModel('Thule_quarter_a','Thule_quarter_a2',ctr); 
+ctr.dt       = 1.0;     % 0.1 (dx=2 km), 0.2, 1.0 (dx=5)
+ctr.calving  = 2;       % Direct, constant imposition of change in front positon.
+ctr.LSFReset = 30;      % Jim: 50. Daniel: 30
+ctr.nsteps   = 4000;   % Jim: 6000. Daniel: 4000 (dt=1). 20000
+
+save(out_3,'LSF','-append');
+out_4 = [path_out, 'Thule_quarter_Exp3_2'];
+KoriModel(out_3, out_4, ctr); 
 
 % 3. Impose zero rate of calving position change WV.
 ctr.WV        = 0;
-ctr.nsteps    = 100; 
-ctr.timeslice = 1;
-ctr.snapshot  = 10; % Jim: 10; Daniel: 100
+ctr.nsteps    = 100;  % 100 (dt=1)
+
+out_5 = [path_out, 'Thule_quarter_Exp3_3'];
+KoriModel(out_4, out_5, ctr); 
 %ctr.LSFReset=40;
 %KoriModel('Thule-Exp3','Exp3_5_Hdaniel',ctr); 
 
