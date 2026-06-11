@@ -9,22 +9,26 @@ path_kori_subroutines=$path_kori/subroutines
 REMOTE_HOST=lyra
 
 # Experiment name.
-exp=sigma_oce010
+exp=revert_t_m25
   
 
 # LOCAL PATHS.
 path_exe=$path_kori/exe/thwaites
 #path_param=$path_exe/nic5/$exp          # Stochastic ensemble.
 
-path_param=$path_exe/$REMOTE_HOST/stoch/tau_To_140/$exp      # Stochastic.
+#path_param=$path_exe/$REMOTE_HOST/stoch/tau_To_140/$exp      # Stochastic.
 #path_param=$path_exe/$REMOTE_HOST/$exp      # Deter.
+path_param=$path_exe/$REMOTE_HOST/deter/revert_basal_friction/weertman/m_10/$exp       # Deter, revert, calving.
 
 
 # CLUSTER PATHS.
 # Lyra.
-path_cluster=/globalsc/ulb/glaciol/dmoreno/Kori-ULB/exe/stoch/tau_To_140
-path_exe_cluster=/globalsc/ulb/glaciol/dmoreno/Kori-ULB/exe/precompiled
+#path_cluster=/globalsc/ulb/glaciol/dmoreno/Kori-ULB/exe/stoch/tau_To_140
+#path_exe_cluster=/globalsc/ulb/glaciol/dmoreno/Kori-ULB/exe/precompiled
 #path_cluster=/globalscratch/ulb/glaciol/dmoreno/Kori-ULB/exe/deter/
+
+path_cluster=/globalsc/ulb/glaciol/dmoreno/Kori-ULB/exe/thwaites/deter/revert_basal_friction/weertman/m_10
+path_exe_cluster=/globalsc/ulb/glaciol/dmoreno/Kori-ULB/exe/thwaites/precompiled
 
 
 # Enter path with matlab scripts to be compiled.
@@ -60,7 +64,9 @@ echo "Compiling : $file"
 
 # RECOMPILE IN CASE OF CHANGES IN THE CODE!
 #mcc -m "$file" -a "$path_kori/KoriModel.m" -a "$path_kori_subroutines" -o "$exe_name"
-/usr/local/MATLAB/R2024b/bin/mcc -m "$file" -a "$path_kori/KoriModel.m" -a "$path_kori_subroutines" -o "$exe_name"
+#/usr/local/MATLAB/R2018b/bin/mcc -m "$file" -a "$path_kori/KoriModel.m" -a "$path_kori_subroutines" -o "$exe_name"
+
+ssh $REMOTE_HOST "mkdir -p $path_cluster"
 
 rsync -avz --progress "$exe_name" "$REMOTE_HOST:$path_exe_cluster/"
 
@@ -70,7 +76,7 @@ rsync -avz --progress "$path_param" "$REMOTE_HOST:$path_cluster/"
 
 
 echo "Copying executable to all directories in a single SSH connection"
-#ssh $REMOTE_HOST "mkdir -p $path_cluster"
+
 
 # Copy via ssh only once and then copy within the cluster.
 # File(s) to copy (you can use wildcards like *.sh)
@@ -80,11 +86,7 @@ ssh $REMOTE_HOST << EOF
 for dir in "$path_cluster/$exp"/*/; do
     if [ -d "\$dir" ]; then
         echo "Exp  : \$dir"
-
         cp "$path_exe_cluster/$exe_name" "\$dir"
-
-        #folder_name=\$(basename "\$dir")
-        #cp "$path_exe_cluster/$exe_name" "\$dir/${exe_name}_\$folder_name"
     fi
 done
 EOF

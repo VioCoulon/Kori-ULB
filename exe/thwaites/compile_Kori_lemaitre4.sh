@@ -9,7 +9,7 @@ path_kori_subroutines=$path_kori/subroutines
 REMOTE_HOST=lemaitre4
 
 # EXPERIMENT NAME.
-exp=revert_t_m05_gammas
+exp=revert_t_m25   # revert_t_m05_gammas
 #exp=deter
 #exp=sigma_oce400  
 
@@ -18,14 +18,15 @@ exp=revert_t_m05_gammas
 path_exe=$path_kori/exe/thwaites
 #path_param=$path_exe/nic5/$exp          # Stochastic ensemble.
 
-path_param=$path_exe/$REMOTE_HOST/deter/$exp      # Stochastic.
+#path_param=$path_exe/$REMOTE_HOST/deter/$exp                       # Stochastic.
 #path_param=$path_exe/$REMOTE_HOST/stoch/smb_0/tau_To_001/$exp      # Stochastic.
-#path_param=$path_exe/$REMOTE_HOST/$exp      # Deter.
-
+#path_param=$path_exe/$REMOTE_HOST/$exp                             # Deter.
+path_param=$path_exe/$REMOTE_HOST/deter/revert_basal_friction/coulomb/m_05/$exp       # Deter, revert, calving.
 
 # CLUSTER PATHS.
-# Lemaitre4.
-path_cluster=/globalscratch/ulb/glaciol/dmoreno/Kori-ULB/exe/thwaites/deter
+# Lemaitre4. revert_basal_friction/weertman/m_01/
+#path_cluster=/globalscratch/ulb/glaciol/dmoreno/Kori-ULB/exe/thwaites/deter
+path_cluster=/globalscratch/ulb/glaciol/dmoreno/Kori-ULB/exe/thwaites/deter/revert_basal_friction/coulomb/m_05
 path_exe_cluster=/globalscratch/ulb/glaciol/dmoreno/Kori-ULB/exe/thwaites/precompiled
 #path_cluster=/globalscratch/ulb/glaciol/dmoreno/Kori-ULB/exe/deter/
 
@@ -61,8 +62,10 @@ echo "Path_par  : $path_param"
 echo "Path_exe  : $path_exe"
 echo "Compiling : $file"
 
-# RECOMPILE IN CASE OF CHANGES IN THE CODE!
-mcc -m "$file" -a "$path_kori/KoriModel.m" -a "$path_kori_subroutines" -o "$exe_name"
+# RECOMPILE IN CASE OF CHANGES IN THE CODE. Versions: R2018b, R2024b, R2025b
+#mcc -m "$file" -a "$path_kori/KoriModel.m" -a "$path_kori_subroutines" -o "$exe_name"
+/usr/local/MATLAB/R2018b/bin/mcc -m "$file" -a "$path_kori/KoriModel.m" -a "$path_kori_subroutines" -o "$exe_name"
+
 rsync -avz --progress "$exe_name" "$REMOTE_HOST:$path_exe_cluster/"
 
 

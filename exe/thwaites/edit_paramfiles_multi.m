@@ -11,15 +11,16 @@ ctr.imax     = 472;
 ctr.jmax     = 400;
 ctr.delta    = 2.e3;
 ctr.Ao       = 5.0e-17; % 5.0e-17
-ctr.m        = 3;
+ctr.m        = 10;        % Friction law exponent.
+%ctr.u0       = 300.0;    % Regularization velocity.
 ctr.Asin     = zeros(ctr.imax,ctr.jmax)+3e-9;
 ctr.basin    = 1;    % Run the model for a specific basin.
 
 ctr.runmode    = 3;  % 1: graphics; 3: no graphics
 ctr.inverse    = 0;
 ctr.shelf      = 1;        % Ice shelves are considered.
-ctr.SSA        = 2;
-ctr.calving    = 4;          % 5, to apply LSF function.
+ctr.SSA        = 2;   
+ctr.calving    = 4;          % Original: 4, to apply LSF function.
 ctr.Tcalc      = 2;            % Calculate temperature field and thermomechanical coupling, , i.e. A = f (T)
 ctr.dt         = 0.05;        % 0.02, 0.1, 0.05, 0.025
 ctr.nsteps     = 50001;       % 15001, 20001, 50001, 100001
@@ -41,7 +42,7 @@ ctr.seed       = 100;
 
 % Define different values for ctr.gammaT.
 values_1 = [0.125, 0.25, 0.5, 1.0, 1.5, 2.0, 2.5, 3.0, 3.5, 4.0, 4.5, 5.0];
-%values_1 = [0.125, 1.0, 5.0];
+%values_1 = [1.0];
 
 %values_2 = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
 %values_2 = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29];
@@ -54,13 +55,15 @@ values_1 = [0.125, 0.25, 0.5, 1.0, 1.5, 2.0, 2.5, 3.0, 3.5, 4.0, 4.5, 5.0];
 values_2 = linspace(0, 1000, 101);
 values_2 = [values_2, 2500.0];
 
+%values_2 = 50.0;
+
 % Create empty dictionary to populate it with exp names.
 script_names = cell(length(values_1), length(values_2));
 
 % Experiment name.ll
 %exp_1 = 'sigma_oce010';
 %exp_1 = 'deter';
-exp_1 = 'revert_t_m05_gammas'; %'deter_revert_t500'
+exp_1 = 'revert_t_m25'; %'deter_revert_t500', 'revert_t_m25_gammas'
 
 % Variables.
 var_1   = 'meltfac';      % gamma
@@ -87,15 +90,22 @@ var_2   = 'tforcing';     % seed, snapshot
 %parent_path    = '/globalsc/ulb/glaciol/dmoreno/Kori-ULB/';
 %rel_in         = 'ice_data/eta1e7/ground_melt_0/';
 %rel_out        = 'output/thwaites/stoch/tau_To_140/';                             % Stoch.
+exe_path_local = '/home/daniel/models/Kori-ULB/exe/thwaites/lyra/deter/revert_basal_friction/weertman/m_10/';
+parent_path    = '/globalsc/ulb/glaciol/dmoreno/Kori-ULB/';
+rel_in         = 'ice_data/eta1e7/ground_melt_0/basal_friction/weertman/m_10/';
+rel_out        = 'output/thwaites/deter/revert_basal_friction/weertman/m_10/';
 
 
 % lemaitre4.
 % exe_path_local = '/home/daniel/models/Kori-ULB/exe/thwaites/lemaitre4/stoch/
-exe_path_local = '/home/daniel/models/Kori-ULB/exe/thwaites/lemaitre4/deter/';
-parent_path    = '/globalscratch/ulb/glaciol/dmoreno/Kori-ULB/';
-rel_in         = 'ice_data/eta1e7/ground_melt_0/';
+%exe_path_local = '/home/daniel/models/Kori-ULB/exe/thwaites/lemaitre4/deter/revert_basal_friction/coulomb/m_10/';
+%parent_path    = '/globalscratch/ulb/glaciol/dmoreno/Kori-ULB/';
+%rel_in         = 'ice_data/eta1e7/ground_melt_0/';
+%rel_in         = 'ice_data/eta1e7/ground_melt_0/basal_friction/coulomb/m_10/';
 %rel_out        = 'output/thwaites/stoch/smb_0/tau_To_140/'; 
-rel_out        = 'output/thwaites/deter/';                              % Stoch.
+%rel_out        = 'output/thwaites/deter/revert_calving/pollard_2012/';            % output/thwaites/deter/.
+%rel_out        = 'output/thwaites/deter/revert_basal_friction/coulomb/m_10/'; 
+
 
 %exe_path_local = '/home/daniel/models/Kori-ULB/exe/thwaites/lemaitre4/';
 %parent_path    = '/globalscratch/ulb/glaciol/dmoreno/Kori-ULB/';
@@ -111,7 +121,8 @@ rel_out        = 'output/thwaites/deter/';                              % Stoch.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-
+% Initial state.
+name_1 = 'INIT_SSA_3_m_10';    
 
 path_scripts  = [exe_path_local, exp_1, '/'];
 
@@ -245,7 +256,7 @@ for i = 1:length(values_1)
 
 
         % Input and output file names.
-        name_1 = 'INIT_SSA_3'; % ASEfor_m2_80, INIT_NON_3, INIT_NON_LONG_10K
+        %name_1 = 'INIT_SSA_3_m_01';              % INIT_SSA_3
         name_2 = [var_1, num_1, '_', var_2, num_2];
     
         path_in     = [parent_path, rel_in];
