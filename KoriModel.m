@@ -993,7 +993,7 @@ fprintf('CPU time: %.2f seconds\n', cputime-cpu);
 %------------------------------------
 % Save results
 %------------------------------------
-
+%{
 Mbend=Mb; % final values of Mb
 Tsend=Ts; % final values of Ts;
 Mb=Mb0; % reset output Mb to original value, since Mb=Mb-Melt-CMB
@@ -1066,13 +1066,15 @@ end
 
 Ts=Tsend;
 Mb=Mbend;
-
+%}
 ctr=orderfields(ctr); % put in alphabetical order
 outputname=[outfile,'_toto'];
 save(outputname);
 if nargout==1
     varargout{1}=flagHu;
 end
+
+
 
 %--------------------------
 % Plots
