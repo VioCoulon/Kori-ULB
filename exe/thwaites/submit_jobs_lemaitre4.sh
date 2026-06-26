@@ -9,8 +9,8 @@
 # EXPERIMENT.
 #exp=deter
 #exp=sigma_oce400
-#exp=revert_t_m05_gammas
-exp=DIVA
+exp=revert_t_m25     # revert_t_m20_gammas
+#exp=DIVA
 #exp=CaMIP_Exp3_CECI
 
 # PATHS.
@@ -19,16 +19,19 @@ exp=DIVA
 #path_out=/globalscratch/ulb/glaciol/dmoreno/Kori-ULB/output/thwaites/stoch/tau_To_10/$exp
 
 # Deter.
-path=/globalscratch/ulb/glaciol/dmoreno/Kori-ULB/exe/thwaites/deter/$exp
-path_out=/globalscratch/ulb/glaciol/dmoreno/Kori-ULB/output/thwaites/deter/$exp
+#path=/globalscratch/ulb/glaciol/dmoreno/Kori-ULB/exe/thwaites/deter/$exp
+#path_out=/globalscratch/ulb/glaciol/dmoreno/Kori-ULB/output/thwaites/deter/$exp
+
+path=/globalscratch/ulb/glaciol/dmoreno/Kori-ULB/exe/thwaites/deter/revert_basal_friction/coulomb/m_10/$exp
+path_out=/globalscratch/ulb/glaciol/dmoreno/Kori-ULB/output/thwaites/deter/revert_basal_friction/coulomb/m_10/$exp
 
 # Init.
 #path=/globalscratch/ulb/glaciol/dmoreno/Kori-ULB/exe/thwaites/init/$exp
 #path_out=/globalscratch/ulb/glaciol/dmoreno/Kori-ULB/ice_data/eta1e7/ground_melt_0/$exp
 
 # CalvingMIP.
-#path=/globalscratch/ulb/glaciol/dmoreno/Kori-ULB/exe/calvingMIP/Exp3/dx_1km
-#path_out=/globalscratch/ulb/glaciol/dmoreno/Kori-ULB/output/calvingMIP/Exp3/dx_1km/$exp
+#path=/globalscratch/ulb/glaciol/dmoreno/Kori-ULB/exe/calvingMIP/Exp3-4/dx_2km/OceanVisc_1e10
+#path_out=/globalscratch/ulb/glaciol/dmoreno/Kori-ULB/output/calvingMIP/Exp3-4/dx_2km/OceanVisc_1e10
 
 
     
@@ -51,6 +54,8 @@ if [ "$option" = "individual_file" ]; then
 
 echo "Working directory of the job : $path"
 echo "Submited job                 : $path/$exp"
+
+#mkdir -p "$path_out"
 
 sbatch --export=EXECUTABLE="$path/$exp" --chdir="$path" "$SBATCH_SCRIPT"
 ##########################################################################

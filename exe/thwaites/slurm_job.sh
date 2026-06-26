@@ -5,7 +5,7 @@
 #SBATCH -o kori.out
 #SBATCH -e kori.err
 #SBATCH --ntasks=1
-#SBATCH --mem-per-cpu=4000 # 2.5Gb, 3000
+#SBATCH --mem-per-cpu=5000 # 2.5Gb, 3000, 10000
 #SBATCH --partition=batch
 
 module --force purge
