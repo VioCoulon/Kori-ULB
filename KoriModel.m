@@ -315,6 +315,8 @@ else
 end
 %LSFo
 glMASK_old=zeros(ctr.imax,ctr.jmax);
+%dIVg_dt = 0.0;
+%collapse = 0
 %k=0;
 %err=0;
 %Hunf=H;
@@ -435,7 +437,6 @@ for cnt=cnt0:ctr.nsteps
 % Stochastic boundary conditions.
 % For now, applied to SMB and To (sub-shelf melt).
 %------------------------------------------------------
-    %stochastic = true;
 
     if ctr.stochastic == 1
         if cnt == 1
@@ -685,6 +686,28 @@ for cnt=cnt0:ctr.nsteps
         Melt=MeltInv;
     end
 
+
+
+    % Daniel: stop forcing within the safety band.
+    %if abs(dIVg_dt) > 2.0 || collapse == 1 % 0.8 running local.
+        %fprintf('\n Collapse = %12.2f \n ', collapse);
+    %    collapse = 1;
+    %    Melt = zeros(ctr.imax,ctr.jmax);
+    %end
+
+    if ctr.dt*cnt > ctr.tforcing  % 0.8 running local.
+        
+        fprintf('\n Collapse = ');
+        %Melt = zeros(ctr.imax,ctr.jmax) - 100.0;
+        Melt((glMASK==3)|(glMASK==4)|(glMASK==5)) = -5.0; % -50.0, -10.0.
+    end
+
+    %max(Melt, [], 'all')
+    %min(Melt, [], 'all')
+
+    %Melt = zeros(ctr.imax,ctr.jmax);
+
+
 %---------------------------------------------------------------
 % Calving and hydrofracturing (after Pollard et al., 2015)
 % Melting at vertical face of calving front
@@ -824,8 +847,17 @@ for cnt=cnt0:ctr.nsteps
         mbcomp(cnt,:)=MBcomponents(ctr,par,acc,Smelt,runoff,rain,Mb,Pr, ...
             H,Hn,Bmelt,Melt,CMB,FMB,MASK,bMASK,mbcomp(cnt,:),B,Bn,SLR);
     end
+    
     IVg(cnt)=sum(H(MASK==1))*ctr.delta^2;
     Ag(cnt)=sum(MASK(H>0)==1)*ctr.delta^2;
+
+    % Daniel: compute threshold.
+    %if cnt>1
+    %    dIVg_dt = 1e-12 * ( IVg(cnt) - IVg(cnt-1) ) / ctr.dt
+
+    %    fprintf('\n dIVg_dt = %12.2f \n ', dIVg_dt);
+    %end
+    
     if ctr.glMASKexist==1
         Af(cnt)=sum(MASK(H>par.SeaIceThickness)==0)*ctr.delta^2;
         IVf(cnt)=sum(H(MASK==0 & H>par.SeaIceThickness))*ctr.delta^2;

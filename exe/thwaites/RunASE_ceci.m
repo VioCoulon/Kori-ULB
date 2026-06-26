@@ -28,7 +28,11 @@ ctr.runmode  = 3;  % 1: graphics; 3: no graphics
 %KoriModelAll('ASE2km','INITA_NON',ctr);
 %KoriModel('ASE2km','INITA_NON',ctr);
 
-path = '/globalscratch/ulb/glaciol/dmoreno/Kori-ULB/ice_data/eta1e7/ground_melt_1/';
+% Lemaitre4.
+%path = '/globalscratch/ulb/glaciol/dmoreno/Kori-ULB/ice_data/eta1e7/ground_melt_0/';
+
+% Lyra.
+path = '/globalsc/ulb/glaciol/dmoreno/Kori-ULB/ice_data/eta1e7/ground_melt_0/';
 
 name_1 = 'ASE2km';
 name_2 = 'INIT_SIA';
@@ -106,7 +110,7 @@ output = strcat(path, name_2);
 ctr.inverse  = 0;
 %ctr.calving  = 2;          % ice shelves do not extend further than initially
 ctr.calving = 2;          % 5, to apply LSF function.
-ctr.dt       = 0.1;        % 0.02, 0.1, 0.05, 0.025
+ctr.dt       = 0.05;        % 0.02, 0.1, 0.05, 0.025
 ctr.nsteps   = 5001;       % 20001
 ctr.meltfunc = 3;          % PICO
 ctr.gammaT   = 1.0e-3;     % 2.5e4, 1.0e-4, 0.25e-4
@@ -114,7 +118,7 @@ ctr.meltfac  = 2;          % Factor multiplying sub-shelf melt.
 
 
 ctr.timeslice = 1;
-ctr.snapshot  = 50;
+ctr.snapshot  = 100; % 50
 
 % Local.
 %parent_path = '/home/daniel/models/Kori-ULB/output/Thwaites/';
@@ -128,7 +132,7 @@ ctr.snapshot  = 50;
 %input     = strcat(path_1, init_name);
 %output    = strcat(path_2, out_name);
 
-
+% Load corresponding inputs from param file.
 load('params.mat');
 
 KoriModel(input, output, ctr);
