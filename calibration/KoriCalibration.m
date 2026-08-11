@@ -15,7 +15,7 @@ resolution = 8;
 init_name  = ['Bedmachine',int2str(resolution),'km_v3_RACMO11km_Stal2021']; % ALREADY CROPPED!!!
 
 ctr.runmode     = 3;
-ctr.meltfunc    = 23; % melt scheme -- 3: PICO - 23: QUAD mean Ant slope (Burgard22) - 24: QUAD local slope (Burgard22)
+ctr.meltfunc    = 3; % melt scheme -- 3: PICO - 23: QUAD mean Ant slope (Burgard22) - 24: QUAD local slope (Burgard22)
 ctr.C           = 1e6;
 %gammaT          = 3e-5; % To adapt according to chosen melt scheme
 %mixedgamma      = 0; 
@@ -60,11 +60,11 @@ end
 if ctr.meltfunc == 3
     gammaT_0 = 1e-6;
     gammaT_f = 1e-4;
-    n_gammaT = 5;
+    n_gammaT = 7;
 
-    C_0 = 5e5;
-    C_f = 5e6;
-    n_C = 5;
+    C_0 = 1e5;
+    C_f = 7.5e6;
+    n_C = 7;
 
     values_1 = linspace(C_0, C_f, n_C);
     values_2 = linspace(gammaT_0, gammaT_f, n_gammaT);
@@ -85,7 +85,7 @@ end
 
 % OCEAN CLIM
 project = 'ISMIP7';
-ocean   = 'Mathiot';    % Dataset.
+ocean   = 'Naughten';    % Dataset.
 opt     = 'cold';        % cold/warm.
 
 if isequal(project,'ISMIP7')
@@ -99,8 +99,6 @@ if isequal(project,'ISMIP7')
         file_so = 'so_AIS_obs_ocean_climatology_zhou_annual_06_nov_v4_1972-2024.nc';
 
     elseif isequal(ocean,'Dutrieux2009')
-
-        % /home/daniel/models/Kori-ULB/ice_data/ismip7/ismip7-antarctic-ocean-forcing/parameterisations/ocean/ocean_observations_data
 
         path_to = [global_path,'/parameterisations/ocean/ocean_observations_data/'];
         path_so = [global_path,'/parameterisations/ocean/ocean_observations_data/'];
@@ -211,7 +209,7 @@ if isequal(project,'ISMIP7')
 % Options: pico, quad_local_mean_slope
 if ctr.meltfunc == 3
 
-    melt_param = 'pico';
+    melt_param = 'pico_large';
 
 elseif ctr.meltfunc == 23
     
@@ -222,7 +220,7 @@ end
 % Define paths and names.
 path     = '/home/daniel/models/Kori-ULB/output/calibration/';
 path_out = [path, melt_param, '/']; 
-file     = [path_out, 'MELT_', int2str(ctr.meltfunc), '_', int2str(resolution), 'km', '_', ocean, '_'];
+file     = [path_out, 'MELT_', int2str(ctr.meltfunc), '_', int2str(resolution), 'km', '_', ocean, '_', opt, '_'];
 
 mkdir(path_out)
 
