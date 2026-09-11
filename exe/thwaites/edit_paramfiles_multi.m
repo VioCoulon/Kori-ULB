@@ -12,7 +12,7 @@ ctr.jmax     = 400;
 ctr.delta    = 2.e3;
 ctr.Ao       = 5.0e-17; % 5.0e-17
 ctr.m        = 10;        % Friction law exponent.
-%ctr.u0       = 300.0;    % Regularization velocity.
+%ctr.u0       = 300.0;    % Regularization velocity (Coulomb law).
 ctr.Asin     = zeros(ctr.imax,ctr.jmax)+3e-9;
 ctr.basin    = 1;    % Run the model for a specific basin.
 
@@ -70,7 +70,7 @@ var_1   = 'meltfac';      % gamma
 var_2   = 'tforcing';     % seed, snapshot
 
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%25%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % FULL PATHS.
 
 % Nic5.
@@ -90,21 +90,21 @@ var_2   = 'tforcing';     % seed, snapshot
 %parent_path    = '/globalsc/ulb/glaciol/dmoreno/Kori-ULB/';
 %rel_in         = 'ice_data/eta1e7/ground_melt_0/';
 %rel_out        = 'output/thwaites/stoch/tau_To_140/';                             % Stoch.
-exe_path_local = '/home/daniel/models/Kori-ULB/exe/thwaites/lyra/deter/revert_basal_friction/weertman/m_10/';
-parent_path    = '/globalsc/ulb/glaciol/dmoreno/Kori-ULB/';
-rel_in         = 'ice_data/eta1e7/ground_melt_0/basal_friction/weertman/m_10/';
-rel_out        = 'output/thwaites/deter/revert_basal_friction/weertman/m_10/';
+%exe_path_local = '/home/daniel/models/Kori-ULB/exe/thwaites/lyra/deter/revert_basal_friction/weertman/m_10/';
+%parent_path    = '/globalsc/ulb/glaciol/dmoreno/Kori-ULB/';
+%rel_in         = 'ice_data/eta1e7/ground_melt_0/basal_friction/weertman/m_10/';
+%rel_out        = 'output/thwaites/deter/revert_basal_friction/weertman/m_10/';
 
 
 % lemaitre4.
 % exe_path_local = '/home/daniel/models/Kori-ULB/exe/thwaites/lemaitre4/stoch/
-%exe_path_local = '/home/daniel/models/Kori-ULB/exe/thwaites/lemaitre4/deter/revert_basal_friction/coulomb/m_10/';
-%parent_path    = '/globalscratch/ulb/glaciol/dmoreno/Kori-ULB/';
+exe_path_local = '/home/daniel/models/Kori-ULB/exe/thwaites/lemaitre4/deter/revert_basal_friction/weertman/m_10/';
+parent_path    = '/globalscratch/ulb/glaciol/dmoreno/Kori-ULB/';
 %rel_in         = 'ice_data/eta1e7/ground_melt_0/';
-%rel_in         = 'ice_data/eta1e7/ground_melt_0/basal_friction/coulomb/m_10/';
+rel_in         = 'ice_data/eta1e7/ground_melt_0/basal_friction/weertman/m_10/';
 %rel_out        = 'output/thwaites/stoch/smb_0/tau_To_140/'; 
 %rel_out        = 'output/thwaites/deter/revert_calving/pollard_2012/';            % output/thwaites/deter/.
-%rel_out        = 'output/thwaites/deter/revert_basal_friction/coulomb/m_10/'; 
+rel_out        = 'output/thwaites/deter/revert_basal_friction/weertman/m_10/'; 
 
 
 %exe_path_local = '/home/daniel/models/Kori-ULB/exe/thwaites/lemaitre4/';
