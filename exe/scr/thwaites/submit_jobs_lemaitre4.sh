@@ -8,15 +8,15 @@ module load MCR/R2018b
 
 # EXPERIMENT.
 #exp=deter
-exp=sigma_oce400
+exp=sigma_oce075
 
 # PATHS.
 # Stoch.
-#path=/globalscratch/ulb/glaciol/dmoreno/Kori-ULB/exe/stoch/tau_To_10/$exp
-#path_out=/globalscratch/ulb/glaciol/dmoreno/Kori-ULB/output/thwaites/stoch/tau_To_10/$exp
+path=/globalscratch/ulb/glaciol/dmoreno/Kori-ULB/exe/ensembles/thwaites/stoch/tau_To_001/$exp
+path_out=/globalscratch/ulb/glaciol/dmoreno/Kori-ULB/output/thwaites/stoch/tau_To_001/$exp
 
-path=/globalscratch/ulb/glaciol/dmoreno/Kori-ULB/exe/stoch/extra_runs/tau_To_70/$exp
-path_out=/globalscratch/ulb/glaciol/dmoreno/Kori-ULB/output/thwaites/stoch/extra_runs/tau_To_70/$exp
+#path=/globalscratch/ulb/glaciol/dmoreno/Kori-ULB/exe/stoch/extra_runs/tau_To_70/$exp
+#path_out=/globalscratch/ulb/glaciol/dmoreno/Kori-ULB/output/thwaites/stoch/extra_runs/tau_To_70/$exp
 
 # Deter.
 #path=/globalscratch/ulb/glaciol/dmoreno/Kori-ULB/exe/$exp
@@ -24,7 +24,7 @@ path_out=/globalscratch/ulb/glaciol/dmoreno/Kori-ULB/output/thwaites/stoch/extra
 
 
 # Slurm job script.
-SBATCH_SCRIPT="/globalscratch/ulb/glaciol/dmoreno/Kori-ULB/slurm_job.sh"
+SBATCH_SCRIPT="/globalscratch/ulb/glaciol/dmoreno/Kori-ULB/exe/scr/thwaites/slurm_job.sh"
 
 cd $path
 
