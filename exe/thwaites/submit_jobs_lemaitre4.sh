@@ -8,23 +8,46 @@ module load MCR/R2018b
 
 # EXPERIMENT.
 #exp=deter
-exp=sigma_oce400
+#exp=sigma_oce400
+#exp=revert_t_m25
+# dutrieux2009, dutrieux2012, mathiot_cold, naughten_cold, zhou.
+exp=zhou
 
 # PATHS.
 # Stoch.
 #path=/globalscratch/ulb/glaciol/dmoreno/Kori-ULB/exe/stoch/tau_To_10/$exp
 #path_out=/globalscratch/ulb/glaciol/dmoreno/Kori-ULB/output/thwaites/stoch/tau_To_10/$exp
 
-path=/globalscratch/ulb/glaciol/dmoreno/Kori-ULB/exe/stoch/extra_runs/tau_To_70/$exp
-path_out=/globalscratch/ulb/glaciol/dmoreno/Kori-ULB/output/thwaites/stoch/extra_runs/tau_To_70/$exp
+#path=/globalscratch/ulb/glaciol/dmoreno/Kori-ULB/exe/stoch/extra_runs/tau_To_70/$exp
+#path_out=/globalscratch/ulb/glaciol/dmoreno/Kori-ULB/output/thwaites/stoch/extra_runs/tau_To_70/$exp
 
 # Deter.
 #path=/globalscratch/ulb/glaciol/dmoreno/Kori-ULB/exe/$exp
 #path_out=/globalscratch/ulb/glaciol/dmoreno/Kori-ULB/output/thwaites/$exp
 
+# Reversibility tests.
+#path=/globalscratch/ulb/glaciol/dmoreno/Kori-ULB/exe/thwaites/deter/revert_basal_friction/weertman/m_10/$exp
+#path_out=/globalscratch/ulb/glaciol/dmoreno/Kori-ULB/output/thwaites/deter/revert_basal_friction/weertman/m_10/$exp
+
+# Calibration.
+meltname=quad_semi_local_local_slope
+p="95"
+
+# No dT corrections.
+#path=/globalscratch/ulb/glaciol/dmoreno/Kori-ULB/exe/ensembles/calibration/dT/$meltname/$exp
+#path_out=/globalscratch/ulb/glaciol/dmoreno/Kori-ULB/output/calibration/dT/$meltname/$exp
+
+# dT corrections.
+path=/globalscratch/ulb/glaciol/dmoreno/Kori-ULB/exe/ensembles/calibration/dT/$meltname/percentile_$p/$exp
+path_out=/globalscratch/ulb/glaciol/dmoreno/Kori-ULB/output/calibration/dT/$meltname/percentile_$p/$exp
+
 
 # Slurm job script.
-SBATCH_SCRIPT="/globalscratch/ulb/glaciol/dmoreno/Kori-ULB/slurm_job.sh"
+SBATCH_SCRIPT="/globalscratch/ulb/glaciol/dmoreno/Kori-ULB/exe/thwaites/slurm_job.sh"
+
+# Submitting options: individual_file, ensemble.
+option="ensemble"
+
 
 cd $path
 
@@ -32,7 +55,13 @@ cd $path
 ##########################################################################
 # OPTION 1.
 # Submit just one job.
-#srun ./RunASE_lemaitre4_stoch_gamma10e5_sigma_oce1_seed2 2>&1 > /dev/null
+if [ "$option" = "individual_file" ]; then
+
+file=KoriCalibration_CECI
+
+
+#srun ./KoriCalibration_CECI 2>&1 > /dev/null
+sbatch --export=EXECUTABLE="$path/$file" --chdir="$path" "$SBATCH_SCRIPT"
 ##########################################################################
 
 
@@ -40,6 +69,7 @@ cd $path
 ##########################################################################
 # OPTION 2.
 # Submit several jobs by looping through each file in the directory.
+elif [ "$option" = "ensemble" ]; then
 
 find . -type f -executable | while read -r exe; do
     # Extract the filename without the path
@@ -72,3 +102,6 @@ find . -type f -executable | while read -r exe; do
     #srun "$exe" "2>&1"
 done
 ##########################################################################
+
+
+fi
