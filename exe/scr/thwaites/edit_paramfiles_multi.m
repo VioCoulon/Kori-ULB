@@ -51,19 +51,20 @@ values_1 = [0.125, 0.25, 0.5, 1.0, 1.5, 2.0, 2.5, 3.0, 3.5, 4.0, 4.5, 5.0];
 % Time to stop forcing.
 %values_2 = [0.0, 10.0, 20.0, 30.0, 40.0, 50.0, 
 %            60.0, 70.0, 80.0, 90.0, 100.0, 150.0, 200.0, 250.0, 500.0, 2500.0];
-
 values_2 = linspace(0, 1000, 101);
 values_2 = [values_2, 2500.0];
 
-%values_2 = 50.0;
+% High resolution tests.
+%values_2 = linspace(0, 200, 201);
+
 
 % Create empty dictionary to populate it with exp names.
 script_names = cell(length(values_1), length(values_2));
 
-% Experiment name.ll
+% Experiment name.
 %exp_1 = 'sigma_oce010';
 %exp_1 = 'deter';
-exp_1 = 'revert_t_m25'; %'deter_revert_t500', 'revert_t_m25_gammas'
+exp_1 = 'revert_t_m25'; %'deter_revert_t25'. This "m" represents the imposed refreezing (not friction exp).
 
 % Variables.
 var_1   = 'meltfac';      % gamma
@@ -97,14 +98,17 @@ var_2   = 'tforcing';     % seed, snapshot
 
 
 % lemaitre4.
-% exe_path_local = '/home/daniel/models/Kori-ULB/exe/thwaites/lemaitre4/stoch/
+%exe_path_local = '/home/daniel/models/Kori-ULB/exe/thwaites/lemaitre4/deter/revert_calving/eigencalving/';
 exe_path_local = '/home/daniel/models/Kori-ULB/exe/thwaites/lemaitre4/deter/revert_basal_friction/weertman/m_10/';
 parent_path    = '/globalscratch/ulb/glaciol/dmoreno/Kori-ULB/';
 %rel_in         = 'ice_data/eta1e7/ground_melt_0/';
-rel_in         = 'ice_data/eta1e7/ground_melt_0/basal_friction/weertman/m_10/';
+rel_in         = 'ice_data/eta1e7/ground_melt_0/basal_friction/weertman/m_10/';    % Friction exps.
+
 %rel_out        = 'output/thwaites/stoch/smb_0/tau_To_140/'; 
 %rel_out        = 'output/thwaites/deter/revert_calving/pollard_2012/';            % output/thwaites/deter/.
-rel_out        = 'output/thwaites/deter/revert_basal_friction/weertman/m_10/'; 
+%rel_out        = 'output/thwaites/deter/revert_calving/eigencalving/';            % output/thwaites/deter/.
+rel_out        = 'output/thwaites/deter/revert_basal_friction/weertman/m_10/';
+%rel_out        = 'output/thwaites/deter/revert_basal_friction/weertman/HR/m_03/'; 
 
 
 %exe_path_local = '/home/daniel/models/Kori-ULB/exe/thwaites/lemaitre4/';
@@ -122,6 +126,7 @@ rel_out        = 'output/thwaites/deter/revert_basal_friction/weertman/m_10/';
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % Initial state.
+%name_1 = 'INIT_SSA_3'; 
 name_1 = 'INIT_SSA_3_m_10';    
 
 path_scripts  = [exe_path_local, exp_1, '/'];
@@ -166,6 +171,10 @@ for i = 1:length(values_1)
 
         if values_2(j)<1e2
             num_2 = sprintf('00%.0f', values_2(j));
+        end
+
+        if values_2(j)<1e1
+            num_2 = sprintf('000%.0f', values_2(j));
         end
 
         if values_2(j) == 0.0

@@ -108,7 +108,7 @@ output = strcat(path, name_2);
 ctr.inverse  = 0;
 %ctr.calving = 2;          % ice shelves do not extend further than initially
 ctr.SSA      = 2;
-ctr.m        = 5.0;
+ctr.m        = 5;
 ctr.calving  = 4;          % 5, to apply LSF function.
 ctr.dt       = 0.05;        % 0.02, 0.1, 0.05, 0.025
 ctr.nsteps   = 20001;       % 5001, 20001
@@ -136,12 +136,15 @@ ctr.runmode  = 1;
 %path_2      = [parent_path, 'Deterministic/eta1e7/ground_melt_1/calv2/deter_gamma1e-2/'];
 parent_path = '/home/daniel/models/Kori-ULB/output/Thwaites/';
 %path_1      = [parent_path, 'Initialization/eta1e7/ground_melt_0/']; % 'Initialization/eta1e7/ground_melt_0/'
-path_1      = [parent_path, 'Initialization/eta1e7/ground_melt_0/basal_friction/coulomb/m_05/']; % 'Initialization/eta1e7/ground_melt_0/'
+%path_1      = [parent_path, 'Initialization/eta1e7/ground_melt_0/basal_friction/coulomb/m_05/']; % 'Initialization/eta1e7/ground_melt_0/'
+
+%path_1      = [parent_path, 'ice_data/eta1e7/ground_melt_0/basal_friction/weertman/m_05/']; % 'Initialization/eta1e7/ground_melt_0/'
+path_1      = ['/home/daniel/models/Kori-ULB/ice_data/eta1e7/ground_melt_0/basal_friction/weertman/m_05/'];
 path_2      = [parent_path, 'Deterministic/test/'];
 
 
-init_name = 'INIT_SSA_3';             % INIT_SSA_3
-out_name  = 'deter_bassis_reg1';        % deter_gamma1e-2
+init_name = 'INIT_SSA_3_m_05';             % INIT_SSA_3, INIT_SSA_3_m_05
+out_name  = 'deter_bassis_reg1';           % deter_gamma1e-2
 path_in   = strcat(path_1, init_name);
 path_out  = strcat(path_2, out_name);
 

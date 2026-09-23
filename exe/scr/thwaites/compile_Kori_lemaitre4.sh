@@ -9,30 +9,34 @@ path_kori_subroutines=$path_kori/subroutines
 REMOTE_HOST=lemaitre4
 
 # EXPERIMENT NAME.
-exp=revert_t_m25   # revert_t_m05_gammas
+exp=revert_t_m25   # revert_t_m05, revert_t_m25
 #exp=deter
 #exp=sigma_oce400  
 
 
 # LOCAL PATHS.
 path_exe=$path_kori/exe/thwaites
-#path_param=$path_exe/nic5/$exp          # Stochastic ensemble.
+path_exe_scr=$path_kori/exe/scr/thwaites
 
 #path_param=$path_exe/$REMOTE_HOST/deter/$exp                       # Stochastic.
 #path_param=$path_exe/$REMOTE_HOST/stoch/smb_0/tau_To_001/$exp      # Stochastic.
 #path_param=$path_exe/$REMOTE_HOST/$exp                             # Deter.
 path_param=$path_exe/$REMOTE_HOST/deter/revert_basal_friction/weertman/m_10/$exp       # Deter, revert, calving.
+#path_param=$path_exe/$REMOTE_HOST/deter/revert_basal_friction/weertman/HR/m_03/$exp 
+#path_param=$path_exe/$REMOTE_HOST/deter/revert_calving/eigencalving/$exp
 
 # CLUSTER PATHS.
 # Lemaitre4. revert_basal_friction/weertman/m_01/
 #path_cluster=/globalscratch/ulb/glaciol/dmoreno/Kori-ULB/exe/thwaites/deter
 path_cluster=/globalscratch/ulb/glaciol/dmoreno/Kori-ULB/exe/thwaites/deter/revert_basal_friction/weertman/m_10
+#path_cluster=/globalscratch/ulb/glaciol/dmoreno/Kori-ULB/exe/thwaites/deter/revert_basal_friction/weertman/HR/m_03
+#path_cluster=/globalscratch/ulb/glaciol/dmoreno/Kori-ULB/exe/thwaites/deter/revert_calving/eigencalving
 path_exe_cluster=/globalscratch/ulb/glaciol/dmoreno/Kori-ULB/exe/thwaites/precompiled
 #path_cluster=/globalscratch/ulb/glaciol/dmoreno/Kori-ULB/exe/deter/
 
 
 # Enter path with matlab scripts to be compiled.
-cd $path_exe
+cd $path_exe_scr
 
 
 # OPTION 1.
@@ -58,9 +62,9 @@ exe_name=RunASE_ceci
 
 
 # Compile Kori only once.
-echo "Path_par  : $path_param"
-echo "Path_exe  : $path_exe"
-echo "Compiling : $file"
+echo "Path_par      : $path_param"
+echo "Path_exe_scr  : $path_exe_scr"
+echo "Compiling     : $file"
 
 # RECOMPILE IN CASE OF CHANGES IN THE CODE. Versions: R2018b, R2024b, R2025b
 #mcc -m "$file" -a "$path_kori/KoriModel.m" -a "$path_kori_subroutines" -o "$exe_name"
