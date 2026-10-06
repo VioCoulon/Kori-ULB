@@ -21,16 +21,16 @@ path_exe_scr=$path_kori/exe/scr/thwaites
 #path_param=$path_exe/$REMOTE_HOST/deter/$exp                       # Stochastic.
 #path_param=$path_exe/$REMOTE_HOST/stoch/smb_0/tau_To_001/$exp      # Stochastic.
 #path_param=$path_exe/$REMOTE_HOST/$exp                             # Deter.
-path_param=$path_exe/$REMOTE_HOST/deter/revert_basal_friction/weertman/m_10/$exp       # Deter, revert, calving.
+#path_param=$path_exe/$REMOTE_HOST/deter/revert_basal_friction/weertman/m_10/$exp       # Deter, revert, calving.
 #path_param=$path_exe/$REMOTE_HOST/deter/revert_basal_friction/weertman/HR/m_03/$exp 
-#path_param=$path_exe/$REMOTE_HOST/deter/revert_calving/eigencalving/$exp
+path_param=$path_exe/$REMOTE_HOST/deter/revert_calving/eigencalving/$exp
 
 # CLUSTER PATHS.
 # Lemaitre4. revert_basal_friction/weertman/m_01/
 #path_cluster=/globalscratch/ulb/glaciol/dmoreno/Kori-ULB/exe/thwaites/deter
-path_cluster=/globalscratch/ulb/glaciol/dmoreno/Kori-ULB/exe/thwaites/deter/revert_basal_friction/weertman/m_10
+#path_cluster=/globalscratch/ulb/glaciol/dmoreno/Kori-ULB/exe/thwaites/deter/revert_basal_friction/weertman/m_10
 #path_cluster=/globalscratch/ulb/glaciol/dmoreno/Kori-ULB/exe/thwaites/deter/revert_basal_friction/weertman/HR/m_03
-#path_cluster=/globalscratch/ulb/glaciol/dmoreno/Kori-ULB/exe/thwaites/deter/revert_calving/eigencalving
+path_cluster=/globalscratch/ulb/glaciol/dmoreno/Kori-ULB/exe/thwaites/deter/revert_calving/eigencalving
 path_exe_cluster=/globalscratch/ulb/glaciol/dmoreno/Kori-ULB/exe/thwaites/precompiled
 #path_cluster=/globalscratch/ulb/glaciol/dmoreno/Kori-ULB/exe/deter/
 
