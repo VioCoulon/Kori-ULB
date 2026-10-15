@@ -5,6 +5,10 @@
 
 function BasicTests(n)
 
+
+addpath /home/daniel/models/Kori-ULB/subroutines/;
+addpath /home/daniel/models/Kori-ULB/;
+
 %clear;
 %close all;
 %     close all;

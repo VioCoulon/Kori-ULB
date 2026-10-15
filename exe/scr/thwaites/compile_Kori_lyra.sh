@@ -14,11 +14,13 @@ exp=revert_t_m25
 
 # LOCAL PATHS.
 path_exe=$path_kori/exe/thwaites
-#path_param=$path_exe/nic5/$exp          # Stochastic ensemble.
+path_exe_scr=$path_kori/exe/scr/thwaites
+
 
 #path_param=$path_exe/$REMOTE_HOST/stoch/tau_To_140/$exp      # Stochastic.
 #path_param=$path_exe/$REMOTE_HOST/$exp      # Deter.
-path_param=$path_exe/$REMOTE_HOST/deter/revert_basal_friction/weertman/m_10/$exp       # Deter, revert, calving.
+#path_param=$path_exe/$REMOTE_HOST/deter/revert_basal_friction/weertman/m_10/$exp       # Deter, revert, calving.
+path_param=$path_exe/$REMOTE_HOST/deter/revert_basal_friction/coulomb/u0/u0_600/m_03/$exp 
 
 
 # CLUSTER PATHS.
@@ -27,12 +29,14 @@ path_param=$path_exe/$REMOTE_HOST/deter/revert_basal_friction/weertman/m_10/$exp
 #path_exe_cluster=/globalsc/ulb/glaciol/dmoreno/Kori-ULB/exe/precompiled
 #path_cluster=/globalscratch/ulb/glaciol/dmoreno/Kori-ULB/exe/deter/
 
-path_cluster=/globalsc/ulb/glaciol/dmoreno/Kori-ULB/exe/thwaites/deter/revert_basal_friction/weertman/m_10
+#path_cluster=/globalsc/ulb/glaciol/dmoreno/Kori-ULB/exe/thwaites/deter/revert_basal_friction/weertman/m_10
+#path_exe_cluster=/globalsc/ulb/glaciol/dmoreno/Kori-ULB/exe/thwaites/precompiled
+
+path_cluster=/globalsc/ulb/glaciol/dmoreno/Kori-ULB/exe/thwaites/deter/revert_basal_friction/coulomb/u0/u0_600/m_03
 path_exe_cluster=/globalsc/ulb/glaciol/dmoreno/Kori-ULB/exe/thwaites/precompiled
 
-
 # Enter path with matlab scripts to be compiled.
-cd $path_exe
+cd $path_exe_scr
 
 
 # OPTION 1.
@@ -58,21 +62,19 @@ exe_name=RunASE_ceci
 
 
 # Compile Kori only once.
-echo "Path_par  : $path_param"
-echo "Path_exe  : $path_exe"
-echo "Compiling : $file"
+echo "Path_par     : $path_param"
+echo "Path_exe_scr : $path_exe_scr"
+echo "Compiling    : $file"
 
 # RECOMPILE IN CASE OF CHANGES IN THE CODE!
 #mcc -m "$file" -a "$path_kori/KoriModel.m" -a "$path_kori_subroutines" -o "$exe_name"
-#/usr/local/MATLAB/R2018b/bin/mcc -m "$file" -a "$path_kori/KoriModel.m" -a "$path_kori_subroutines" -o "$exe_name"
-
-ssh $REMOTE_HOST "mkdir -p $path_cluster"
+/usr/local/MATLAB/R2018b/bin/mcc -m "$file" -a "$path_kori/KoriModel.m" -a "$path_kori_subroutines" -o "$exe_name"
 
 rsync -avz --progress "$exe_name" "$REMOTE_HOST:$path_exe_cluster/"
 
 # Copy folder with param files.
+ssh $REMOTE_HOST "mkdir -p $path_cluster"
 rsync -avz --progress "$path_param" "$REMOTE_HOST:$path_cluster/"
-
 
 
 echo "Copying executable to all directories in a single SSH connection"

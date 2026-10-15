@@ -1,4 +1,4 @@
-function convPowerLaw(filePathIn, filePathOut, mIn, mOut)
+function convPowerLaw(filePathIn, filePathOut, mIn, mOut, u0)
 
 %% Path
 %if(isInFolder('init'))
@@ -51,7 +51,7 @@ u   = data_toto.u;
 As  = data_toto.As;
 
 % Define u0 in Coulomb law if starting from Weertman.
-u0  = 300.0;
+%u0  = 300.0;
 
 
 As0 = As;

@@ -26,7 +26,7 @@ ctr.Tinit    = 1;    % Initialization of temperature field from semi-analytical 
 ctr.Tcalc    = 2;    % Calculate temperature field and thermomechanical coupling, , i.e. A = f (T)
 ctr.basin    = 1;    % Run the model for a specific basin.
 ctr.inverse  = 1;  % optimization of basal sliding coefficients As for the grounded ice sheet with fixed grounding line position.
-ctr.runmode  = 3;  % 1: graphics; 3: no graphics
+ctr.runmode  = 1;  % 1: graphics; 3: no graphics
 %KoriModelAll('ASE2km','INITA_NON',ctr);
 %KoriModel('ASE2km','INITA_NON',ctr);
 
@@ -108,17 +108,18 @@ output = strcat(path, name_2);
 ctr.inverse  = 0;
 %ctr.calving = 2;          % ice shelves do not extend further than initially
 ctr.SSA      = 2;
-ctr.m        = 5;
+ctr.m        = 3;
+ctr.u0       = 300.0;
 ctr.calving  = 4;          % 5, to apply LSF function.
-ctr.dt       = 0.05;        % 0.02, 0.1, 0.05, 0.025
-ctr.nsteps   = 20001;       % 5001, 20001
+ctr.dt       = 0.1;        % 0.02, 0.1, 0.05.
+ctr.nsteps   = 5001;       % 5001, 20001
 ctr.meltfunc = 3;          % PICO
 ctr.gammaT   = 2.0e-5;     % 2.0e4, 1.0e-4, 0.25e-4
 ctr.meltfac  = 5;          % Factor multiplying sub-shelf melt.
 
 
-ctr.timeslice = 1;
-ctr.snapshot  = 50;
+%ctr.timeslice = 0;
+%ctr.snapshot  = 100;
 
 ctr.tforcing = 20.0
 
@@ -139,12 +140,12 @@ parent_path = '/home/daniel/models/Kori-ULB/output/Thwaites/';
 %path_1      = [parent_path, 'Initialization/eta1e7/ground_melt_0/basal_friction/coulomb/m_05/']; % 'Initialization/eta1e7/ground_melt_0/'
 
 %path_1      = [parent_path, 'ice_data/eta1e7/ground_melt_0/basal_friction/weertman/m_05/']; % 'Initialization/eta1e7/ground_melt_0/'
-path_1      = ['/home/daniel/models/Kori-ULB/ice_data/eta1e7/ground_melt_0/basal_friction/weertman/m_05/'];
+path_1      = ['/home/daniel/models/Kori-ULB/ice_data/eta1e7/ground_melt_0/basal_friction/coulomb/m_03/'];    % basal_friction/weertman/m_03/
 path_2      = [parent_path, 'Deterministic/test/'];
 
 
-init_name = 'INIT_SSA_3_m_05';             % INIT_SSA_3, INIT_SSA_3_m_05
-out_name  = 'deter_bassis_reg1';           % deter_gamma1e-2
+init_name = 'INIT_SSA_3_m_03';                  % INIT_SSA_3, INIT_SSA_3_m_05
+out_name  = 'deter_coulomb_u0_150';           % deter_gamma1e-2
 path_in   = strcat(path_1, init_name);
 path_out  = strcat(path_2, out_name);
 

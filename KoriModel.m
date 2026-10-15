@@ -927,7 +927,9 @@ for cnt=cnt0:ctr.nsteps
 %------------------------------------
 
     if ctr.runmode<2 && rem(cnt-1,plotst)==0
+        %fprintf('Plotting at cnt = %d\n',cnt);
         PlotMainFigure(ctr,par,x,y,sn,S0,H,u,B,MASK,glMASK,LSF);
+        %drawnow;
     end
 
     %fprintf('\n err = %2.4f \n ', err);

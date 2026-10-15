@@ -12,7 +12,7 @@ ctr.jmax     = 400;
 ctr.delta    = 2.e3;
 ctr.Ao       = 5.0e-17; % 5.0e-17
 ctr.m        = 3;        % Friction law exponent.
-%ctr.u0       = 300.0;    % Regularization velocity (Coulomb law).
+ctr.u0       = 600.0;    % Regularization velocity (Coulomb law). 300.0 default.
 ctr.Asin     = zeros(ctr.imax,ctr.jmax)+3e-9;
 ctr.basin    = 1;    % Run the model for a specific basin.
 
@@ -20,7 +20,7 @@ ctr.runmode    = 3;  % 1: graphics; 3: no graphics
 ctr.inverse    = 0;
 ctr.shelf      = 1;        % Ice shelves are considered.
 ctr.SSA        = 2;   
-ctr.calving    = 5;          % Original: 4, to apply LSF function. 5: eigencalving.
+ctr.calving    = 4;          % Original: 4, to apply LSF function. 5: eigencalving.
 ctr.Tcalc      = 2;            % Calculate temperature field and thermomechanical coupling, , i.e. A = f (T)
 ctr.dt         = 0.05;        % 0.02, 0.1, 0.05, 0.025
 ctr.nsteps     = 50001;       % 15001, 20001, 50001, 100001
@@ -73,43 +73,55 @@ var_2   = 'tforcing';     % seed, snapshot
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % FULL PATHS.
+cluster = 'lemaitre4';
+
 
 % Nic5.
-%exe_path_local = '/home/daniel/models/Kori-ULB/exe/thwaites/nic5/stoch/tau_To_70/';
-%parent_path    = '/scratch/ulb/glaciol/dmoreno/Kori-ULB/';
-%rel_in         = 'ice_data/eta1e7/ground_melt_0/';
-%rel_out        = 'output/thwaites/stoch/tau_To_70/';                             % Stoch.
+if strcmp(cluster, 'nic5')
+    exe_path_local = '/home/daniel/models/Kori-ULB/exe/thwaites/nic5/stoch/tau_To_70/';
+    parent_path    = '/scratch/ulb/glaciol/dmoreno/Kori-ULB/';
+    rel_in         = 'ice_data/eta1e7/ground_melt_0/';
+    rel_out        = 'output/thwaites/stoch/tau_To_70/';                             % Stoch.
 
-%exe_path_local = '/home/daniel/models/Kori-ULB/exe/thwaites/nic5/';
-%parent_path    = '/scratch/ulb/glaciol/dmoreno/Kori-ULB/';
-%rel_in         = 'ice_data/eta1e7/ground_melt_0/';
-%rel_out        = 'output/thwaites/';  
+    %exe_path_local = '/home/daniel/models/Kori-ULB/exe/thwaites/nic5/';
+    %parent_path    = '/scratch/ulb/glaciol/dmoreno/Kori-ULB/';
+    %rel_in         = 'ice_data/eta1e7/ground_melt_0/';
+    %rel_out        = 'output/thwaites/';  
 
 
 % Lyra.
-%exe_path_local = '/home/daniel/models/Kori-ULB/exe/thwaites/lyra/stoch/tau_To_140/';
-%parent_path    = '/globalsc/ulb/glaciol/dmoreno/Kori-ULB/';
-%rel_in         = 'ice_data/eta1e7/ground_melt_0/';
-%rel_out        = 'output/thwaites/stoch/tau_To_140/';                             % Stoch.
-%exe_path_local = '/home/daniel/models/Kori-ULB/exe/thwaites/lyra/deter/revert_basal_friction/weertman/m_10/';
-%parent_path    = '/globalsc/ulb/glaciol/dmoreno/Kori-ULB/';
-%rel_in         = 'ice_data/eta1e7/ground_melt_0/basal_friction/weertman/m_10/';
-%rel_out        = 'output/thwaites/deter/revert_basal_friction/weertman/m_10/';
+elseif strcmp(cluster, 'lyra')
+    
+    exe_path_local  = '/home/daniel/models/Kori-ULB/exe/thwaites/lyra/deter/revert_basal_friction/coulomb/u0/u0_600/m_03/';
+    parent_path     = '/globalsc/ulb/glaciol/dmoreno/Kori-ULB/';
+    %rel_in         = 'ice_data/eta1e7/ground_melt_0/';
+    rel_in          = 'ice_data/eta1e7/ground_melt_0/basal_friction/coulomb/u0/u0_600/m_03/';    % Friction exps.
+    %exe_path_local = '/home/daniel/models/Kori-ULB/exe/thwaites/lyra/stoch/tau_To_140/';
+    %parent_path    = '/globalsc/ulb/glaciol/dmoreno/Kori-ULB/';
+    %rel_in         = 'ice_data/eta1e7/ground_melt_0/';
+    %rel_out        = 'output/thwaites/stoch/tau_To_140/';                             % Stoch.
+    %exe_path_local = '/home/daniel/models/Kori-ULB/exe/thwaites/lyra/deter/revert_basal_friction/weertman/m_10/';
+    %parent_path    = '/globalsc/ulb/glaciol/dmoreno/Kori-ULB/';
+    %rel_in         = 'ice_data/eta1e7/ground_melt_0/basal_friction/weertman/m_10/';
+    rel_out         = 'output/thwaites/deter/revert_basal_friction/coulomb/u0/u0_600/m_03/';
 
 
-% lemaitre4.
-exe_path_local = '/home/daniel/models/Kori-ULB/exe/thwaites/lemaitre4/deter/revert_calving/eigencalving/';
-%exe_path_local = '/home/daniel/models/Kori-ULB/exe/thwaites/lemaitre4/deter/revert_basal_friction/coulomb/m_03/u0/';
-parent_path    = '/globalscratch/ulb/glaciol/dmoreno/Kori-ULB/';
-rel_in         = 'ice_data/eta1e7/ground_melt_0/';
-%rel_in         = 'ice_data/eta1e7/ground_melt_0/basal_friction/coulomb/m_03/';    % Friction exps.
+% Lemaitre4.
+elseif strcmp(cluster, 'lemaitre4')
+    
+    %exe_path_local = '/home/daniel/models/Kori-ULB/exe/thwaites/lemaitre4/deter/revert_calving/eigencalving/';
+    exe_path_local = '/home/daniel/models/Kori-ULB/exe/thwaites/lemaitre4/deter/revert_basal_friction/coulomb/u0/u0_600/m_03/';
+    parent_path    = '/globalscratch/ulb/glaciol/dmoreno/Kori-ULB/';
+    %rel_in         = 'ice_data/eta1e7/ground_melt_0/';
+    rel_in         = 'ice_data/eta1e7/ground_melt_0/basal_friction/coulomb/u0/u0_600/m_03/';    % Friction exps.
 
-%rel_out        = 'output/thwaites/stoch/smb_0/tau_To_140/'; 
-%rel_out        = 'output/thwaites/deter/revert_calving/pollard_2012/';            % output/thwaites/deter/.
-rel_out        = 'output/thwaites/deter/revert_calving/eigencalving/';            % output/thwaites/deter/.
-%rel_out        = 'output/thwaites/deter/revert_basal_friction/coulomb/m_03/';
-%rel_out        = 'output/thwaites/deter/revert_basal_friction/weertman/HR/m_03/'; 
+    %rel_out        = 'output/thwaites/stoch/smb_0/tau_To_140/'; 
+    %rel_out        = 'output/thwaites/deter/revert_calving/pollard_2012/';            % output/thwaites/deter/.
+    %rel_out        = 'output/thwaites/deter/revert_calving/eigencalving/';            % output/thwaites/deter/.
+    rel_out        = 'output/thwaites/deter/revert_basal_friction/coulomb/u0/u0_600/m_03/';
+    %rel_out        = 'output/thwaites/deter/revert_basal_friction/weertman/HR/m_03/'; 
 
+end
 
 %exe_path_local = '/home/daniel/models/Kori-ULB/exe/thwaites/lemaitre4/';
 %parent_path    = '/globalscratch/ulb/glaciol/dmoreno/Kori-ULB/';
@@ -126,8 +138,8 @@ rel_out        = 'output/thwaites/deter/revert_calving/eigencalving/';          
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % Initial state.
-name_1 = 'INIT_SSA_3'; 
-%name_1 = 'INIT_SSA_3_m_10';    
+%name_1 = 'INIT_SSA_3'; 
+name_1 = 'INIT_SSA_3_m_03_u0_600';    % INIT_SSA_3_m_10
 
 path_scripts  = [exe_path_local, exp_1, '/'];
 
