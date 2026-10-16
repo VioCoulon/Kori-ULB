@@ -40,7 +40,7 @@ function [Pr,Evp,runoff]=MbFunc(ctr,par,Prf,Evpf,runoff,runofff,Tsf,sn,S0,X,Y,Lj
             Evp=Evpf; % Evp not corrected for elevation change
         case 3
             % EISMINT fixed margin with forcing
-            Pr=Prf+0.02*DeltaT;
+            Pr=Prf+0.02*DeltaT;   % 0.02
             Evp=Evpf;
             runoff=runofff;
         case {4,5}
